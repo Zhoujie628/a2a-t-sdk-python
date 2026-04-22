@@ -21,7 +21,7 @@ from a2a_t.common.prompt_resources import PromptResourceLoader, SlotSchemaLoader
 from a2a_t.prompt.validation import GuardrailResult, SlotValidator
 from a2a_t.server.a2at_server import A2ATServer
 from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator import PromptComplianceOrchestrator
-from tests.test_support import ManagedTempDirTestCase
+from tests.test_support import ManagedTempDirTestCase, TEST_ENV_PATH
 
 
 class FakeSequencedLLMClient:
@@ -101,6 +101,7 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
             validator=SlotValidator(),
         )
         with (
+            patch("a2a_t.server.a2at_server._default_env_path", return_value=TEST_ENV_PATH),
             patch("a2a_t.server.a2at_server.PromptComplianceOrchestratorBuilder", return_value=FakePromptComplianceBuilder(service)),
             patch("a2a_t.server.a2at_server.ServerNegotiationOrchestratorBuilder") as negotiation_builder_cls,
             patch("a2a_t.server.a2at_server.LLMClient", return_value=object()),

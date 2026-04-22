@@ -16,6 +16,7 @@ if str(SRC_ROOT) not in sys.path:
 from a2a_t.client.prompt_generation.models import PromptGenerationResult, ValidationResult
 from a2a_t.negotiation.common.enums import NegotiationStatus, NegotiationType
 from a2a_t.negotiation.common.models import ContinueNegotiationInput, NegotiationContext, StartNegotiationInput
+from tests.test_support import TEST_ENV_PATH
 
 
 class FakePromptGenerationOrchestrator:
@@ -96,6 +97,7 @@ class A2ATClientTest(unittest.TestCase):
         )
 
         with (
+            patch("a2a_t.client.a2at_client._default_env_path", return_value=TEST_ENV_PATH),
             patch("a2a_t.client.a2at_client.PromptGenerationOrchestratorBuilder", return_value=prompt_builder),
             patch("a2a_t.client.a2at_client.ClientNegotiationOrchestratorBuilder") as negotiation_builder_cls,
             patch("a2a_t.client.a2at_client.LLMClient", return_value=object()),
