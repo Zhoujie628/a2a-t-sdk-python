@@ -13,8 +13,7 @@ if str(SRC_ROOT) not in sys.path:
 
 
 class A2ATTaskPromptRendererTest(unittest.TestCase):
-    def test_shared_task_prompt_renderer_builds_markdown_prompt_with_front_matter(self) -> None:
-        from a2a_t.prompt.common.task_prompt_format import TaskPromptMetadata, format_task_prompt
+    def test_shared_task_prompt_renderer_builds_plain_prompt_body(self) -> None:
         from a2a_t.prompt.task_rendering import TaskPromptRenderer
 
         renderer = TaskPromptRenderer()
@@ -27,18 +26,10 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
             description="Used for energy saving analysis.",
         )
 
-        self.assertEqual(
-            prompt_text,
-            format_task_prompt(
-                body="Site: Site A\nNotes: ",
-                metadata=TaskPromptMetadata(
-                    scenario_code="energy_saving",
-                    language="en-US",
-                    version="0.0.1",
-                    description="Used for energy saving analysis.",
-                ),
-            ),
-        )
+        self.assertEqual(prompt_text, "Site: Site A\nNotes: ")
+        self.assertNotIn("scenario_code:", prompt_text)
+        self.assertNotIn("language:", prompt_text)
+        self.assertNotIn("---", prompt_text)
 
     def test_render_raises_when_template_references_unknown_slot(self) -> None:
         from a2a_t.prompt.task_rendering import TaskPromptRenderError
@@ -55,6 +46,23 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
                 version="0.0.1",
                 description="Used for energy saving analysis.",
             )
+
+    def test_render_raises_when_template_is_invalid(self) -> None:
+        from a2a_t.prompt.task_rendering import TaskPromptRenderError
+        from a2a_t.prompt.task_rendering import TaskPromptRenderer
+
+        renderer = TaskPromptRenderer()
+
+        with self.assertRaises(TaskPromptRenderError):
+            renderer.render(
+                template_text="Site: {site",
+                slots={"site": "Site A"},
+                scenario_code="energy_saving",
+                language="en-US",
+                version="0.0.1",
+                description="Used for energy saving analysis.",
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,7 +13,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 
-from a2a_t.client.prompt_generation.models import PromptGenerationResult, ValidationResult
+from a2a_t.client.prompt_generation.models import PromptGenerationResult
 from a2a_t.negotiation.common.enums import NegotiationStatus, NegotiationType
 from a2a_t.negotiation.common.models import ContinueNegotiationInput, NegotiationContext, StartNegotiationInput
 from tests.test_support import TEST_ENV_PATH
@@ -65,11 +65,6 @@ class A2ATClientTest(unittest.TestCase):
         prompt_result = PromptGenerationResult(
             success=True,
             prompt_text="prompt",
-            scenario_code=None,
-            language="en-US",
-            input_kind="natural_language",
-            slots={},
-            validation=ValidationResult(passed=True, slot_errors=[]),
             failure=None,
         )
         prompt_orchestrator = FakePromptGenerationOrchestrator(prompt_result)
@@ -105,7 +100,12 @@ class A2ATClientTest(unittest.TestCase):
             negotiation_builder_cls.return_value.build.return_value = negotiation
             client = A2ATClient()
 
-            self.assertIs(client.generate_task_prompt("Analyze Site A."), prompt_result)
+            result = client.generate_task_prompt("Analyze Site A.")
+
+            self.assertIs(result, prompt_result)
+            self.assertFalse(hasattr(result, "scenario_code"))
+            self.assertFalse(hasattr(result, "validation"))
+            self.assertFalse(hasattr(result, "slots"))
             self.assertEqual(client.start_negotiation(start_input), {"started": True})
             self.assertEqual(
                 client.receive_negotiation(

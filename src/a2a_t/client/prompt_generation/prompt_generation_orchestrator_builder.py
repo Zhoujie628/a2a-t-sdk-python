@@ -48,7 +48,6 @@ class PromptGenerationOrchestratorBuilder:
             slot_schema_loader=components.slot_schema_loader,
             scenario_recognizer=scenario_recognizer,
             slot_extractor=slot_extractor,
-            slot_validator=components.slot_validator,
             resource_registry=components.resource_registry,
             renderer=self._renderer_cls(),
             logger=logger,

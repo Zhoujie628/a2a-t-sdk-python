@@ -17,7 +17,6 @@ from a2a_t.llm.base import LLMResponse
 from a2a_t.config.models import PromptRuntimeConfig
 from a2a_t.prompt.analysis import ScenarioRecognizer, SlotExtractor
 from a2a_t.common.prompt_resources import PromptResourceLoader, ScenarioLoader, SlotSchemaLoader, TemplateLoader
-from a2a_t.prompt.validation import SlotValidator
 from tests.test_support import ManagedTempDirTestCase
 
 
@@ -120,14 +119,13 @@ class PromptGenerationOrchestratorFallbackTest(ManagedTempDirTestCase):
             slot_schema_loader=SlotSchemaLoader(root_dir=self.root),
             scenario_recognizer=ScenarioRecognizer(llm_client=llm_client),
             slot_extractor=SlotExtractor(llm_client=llm_client),
-            slot_validator=SlotValidator(),
         )
 
         result = orchestrator.generate("Analyze Site A.")
 
         self.assertTrue(result.success)
-        self.assertEqual(result.language, "en-US")
-        self.assertIn("language: en-US", result.prompt_text)
+        self.assertEqual(result.prompt_text, "Site: Site A\nNotes: ")
+        self.assertIsNone(result.failure)
 
     def test_generate_returns_template_not_found_when_template_is_missing_after_fallback(self) -> None:
         self._write_resource_file(
@@ -163,7 +161,6 @@ class PromptGenerationOrchestratorFallbackTest(ManagedTempDirTestCase):
             slot_schema_loader=SlotSchemaLoader(root_dir=self.root),
             scenario_recognizer=ScenarioRecognizer(llm_client=llm_client),
             slot_extractor=SlotExtractor(llm_client=llm_client),
-            slot_validator=SlotValidator(),
         )
 
         result = orchestrator.generate("Analyze Site A.")
@@ -175,4 +172,3 @@ class PromptGenerationOrchestratorFallbackTest(ManagedTempDirTestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

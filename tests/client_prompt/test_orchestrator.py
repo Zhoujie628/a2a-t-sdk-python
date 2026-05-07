@@ -15,23 +15,21 @@ if str(SRC_ROOT) not in sys.path:
 from a2a_t.prompt.analysis.models import ScenarioRecognitionResult, SlotExtractionResult
 from a2a_t.config.models import PromptRuntimeConfig
 from a2a_t.prompt.analysis.errors import PromptAnalysisError
-from a2a_t.prompt.validation.constants import MISSING_INPUT
 from a2a_t.prompt.common.errors import PromptSourceError
 from a2a_t.client.prompt_generation.generation_constants import (
     GENERATION_STAGE,
     INVALID_LLM_OUTPUT,
     LLM_EXECUTION_FAILED,
-    MISSING_REQUIRED_FIELDS,
     PROMPT_RESOURCE_ACCESS_ERROR,
     PROMPT_RESOURCE_PARSE_ERROR,
+    RENDER_FAILED,
+    RENDER_STAGE,
     SCENARIO_PARSE_FAILED,
     SCENARIO_STAGE,
-    VALIDATION_STAGE,
 )
 from a2a_t.prompt.common.models import PromptReference
 from a2a_t.common.prompt_resources.errors import PromptResourceParseError
 from a2a_t.common.prompt_resources.models import PromptMessages, ScenarioDefinition, SlotDefinition, SlotSchema
-from a2a_t.prompt.validation.models import SlotValidationError, SlotValidationResult
 
 
 class FakeScenarioLoader:
@@ -127,14 +125,6 @@ class RaisingSlotExtractor:
         raise self._error
 
 
-class FakeSlotValidator:
-    def __init__(self, result: SlotValidationResult) -> None:
-        self._result = result
-
-    def validate(self, **kwargs: object) -> SlotValidationResult:
-        return self._result
-
-
 class FakeLogger:
     def __init__(self) -> None:
         self.info_calls: list[str] = []
@@ -203,7 +193,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         *,
         scenario_result: ScenarioRecognitionResult,
         extraction_result: SlotExtractionResult,
-        validation_result: SlotValidationResult,
         resource_registry: FakeResourceRegistry | None = None,
         debug_enabled: bool = False,
         logger: FakeLogger | None = None,
@@ -229,7 +218,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
             slot_schema_loader=self.slot_schema_loader,
             scenario_recognizer=FakeScenarioRecognizer(scenario_result),
             slot_extractor=self.slot_extractor,
-            slot_validator=FakeSlotValidator(validation_result),
             resource_registry=resource_registry,
             renderer=renderer,
             logger=self.logger,
@@ -258,12 +246,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
                         slot_errors=[],
                     )
                 ),
-                slot_validator=FakeSlotValidator(
-                    SlotValidationResult(
-                        passed=True,
-                        slot_errors=[],
-                    )
-                ),
             )
 
     def test_generate_returns_success_result(self) -> None:
@@ -275,10 +257,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
             ),
             extraction_result=SlotExtractionResult(
                 slots={"site": "Site A", "additional_notes": None},
-                slot_errors=[],
-            ),
-            validation_result=SlotValidationResult(
-                passed=True,
                 slot_errors=[],
             ),
         )
@@ -299,12 +277,26 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
             PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
         )
         self.assertIsNone(result.failure)
-        self.assertEqual(result.scenario_code, "energy_saving")
-        self.assertEqual(result.language, "en-US")
-        self.assertEqual(result.input_kind, "natural_language")
-        self.assertEqual(result.validation.slot_errors, [])
-        self.assertIn("scenario_code: energy_saving", result.prompt_text)
-        self.assertIn("Site: Site A", result.prompt_text)
+        self.assertEqual(result.prompt_text, "Site: Site A\nNotes: ")
+
+    def test_generate_returns_success_result_when_extracted_slots_are_missing(self) -> None:
+        orchestrator = self._build_orchestrator(
+            scenario_result=ScenarioRecognitionResult(
+                matched=True,
+                scenario_code="energy_saving",
+                error_message=None,
+            ),
+            extraction_result=SlotExtractionResult(
+                slots={"site": None, "additional_notes": None},
+                slot_errors=[],
+            ),
+        )
+
+        result = orchestrator.generate("Analyze Site A energy usage.")
+
+        self.assertTrue(result.success)
+        self.assertEqual(result.prompt_text, "Site: \nNotes: ")
+        self.assertIsNone(result.failure)
 
     def test_generate_returns_scenario_failure_when_no_match(self) -> None:
         orchestrator = self._build_orchestrator(
@@ -314,17 +306,14 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
                 error_message="No matching scenario.",
             ),
             extraction_result=SlotExtractionResult(slots={}, slot_errors=[]),
-            validation_result=SlotValidationResult(passed=False, slot_errors=[]),
         )
 
         result = orchestrator.generate("Analyze Site A energy usage.")
 
         self.assertFalse(result.success)
         self.assertIsNone(result.prompt_text)
-        self.assertIsNone(result.scenario_code)
         self.assertEqual(result.failure.code, SCENARIO_PARSE_FAILED)
         self.assertEqual(result.failure.stage, SCENARIO_STAGE)
-        self.assertEqual(result.validation.slot_errors, [])
 
     def test_generate_rejects_unknown_scenario_code_before_loading_generation_resources(self) -> None:
         orchestrator = self._build_orchestrator(
@@ -334,7 +323,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
                 error_message=None,
             ),
             extraction_result=SlotExtractionResult(slots={}, slot_errors=[]),
-            validation_result=SlotValidationResult(passed=False, slot_errors=[]),
         )
 
         result = orchestrator.generate("Analyze Site A energy usage.")
@@ -348,48 +336,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         self.assertEqual(result.failure.stage, SCENARIO_STAGE)
         self.assertEqual(result.failure.message, "Scenario recognition returned unsupported scenario_code: unknown_scenario")
 
-    def test_generate_returns_validation_failure_with_slot_errors_only(self) -> None:
-        orchestrator = self._build_orchestrator(
-            scenario_result=ScenarioRecognitionResult(
-                matched=True,
-                scenario_code="energy_saving",
-                error_message=None,
-            ),
-            extraction_result=SlotExtractionResult(
-                slots={"site": None, "additional_notes": None},
-                slot_errors=[],
-            ),
-            validation_result=SlotValidationResult(
-                passed=False,
-                slot_errors=[
-                    SlotValidationError(
-                        slot_name="site",
-                        code=MISSING_INPUT,
-                        message="Required slot 'site' is missing.",
-                    )
-                ],
-            ),
-        )
-
-        result = orchestrator.generate("Analyze Site A energy usage.")
-
-        self.assertFalse(result.success)
-        self.assertIsNotNone(result.prompt_text)
-        self.assertEqual(result.failure.code, MISSING_REQUIRED_FIELDS)
-        self.assertEqual(result.failure.stage, VALIDATION_STAGE)
-        self.assertEqual(
-            result.validation.slot_errors,
-            [
-                SlotValidationError(
-                    slot_name="site",
-                    code=MISSING_INPUT,
-                    message="Required slot 'site' is missing.",
-                )
-            ],
-        )
-        self.assertIn("scenario_code: energy_saving", result.prompt_text)
-        self.assertIn("Site: ", result.prompt_text)
-
     def test_generate_returns_scenario_failure_when_scenario_resources_are_invalid(self) -> None:
         orchestrator = self._build_orchestrator(
             scenario_result=ScenarioRecognitionResult(
@@ -399,10 +345,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
             ),
             extraction_result=SlotExtractionResult(
                 slots={"site": "Site A", "additional_notes": None},
-                slot_errors=[],
-            ),
-            validation_result=SlotValidationResult(
-                passed=True,
                 slot_errors=[],
             ),
             resource_registry=FakeResourceRegistry(
@@ -426,10 +368,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
             ),
             extraction_result=SlotExtractionResult(
                 slots={"site": "Site A", "additional_notes": None},
-                slot_errors=[],
-            ),
-            validation_result=SlotValidationResult(
-                passed=True,
                 slot_errors=[],
             ),
             resource_registry=FakeResourceRegistry(
@@ -464,10 +402,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
                 error_message=None,
             ),
             extraction_result=SlotExtractionResult(slots={}, slot_errors=[]),
-            validation_result=SlotValidationResult(
-                passed=True,
-                slot_errors=[],
-            ),
             slot_extractor=RaisingSlotExtractor(PromptAnalysisError("slot extraction returned invalid JSON")),
         )
 
@@ -486,10 +420,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
                 error_message=None,
             ),
             extraction_result=SlotExtractionResult(slots={}, slot_errors=[]),
-            validation_result=SlotValidationResult(
-                passed=True,
-                slot_errors=[],
-            ),
             slot_extractor=RaisingSlotExtractor(RuntimeError("llm transport down")),
         )
 
@@ -513,22 +443,16 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
                 slots={"site": "Site A", "additional_notes": None},
                 slot_errors=[],
             ),
-            validation_result=SlotValidationResult(
-                passed=True,
-                slot_errors=[],
-            ),
             renderer=FakeRenderer(TaskPromptRenderError("Template references unknown slot: time_range")),
         )
 
         result = orchestrator.generate("Analyze Site A energy usage.")
 
         self.assertFalse(result.success)
-        self.assertEqual(result.failure.code, "RENDER_FAILED")
-        self.assertEqual(result.failure.stage, "render")
+        self.assertEqual(result.failure.code, RENDER_FAILED)
+        self.assertEqual(result.failure.stage, RENDER_STAGE)
         self.assertEqual(result.failure.message, "Template references unknown slot: time_range")
-
 
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -52,7 +52,6 @@ class PromptGenerationOrchestratorBuilderTest(unittest.TestCase):
                 "prompt_resource_loader": object(),
                 "template_loader": object(),
                 "slot_schema_loader": object(),
-                "slot_validator": object(),
                 "resource_registry": object(),
             },
         )()
@@ -82,6 +81,7 @@ class PromptGenerationOrchestratorBuilderTest(unittest.TestCase):
         self.assertIsInstance(orchestrator.kwargs["slot_extractor"], FakeSlotExtractor)
         self.assertIs(orchestrator.kwargs["scenario_recognizer"].llm_client, llm_client)
         self.assertIs(orchestrator.kwargs["slot_extractor"].llm_client, llm_client)
+        self.assertNotIn("slot_validator", orchestrator.kwargs)
 
 if __name__ == "__main__":
     unittest.main()

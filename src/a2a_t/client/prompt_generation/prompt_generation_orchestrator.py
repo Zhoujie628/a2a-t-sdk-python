@@ -11,16 +11,12 @@ from a2a_t.common.prompt_resources import (
 )
 from a2a_t.prompt.analysis.errors import PromptAnalysisError
 from a2a_t.prompt.common.errors import PromptSourceError
-from a2a_t.prompt.validation.constants import INVALID_VALUE
 from a2a_t.prompt.task_rendering import TaskPromptRenderError, TaskPromptRenderer
-from a2a_t.prompt.validation.models import SlotValidationError
 
 from .generation_constants import (
     GENERATION_STAGE,
-    INVALID_FIELD_VALUE,
     INVALID_LLM_OUTPUT,
     LLM_EXECUTION_FAILED,
-    MISSING_REQUIRED_FIELDS,
     PROMPT_NOT_FOUND,
     PROMPT_RESOURCE_ACCESS_ERROR,
     PROMPT_RESOURCE_PARSE_ERROR,
@@ -30,11 +26,10 @@ from .generation_constants import (
     SCENARIO_STAGE,
     SLOT_SCHEMA_NOT_FOUND,
     TEMPLATE_NOT_FOUND,
-    VALIDATION_STAGE,
 )
 from a2a_t.prompt.common.models import PromptReference
 from .input_normalizer import InputNormalizer
-from .models import PromptGenerationFailure, PromptGenerationResult, ValidationResult
+from .models import PromptGenerationFailure, PromptGenerationResult
 
 
 logger = logging.getLogger(__name__)
@@ -53,7 +48,6 @@ class PromptGenerationOrchestrator:
         slot_schema_loader: Any,
         scenario_recognizer: Any,
         slot_extractor: Any,
-        slot_validator: Any,
         resource_registry: PromptResourceRegistry | None = None,
         input_normalizer: InputNormalizer | None = None,
         renderer: TaskPromptRenderer | None = None,
@@ -64,7 +58,6 @@ class PromptGenerationOrchestrator:
         self._config = config
         self._scenario_recognizer = scenario_recognizer
         self._slot_extractor = slot_extractor
-        self._slot_validator = slot_validator
         self._resource_registry = resource_registry or PromptResourceRegistry(
             scenario_loader=scenario_loader,
             prompt_resource_loader=prompt_resource_loader,
@@ -98,8 +91,6 @@ class PromptGenerationOrchestrator:
                 code=error.code,
                 message=error.message,
                 stage=error.stage,
-                language=language,
-                input_kind=normalized_input.input_kind,
             )
 
         try:
@@ -115,16 +106,12 @@ class PromptGenerationOrchestrator:
                 code=INVALID_LLM_OUTPUT,
                 message=str(error),
                 stage=SCENARIO_STAGE,
-                language=resolved_language,
-                input_kind=normalized_input.input_kind,
             )
         except Exception as error:
             return self._failure_result(
                 code=LLM_EXECUTION_FAILED,
                 message=str(error),
                 stage=SCENARIO_STAGE,
-                language=resolved_language,
-                input_kind=normalized_input.input_kind,
             )
         self._log_debug_if_available(
             "prompt_generation_scenario_raw_output scenario_raw_output=%s",
@@ -135,8 +122,6 @@ class PromptGenerationOrchestrator:
                 code=SCENARIO_PARSE_FAILED,
                 message=scenario_result.error_message or "Scenario recognition failed.",
                 stage=SCENARIO_STAGE,
-                language=resolved_language,
-                input_kind=normalized_input.input_kind,
             )
 
         scenario_code = scenario_result.scenario_code
@@ -145,8 +130,6 @@ class PromptGenerationOrchestrator:
                 code=INVALID_LLM_OUTPUT,
                 message=f"Scenario recognition returned unsupported scenario_code: {scenario_code}",
                 stage=SCENARIO_STAGE,
-                language=resolved_language,
-                input_kind=normalized_input.input_kind,
             )
         self._log_info(
             "prompt_generation_scenario_recognized scenario_code=%s language=%s",
@@ -163,14 +146,9 @@ class PromptGenerationOrchestrator:
             # At this point the scenario is known, so preserve it in the failure payload for callers.
             return self._finalize_result(
                 PromptGenerationResult(
-                success=False,
-                prompt_text=None,
-                scenario_code=scenario_code,
-                language=resolved_language,
-                input_kind=normalized_input.input_kind,
-                slots={},
-                validation=ValidationResult(passed=False, slot_errors=[]),
-                failure=PromptGenerationFailure(code=error.code, message=error.message, stage=error.stage),
+                    success=False,
+                    prompt_text=None,
+                    failure=PromptGenerationFailure(code=error.code, message=error.message, stage=error.stage),
                 )
             )
 
@@ -186,39 +164,23 @@ class PromptGenerationOrchestrator:
         except PromptAnalysisError as error:
             return self._finalize_result(
                 PromptGenerationResult(
-                success=False,
-                prompt_text=None,
-                scenario_code=scenario_code,
-                language=resolved_language,
-                input_kind=normalized_input.input_kind,
-                slots={},
-                validation=ValidationResult(passed=False, slot_errors=[]),
-                failure=PromptGenerationFailure(code=INVALID_LLM_OUTPUT, message=str(error), stage=GENERATION_STAGE),
+                    success=False,
+                    prompt_text=None,
+                    failure=PromptGenerationFailure(code=INVALID_LLM_OUTPUT, message=str(error), stage=GENERATION_STAGE),
                 )
             )
         except Exception as error:
             return self._finalize_result(
                 PromptGenerationResult(
-                success=False,
-                prompt_text=None,
-                scenario_code=scenario_code,
-                language=resolved_language,
-                input_kind=normalized_input.input_kind,
-                slots={},
-                validation=ValidationResult(passed=False, slot_errors=[]),
-                failure=PromptGenerationFailure(code=LLM_EXECUTION_FAILED, message=str(error), stage=GENERATION_STAGE),
+                    success=False,
+                    prompt_text=None,
+                    failure=PromptGenerationFailure(code=LLM_EXECUTION_FAILED, message=str(error), stage=GENERATION_STAGE),
                 )
             )
         self._log_debug_if_available(
             "prompt_generation_slot_raw_output slot_raw_output=%s",
             self._slot_extractor,
         )
-        shared_validation = self._slot_validator.validate(
-            slots=extraction_result.slots,
-            slot_errors=extraction_result.slot_errors,
-            slot_schema=slot_schema,
-        )
-        validation = self._build_validation_result(shared_validation.slot_errors)
         rendered_prompt_text, render_error_message = self._render_prompt_text(
             template_text=template_text,
             slots=extraction_result.slots,
@@ -230,60 +192,26 @@ class PromptGenerationOrchestrator:
         self._log_info(
             "prompt_generation_slots_extracted slots=%s slot_errors=%s",
             extraction_result.slots,
-            shared_validation.slot_errors,
+            extraction_result.slot_errors,
         )
-        if not shared_validation.passed:
-            failure_code = INVALID_FIELD_VALUE if self._contains_invalid_value(shared_validation.slot_errors) else MISSING_REQUIRED_FIELDS
-            failure_message = "Slot validation failed."
-            self._log_info(
-                "prompt_generation_validation_failed slot_errors=%s",
-                shared_validation.slot_errors,
-            )
-            return self._finalize_result(
-                PromptGenerationResult(
-                success=False,
-                prompt_text=rendered_prompt_text,
-                scenario_code=scenario_code,
-                language=resolved_language,
-                input_kind=normalized_input.input_kind,
-                slots=extraction_result.slots,
-                validation=validation,
-                failure=PromptGenerationFailure(
-                    code=failure_code,
-                    message=failure_message,
-                    stage=VALIDATION_STAGE,
-                ),
-                )
-            )
-
         if rendered_prompt_text is None:
             return self._finalize_result(
                 PromptGenerationResult(
-                success=False,
-                prompt_text=None,
-                scenario_code=scenario_code,
-                language=resolved_language,
-                input_kind=normalized_input.input_kind,
-                slots=extraction_result.slots,
-                validation=validation,
-                failure=PromptGenerationFailure(
-                    code=RENDER_FAILED,
-                    message=render_error_message or "Task prompt rendering failed.",
-                    stage=RENDER_STAGE,
-                ),
+                    success=False,
+                    prompt_text=None,
+                    failure=PromptGenerationFailure(
+                        code=RENDER_FAILED,
+                        message=render_error_message or "Task prompt rendering failed.",
+                        stage=RENDER_STAGE,
+                    ),
                 )
             )
 
         return self._finalize_result(
             PromptGenerationResult(
-            success=True,
-            prompt_text=rendered_prompt_text,
-            scenario_code=scenario_code,
-            language=resolved_language,
-            input_kind=normalized_input.input_kind,
-            slots=extraction_result.slots,
-            validation=validation,
-            failure=None,
+                success=True,
+                prompt_text=rendered_prompt_text,
+                failure=None,
             )
         )
 
@@ -359,17 +287,6 @@ class PromptGenerationOrchestrator:
                 stage=GENERATION_STAGE,
             ) from error
 
-    def _build_validation_result(self, slot_errors: list[SlotValidationError]) -> ValidationResult:
-        """Convert shared slot validation errors into the client response model."""
-        return ValidationResult(
-            passed=not slot_errors,
-            slot_errors=list(slot_errors),
-        )
-
-    def _contains_invalid_value(self, slot_errors: list[SlotValidationError]) -> bool:
-        """Return whether any slot error represents an invalid supplied value."""
-        return any(slot_error.code == INVALID_VALUE for slot_error in slot_errors)
-
     def _render_prompt_text(
         self,
         *,
@@ -413,20 +330,13 @@ class PromptGenerationOrchestrator:
         code: str,
         message: str,
         stage: str,
-        language: str,
-        input_kind: str,
     ) -> PromptGenerationResult:
         """Build a standardized generation failure result without scenario context."""
         return self._finalize_result(
             PromptGenerationResult(
-            success=False,
-            prompt_text=None,
-            scenario_code=None,
-            language=language,
-            input_kind=input_kind,
-            slots={},
-            validation=ValidationResult(passed=False, slot_errors=[]),
-            failure=PromptGenerationFailure(code=code, message=message, stage=stage),
+                success=False,
+                prompt_text=None,
+                failure=PromptGenerationFailure(code=code, message=message, stage=stage),
             )
         )
 
@@ -435,12 +345,10 @@ class PromptGenerationOrchestrator:
         failure_stage = result.failure.stage if result.failure is not None else None
         failure_code = result.failure.code if result.failure is not None else None
         self._log_info(
-            "prompt_generation_completed success=%s stage=%s code=%s language=%s scenario_code=%s",
+            "prompt_generation_completed success=%s stage=%s code=%s",
             result.success,
             failure_stage,
             failure_code,
-            result.language,
-            result.scenario_code,
         )
         return result
 

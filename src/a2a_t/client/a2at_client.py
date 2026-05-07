@@ -8,6 +8,7 @@ from a2a_t.llm.client import LLMClient
 from a2a_t.negotiation.common.models import ContinueNegotiationInput, StartNegotiationInput
 
 from .negotiation.negotiation_orchestrator_builder import ClientNegotiationOrchestratorBuilder
+from .prompt_generation.models import PromptGenerationResult
 from .prompt_generation.prompt_generation_orchestrator_builder import PromptGenerationOrchestratorBuilder
 
 
@@ -38,7 +39,7 @@ class A2ATClient:
             logger=logger,
         )
 
-    def generate_task_prompt(self, user_input: str | dict[str, object]) -> object:
+    def generate_task_prompt(self, user_input: str | dict[str, object]) -> PromptGenerationResult:
         """Generate a processed task prompt from user input."""
         return self._prompt_generation_orchestrator.generate(user_input)
 
