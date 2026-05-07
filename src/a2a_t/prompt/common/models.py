@@ -6,6 +6,8 @@ from typing import Any, Literal
 
 
 class CacheStatus(StrEnum):
+    """Describe whether prompt content came from cache or origin."""
+
     MISS = "miss"
     HIT = "hit"
     EXPIRED = "expired"
@@ -15,12 +17,16 @@ class CacheStatus(StrEnum):
 
 @dataclass(slots=True)
 class PromptSource:
+    """Identify where a prompt or prompt asset was loaded from."""
+
     source_type: Literal["local_file", "url", "agent"]
     locator: str
 
 
 @dataclass(slots=True)
 class Prompt:
+    """Represent a fully loaded prompt payload and its provenance."""
+
     name: str
     language: str
     version: str
@@ -35,6 +41,8 @@ class Prompt:
 
 @dataclass(slots=True)
 class PromptReference:
+    """Identify one scenario-scoped prompt resource set."""
+
     scenario_code: str
     language: str
     version: str
@@ -42,6 +50,8 @@ class PromptReference:
 
 @dataclass(slots=True)
 class PromptAssetReference:
+    """Describe prompt metadata without embedding the full prompt body."""
+
     name: str
     language: str
     version: str
@@ -53,6 +63,8 @@ class PromptAssetReference:
 
 @dataclass(slots=True)
 class FetchResult:
+    """Represent raw content fetched from a prompt source."""
+
     content: str
     content_type: str | None
     source: PromptSource
@@ -61,6 +73,8 @@ class FetchResult:
 
 @dataclass(slots=True)
 class CachedPromptRecord:
+    """Store the metadata needed to reuse cached prompt content."""
+
     cache_key: str
     source_type: str
     name: str

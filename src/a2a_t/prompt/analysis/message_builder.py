@@ -5,6 +5,8 @@ from a2a_t.common.prompt_resources.models import ScenarioDefinition, SlotSchema
 
 
 class AnalysisMessageBuilder:
+    """Build LLM message payloads for prompt analysis workflows."""
+
     def build_scenario_recognition_messages(
         self,
         *,
@@ -14,6 +16,7 @@ class AnalysisMessageBuilder:
         system_prompt: str,
         user_prompt: str,
     ) -> list[dict[str, str]]:
+        """Build the structured message list used for scenario recognition."""
         scenario_lines = [
             (
                 f"- scenario_code: {scenario.scenario_code}\n"
@@ -46,6 +49,7 @@ class AnalysisMessageBuilder:
         system_prompt: str,
         user_prompt: str,
     ) -> list[dict[str, str]]:
+        """Build the structured message list used for slot extraction."""
         slot_lines = [
             (
                 f"- name: {slot.name}\n"

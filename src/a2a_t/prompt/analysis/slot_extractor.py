@@ -14,6 +14,8 @@ from .models import SlotExtractionResult
 
 
 class SlotExtractor:
+    """Extract slot values from normalized input with an LLM-backed structured call."""
+
     def __init__(
         self,
         *,
@@ -36,6 +38,7 @@ class SlotExtractor:
         system_prompt: str,
         user_prompt: str,
     ) -> SlotExtractionResult:
+        """Run slot extraction and normalize the structured LLM response."""
         messages = self._message_builder.build_slot_extraction_messages(
             normalized_input=normalized_input,
             reference=reference,
@@ -52,6 +55,7 @@ class SlotExtractor:
         return self._parse_response(response.content, slot_schema=slot_schema)
 
     def _parse_response(self, content: str, *, slot_schema: SlotSchema) -> SlotExtractionResult:
+        """Validate the LLM response shape before downstream validation consumes it."""
         try:
             payload = json.loads(content)
         except json.JSONDecodeError as error:
@@ -71,6 +75,7 @@ class SlotExtractor:
         normalized_slots: dict[str, str | None] = {}
         for slot_name in expected_slot_names:
             if slot_name not in slots:
+                # Structured output is only useful if every schema-defined slot key is present.
                 raise SlotExtractionError(
                     "Slot extraction response is missing required slot keys.",
                     raw_content=content,
@@ -95,6 +100,7 @@ class SlotExtractor:
         expected_slot_names: set[str],
         raw_content: str,
     ) -> SlotValidationError:
+        """Normalize and validate one slot_error entry from the model response."""
         if not isinstance(raw_error, dict):
             raise SlotExtractionError("Slot extraction slot_errors items must be objects.", raw_content=raw_content)
 

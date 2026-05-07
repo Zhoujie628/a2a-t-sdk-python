@@ -12,6 +12,7 @@ class DotEnvConfigSource:
 
     @staticmethod
     def load(path: Path) -> dict[str, str]:
+        """Load non-empty key/value pairs from the given .env file."""
         if not path.exists():
             raise ConfigFileNotFoundError(path)
 

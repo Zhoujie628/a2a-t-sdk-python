@@ -10,6 +10,8 @@ from .providers import LocalPromptResourceProvider, PromptResourceProvider
 
 
 class PromptResourceSource(Protocol):
+    """Describe the minimal interface required by prompt resource loaders."""
+
     source_type: str
 
     def read_text(self, *, relative_path: str) -> str: ...
@@ -20,6 +22,8 @@ class PromptResourceSource(Protocol):
 
 
 class LocalPromptResourceSource:
+    """Load packaged prompt resources from the local filesystem."""
+
     source_type = "local_file"
 
     def __init__(
@@ -36,13 +40,16 @@ class LocalPromptResourceSource:
 
     @property
     def root_dir(self) -> Path | None:
+        """Expose the configured local resource root when the catalog provides one."""
         return getattr(self._catalog, "root_dir", None)
 
     def read_text(self, *, relative_path: str) -> str:
+        """Read a text resource from the resolved local path."""
         locator = self._catalog.resolve(relative_path=relative_path)
         return self._provider.read_text(locator=locator)
 
     def read_json(self, *, relative_path: str) -> dict[str, Any]:
+        """Read a JSON resource and enforce an object-shaped payload."""
         text = self.read_text(relative_path=relative_path)
         try:
             payload = json.loads(text)
@@ -58,5 +65,6 @@ class LocalPromptResourceSource:
         return payload
 
     def exists(self, *, relative_path: str) -> bool:
+        """Return whether the resolved local resource path exists."""
         locator = self._catalog.resolve(relative_path=relative_path)
         return self._provider.exists(locator=locator)

@@ -16,6 +16,8 @@ from a2a_t.prompt.validation.slot_validator import SlotValidator
 
 @dataclass(slots=True)
 class PromptRuntimeComponents:
+    """Group the shared prompt runtime services built from configuration."""
+
     resource_source: PromptResourceSource
     resource_registry: PromptResourceRegistry
     scenario_loader: ScenarioLoader

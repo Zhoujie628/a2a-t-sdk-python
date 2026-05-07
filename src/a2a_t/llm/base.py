@@ -14,12 +14,16 @@ from a2a_t.llm.session_store import InMemorySessionStore, ProviderScopedSessionS
 
 @dataclass
 class ChatMessage:
+    """Represent one message in a chat session."""
+
     role: str
     content: str
 
 
 @dataclass
 class ChatSession:
+    """Persist chat history and metadata for a provider-scoped session."""
+
     session_id: str
     provider: str
     system_prompt: str | None = None
@@ -48,6 +52,7 @@ class LLMAdapter(ABC):
         self._model = str(config.get("model", ""))
         root_store: SessionStore = config.get("session_store") or InMemorySessionStore()
         self._session_store = (
+            # Scope every adapter instance to one provider so session identifiers never cross providers.
             root_store if isinstance(root_store, ProviderScopedSessionStore) else ProviderScopedSessionStore(
                 self._provider, root_store
             )
@@ -105,13 +110,16 @@ class LLMAdapter(ABC):
         raise NotImplementedError
 
     def reset_session(self, session_id: str) -> None:
+        """Clear the message history stored for one chat session."""
         if self._session_store.reset(session_id) is None:
             raise LLMRuntimeError(f"unknown session_id: {session_id}")
 
     def delete_session(self, session_id: str) -> None:
+        """Delete one chat session from the backing session store."""
         self._session_store.delete(session_id)
 
     def _load_or_create_session(self, session_id: str | None) -> ChatSession:
+        """Load an existing session or allocate a new provider-scoped session."""
         if session_id is None:
             now = datetime.now(UTC)
             return ChatSession(
@@ -130,6 +138,7 @@ class LLMAdapter(ABC):
         return session
 
     def _build_messages(self, prompt: str, system_prompt: str | None) -> list[ChatMessage]:
+        """Build a one-shot message list for completion-style calls."""
         messages: list[ChatMessage] = []
         if system_prompt:
             messages.append(ChatMessage(role="system", content=system_prompt))
@@ -137,9 +146,11 @@ class LLMAdapter(ABC):
         return messages
 
     def _build_messages_from_session(self, session: ChatSession, history_window: int) -> list[ChatMessage]:
+        """Build the provider payload from the retained tail of a chat session."""
         messages: list[ChatMessage] = []
         if session.system_prompt:
             messages.append(ChatMessage(role="system", content=session.system_prompt))
+        # Each history window retains the latest user/assistant pairs plus the pending user message.
         trimmed = session.messages[-(history_window * 2 - 1) :]
         messages.extend(trimmed)
         return messages
@@ -149,7 +160,9 @@ class LLMAdapter(ABC):
         messages: list[ChatMessage],
         history_window: int,
     ) -> list[ChatMessage]:
+        """Trim persisted history to the configured number of user/assistant pairs."""
         return messages[-(history_window * 2) :]
 
     def _generate_from_messages(self, messages: list[ChatMessage], **kwargs: Any) -> LLMResponse:
+        """Fail by default until a concrete adapter implements message generation."""
         raise LLMRuntimeError("adapter does not support message generation in this phase")

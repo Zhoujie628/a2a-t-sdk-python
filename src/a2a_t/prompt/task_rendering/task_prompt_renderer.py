@@ -9,10 +9,13 @@ from .exceptions import TaskPromptRenderError
 
 class _StrictSlotMap(UserDict[str, str]):
     def __missing__(self, key: str) -> str:
+        """Translate missing template keys into the renderer's domain error."""
         raise TaskPromptRenderError(f"Template references unknown slot: {key}")
 
 
 class TaskPromptRenderer:
+    """Render task prompt templates and attach the required front matter."""
+
     def render(
         self,
         *,
@@ -23,6 +26,8 @@ class TaskPromptRenderer:
         version: str,
         description: str,
     ) -> str:
+        """Render a processed task prompt from a template and extracted slots."""
+        # Normalize missing optional slot values to empty strings so template rendering stays deterministic.
         normalized_slots = _StrictSlotMap({key: "" if value is None else value for key, value in slots.items()})
         try:
             body = template_text.format_map(normalized_slots)

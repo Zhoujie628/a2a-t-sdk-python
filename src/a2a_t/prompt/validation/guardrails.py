@@ -8,20 +8,28 @@ from .models import GuardrailResult
 
 
 class SafetyGuardrail(Protocol):
+    """Describe the interface implemented by prompt safety guardrails."""
+
     def check(self, prompt_text: str, context: dict[str, object] | None = None) -> GuardrailResult:
         """Check whether the processed prompt passes the safety guardrail."""
 
 
 class NoopSafetyGuardrail:
+    """Accept every prompt without applying any policy checks."""
+
     def check(self, prompt_text: str, context: dict[str, object] | None = None) -> GuardrailResult:
+        """Return an allow result without inspecting the prompt."""
         return GuardrailResult(passed=True)
 
 
 class SafetyGuardrailFactory:
+    """Create guardrail implementations from configuration."""
+
     _reserved_providers: set[str] = {"aws_bedrock", "azure_content_safety"}
 
     @classmethod
     def create(cls, config: GuardrailProviderConfig) -> SafetyGuardrail:
+        """Create the configured guardrail or fail for unsupported providers."""
         provider_name = config.provider or "noop"
         if provider_name == "noop":
             return NoopSafetyGuardrail()
@@ -31,4 +39,5 @@ class SafetyGuardrailFactory:
 
     @classmethod
     def available_types(cls) -> list[str]:
+        """List the guardrail provider types currently implemented."""
         return ["noop"]

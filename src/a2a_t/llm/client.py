@@ -22,10 +22,12 @@ _DEFAULT_SESSION_STORE_LIMITS: tuple[int, int] | None = None
 
 
 def _default_env_path() -> Path:
+    """Return the default .env path used by the shared LLM client."""
     return Path(__file__).resolve().parents[3] / "package_data" / ".env"
 
 
 def _get_or_create_default_session_store(*, max_total: int, max_per_provider: int) -> InMemorySessionStore:
+    """Return the process-wide default session store with stable capacity settings."""
     global _DEFAULT_SESSION_STORE, _DEFAULT_SESSION_STORE_LIMITS
 
     requested_limits = (max_total, max_per_provider)
@@ -38,6 +40,7 @@ def _get_or_create_default_session_store(*, max_total: int, max_per_provider: in
         return _DEFAULT_SESSION_STORE
 
     if _DEFAULT_SESSION_STORE_LIMITS != requested_limits:
+        # A single shared default store avoids fragmented history, so conflicting limits are rejected.
         raise LLMConfigError(
             "Default global LLM session store is already initialized with different "
             "session capacity limits"
@@ -47,6 +50,7 @@ def _get_or_create_default_session_store(*, max_total: int, max_per_provider: in
 
 
 def _reset_default_session_store_for_tests() -> None:
+    """Reset the shared session store singleton used by tests."""
     global _DEFAULT_SESSION_STORE, _DEFAULT_SESSION_STORE_LIMITS
 
     _DEFAULT_SESSION_STORE = None
@@ -54,6 +58,7 @@ def _reset_default_session_store_for_tests() -> None:
 
 
 def _coerce_optional_int(value: str | None, key: str) -> int | None:
+    """Parse an optional integer environment value."""
     if value is None or value == "":
         return None
     try:
@@ -63,6 +68,7 @@ def _coerce_optional_int(value: str | None, key: str) -> int | None:
 
 
 def _coerce_optional_float(value: str | None, key: str) -> float | None:
+    """Parse an optional float environment value."""
     if value is None or value == "":
         return None
     try:
@@ -112,6 +118,7 @@ class LLMClient:
         timeout_seconds: float | None = None,
         history_window: int | None = None,
     ) -> LLMResponse:
+        """Run a chat request with optional session history."""
         runtime_config = self._build_inference_runtime_config(
             provider=provider,
             model=model,
@@ -159,6 +166,7 @@ class LLMClient:
         max_tokens: int | None = None,
         timeout_seconds: float | None = None,
     ) -> LLMResponse:
+        """Run a one-shot completion request."""
         runtime_config = self._build_inference_runtime_config(
             provider=provider,
             model=model,
@@ -201,6 +209,7 @@ class LLMClient:
         max_tokens: int | None = None,
         timeout_seconds: float | None = None,
     ) -> LLMResponse:
+        """Run a structured generation request constrained by a JSON schema."""
         runtime_config = self._build_inference_runtime_config(
             provider=provider,
             model=model,
@@ -231,10 +240,12 @@ class LLMClient:
         return response
 
     def reset_session(self, session_id: str) -> None:
+        """Clear the message history tracked for one session."""
         if self._session_store.reset(session_id) is None:
             raise LLMRuntimeError(f"unknown session_id: {session_id}")
 
     def delete_session(self, session_id: str) -> None:
+        """Delete one tracked session from the shared store."""
         self._session_store.delete(session_id)
 
     def _build_inference_runtime_config(
@@ -249,6 +260,7 @@ class LLMClient:
         timeout_seconds: float | None,
         history_window: int | None = None,
     ) -> dict[str, Any]:
+        """Merge call overrides with defaults and validate the resulting runtime config."""
         resolved_provider = self._normalize_provider(provider or self._defaults.provider)
         resolved_model = str(model or self._defaults.model).strip()
         if not resolved_provider or not resolved_model:
@@ -283,6 +295,7 @@ class LLMClient:
         }
 
     def _load_defaults(self, env_path: Path) -> LLMClientConfig:
+        """Load and validate default LLM settings from the configured .env file."""
         try:
             values = DotEnvConfigSource.load(env_path)
         except ConfigFileNotFoundError as exc:
@@ -328,6 +341,7 @@ class LLMClient:
         )
 
     def _normalize_provider(self, value: object) -> str:
+        """Normalize a provider name and validate it against registered adapters."""
         provider = str(value or "").strip()
         if not provider:
             return provider
@@ -338,6 +352,7 @@ class LLMClient:
         return provider
 
     def _coerce_bounded_int(self, value: object, key: str, *, max_value: int) -> int:
+        """Parse an integer config value and enforce a positive upper bound."""
         try:
             parsed = int(value)
         except (TypeError, ValueError) as exc:
@@ -349,6 +364,7 @@ class LLMClient:
         return parsed
 
     def _log_request(self, *, method: str, runtime_config: dict[str, Any], payload: dict[str, Any]) -> None:
+        """Emit a debug log for one outbound LLM request when logging is enabled."""
         if self._logger is None or not hasattr(self._logger, "debug"):
             return
         self._logger.debug(
@@ -360,6 +376,7 @@ class LLMClient:
         )
 
     def _log_response(self, *, method: str, runtime_config: dict[str, Any], response: LLMResponse) -> None:
+        """Emit a debug log for one inbound LLM response when logging is enabled."""
         if self._logger is None or not hasattr(self._logger, "debug"):
             return
         self._logger.debug(

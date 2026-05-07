@@ -11,6 +11,8 @@ from a2a_t.common.prompt_resources.models import ScenarioDefinition
 
 
 class ScenarioRecognizer:
+    """Recognize the best matching scenario from normalized user input."""
+
     def __init__(
         self,
         *,
@@ -32,6 +34,7 @@ class ScenarioRecognizer:
         system_prompt: str,
         user_prompt: str,
     ) -> ScenarioRecognitionResult:
+        """Run scenario recognition and normalize the structured LLM response."""
         messages = self._message_builder.build_scenario_recognition_messages(
             normalized_input=normalized_input,
             scenarios=scenarios,
@@ -47,6 +50,7 @@ class ScenarioRecognizer:
         return self._parse_response(response.content)
 
     def _parse_response(self, content: str) -> ScenarioRecognitionResult:
+        """Validate the response contract before the orchestrator trusts the result."""
         try:
             payload = json.loads(content)
         except json.JSONDecodeError as error:
@@ -63,6 +67,7 @@ class ScenarioRecognizer:
             raise ScenarioRecognitionError("Scenario recognition field 'matched' must be boolean.", raw_content=content)
 
         if matched:
+            # A matched result must be self-contained so later stages never infer missing fields.
             if not isinstance(scenario_code, str) or not scenario_code.strip():
                 raise ScenarioRecognitionError(
                     "Scenario recognition requires non-empty 'scenario_code' when matched is true.",
@@ -74,6 +79,7 @@ class ScenarioRecognizer:
                     raw_content=content,
                 )
         else:
+            # Unmatched responses must carry an explicit reason because the orchestrator surfaces it directly.
             if scenario_code is not None:
                 raise ScenarioRecognitionError(
                     "Scenario recognition requires null 'scenario_code' when matched is false.",

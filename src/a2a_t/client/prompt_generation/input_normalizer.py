@@ -6,7 +6,10 @@ from .models import NormalizedInput
 
 
 class InputNormalizer:
+    """Normalize raw prompt-generation input into a canonical string payload."""
+
     def normalize(self, user_input: str | dict[str, object]) -> NormalizedInput:
+        """Classify user input and convert it into the format expected by analysis steps."""
         if isinstance(user_input, str):
             if not user_input.strip():
                 raise ValueError("user_input must not be empty.")
@@ -26,6 +29,7 @@ class InputNormalizer:
         raise TypeError("user_input must be str or dict.")
 
     def _try_parse_json_object(self, user_input: str) -> dict[str, object] | None:
+        """Return the parsed object only when the string is a JSON object payload."""
         try:
             parsed = json.loads(user_input)
         except json.JSONDecodeError:

@@ -10,6 +10,8 @@ from .prompt_compliance_orchestrator import PromptComplianceOrchestrator
 
 
 class PromptComplianceOrchestratorBuilder:
+    """Assemble the server-side prompt compliance runtime."""
+
     def __init__(
         self,
         *,
@@ -28,6 +30,7 @@ class PromptComplianceOrchestratorBuilder:
         llm_client: Any,
         runtime_components: PromptRuntimeComponents | None = None,
     ) -> PromptComplianceOrchestrator:
+        """Build a fully wired prompt compliance orchestrator."""
         components = runtime_components or self._runtime_components_builder.build(config=config)
         extractor = self._slot_extractor_cls(llm_client=llm_client)
         return self._orchestrator_cls(

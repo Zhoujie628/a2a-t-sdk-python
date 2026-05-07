@@ -7,7 +7,10 @@ from .models import SlotDefinition, SlotRange, SlotSchema
 
 
 class SlotSchemaLoader(BasePromptResourceLoader):
+    """Load slot schemas used by extraction and validation flows."""
+
     def load(self, *, reference: PromptReference) -> SlotSchema:
+        """Return the slot schema for the referenced scenario resource."""
         path = f"slots/{reference.scenario_code}/{reference.version}/{reference.language}/slot.json"
         data = self._read_json(path)
         raw_slots = data.get("slots") or []
@@ -19,6 +22,7 @@ class SlotSchemaLoader(BasePromptResourceLoader):
         )
 
     def _build_slot_definition(self, raw_slot: dict[str, object]) -> SlotDefinition:
+        """Normalize a raw slot payload into the shared slot definition model."""
         raw_range = raw_slot.get("range")
         slot_range = None
         if isinstance(raw_range, dict):

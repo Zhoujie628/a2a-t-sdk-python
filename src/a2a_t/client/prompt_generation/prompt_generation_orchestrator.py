@@ -41,6 +41,8 @@ logger = logging.getLogger(__name__)
 
 
 class PromptGenerationOrchestrator:
+    """Coordinate the full client-side prompt generation pipeline."""
+
     def __init__(
         self,
         *,
@@ -74,6 +76,7 @@ class PromptGenerationOrchestrator:
         self._logger = logger or globals()["logger"]
 
     def generate(self, user_input: str | dict[str, object]) -> PromptGenerationResult:
+        """Run prompt generation from input normalization through prompt rendering."""
         self._log_info("prompt_generation_started")
         if self._is_debug_enabled():
             self._log_debug("prompt_generation_raw_user_input raw_user_input=%s", user_input)
@@ -90,6 +93,7 @@ class PromptGenerationOrchestrator:
         try:
             resolved_language, scenarios, scenario_prompts = self._load_scenario_resources(version=version, language=language)
         except _PromptGenerationResourceFailure as error:
+            # Resource failures are surfaced as stable API errors instead of leaking loader internals.
             return self._failure_result(
                 code=error.code,
                 message=error.message,
@@ -156,6 +160,7 @@ class PromptGenerationOrchestrator:
             )
             reference = PromptReference(scenario_code=scenario_code, version=version, language=resolved_language)
         except _PromptGenerationResourceFailure as error:
+            # At this point the scenario is known, so preserve it in the failure payload for callers.
             return self._finalize_result(
                 PromptGenerationResult(
                 success=False,
@@ -283,6 +288,7 @@ class PromptGenerationOrchestrator:
         )
 
     def _load_scenario_resources(self, *, version: str, language: str) -> tuple[str, Any, Any]:
+        """Load scenario recognition resources and map loader errors into API failure codes."""
         try:
             return self._resource_registry.load_scenario_resources(
                 version=version,
@@ -312,6 +318,7 @@ class PromptGenerationOrchestrator:
         *,
         reference: PromptReference,
     ) -> tuple[str, Any, Any, Any]:
+        """Load generation resources and specialize missing-resource failures by artifact type."""
         try:
             resolved_reference, template_text, slot_schema, slot_prompts = self._resource_registry.load_generation_resources(
                 reference=reference
@@ -321,6 +328,7 @@ class PromptGenerationOrchestrator:
             raise
         except PromptResourceNotFoundError as error:
             resource_path = str(error.context.get("path", ""))
+            # Different missing artifacts produce different public error codes even though loaders share one exception type.
             if resource_path.endswith("template.md"):
                 raise _PromptGenerationResourceFailure(
                     code=TEMPLATE_NOT_FOUND,
@@ -352,12 +360,14 @@ class PromptGenerationOrchestrator:
             ) from error
 
     def _build_validation_result(self, slot_errors: list[SlotValidationError]) -> ValidationResult:
+        """Convert shared slot validation errors into the client response model."""
         return ValidationResult(
             passed=not slot_errors,
             slot_errors=list(slot_errors),
         )
 
     def _contains_invalid_value(self, slot_errors: list[SlotValidationError]) -> bool:
+        """Return whether any slot error represents an invalid supplied value."""
         return any(slot_error.code == INVALID_VALUE for slot_error in slot_errors)
 
     def _render_prompt_text(
@@ -370,6 +380,7 @@ class PromptGenerationOrchestrator:
         version: str,
         description: str,
     ) -> tuple[str | None, str | None]:
+        """Render the final prompt text while preserving renderer failures as data."""
         try:
             return (
                 self._renderer.render(
@@ -386,12 +397,14 @@ class PromptGenerationOrchestrator:
             return None, str(error)
 
     def _resolve_scenario_description(self, scenarios: list[Any], scenario_code: str) -> str:
+        """Return the human-readable description for the matched scenario."""
         for scenario in scenarios:
             if scenario.scenario_code == scenario_code:
                 return scenario.description
         return ""
 
     def _is_supported_scenario_code(self, *, scenarios: list[Any], scenario_code: str) -> bool:
+        """Return whether the recognized scenario exists in the loaded scenario catalog."""
         return any(scenario.scenario_code == scenario_code for scenario in scenarios)
 
     def _failure_result(
@@ -403,6 +416,7 @@ class PromptGenerationOrchestrator:
         language: str,
         input_kind: str,
     ) -> PromptGenerationResult:
+        """Build a standardized generation failure result without scenario context."""
         return self._finalize_result(
             PromptGenerationResult(
             success=False,
@@ -417,6 +431,7 @@ class PromptGenerationOrchestrator:
         )
 
     def _finalize_result(self, result: PromptGenerationResult) -> PromptGenerationResult:
+        """Emit completion logs and return the final generation result unchanged."""
         failure_stage = result.failure.stage if result.failure is not None else None
         failure_code = result.failure.code if result.failure is not None else None
         self._log_info(
@@ -430,22 +445,28 @@ class PromptGenerationOrchestrator:
         return result
 
     def _log_info(self, message: str, *args: object) -> None:
+        """Write an info log through the configured logger."""
         self._logger.info(message, *args)
 
     def _log_debug(self, message: str, *args: object) -> None:
+        """Write a debug log only when prompt-generation debug mode is enabled."""
         if self._is_debug_enabled():
             self._logger.debug(message, *args)
 
     def _log_debug_if_available(self, message: str, source: Any) -> None:
+        """Log captured raw model output when the dependency exposes it."""
         raw_content = getattr(source, "last_raw_response_content", None)
         if raw_content is not None:
             self._log_debug(message, raw_content)
 
     def _is_debug_enabled(self) -> bool:
+        """Return whether prompt-generation debug logging is enabled."""
         return bool(getattr(self._config, "prompt_generation_debug", False))
 
 
 class _PromptGenerationResourceFailure(Exception):
+    """Carry resource failure details before they are converted into API results."""
+
     def __init__(self, *, code: str, message: str, stage: str) -> None:
         super().__init__(message)
         self.code = code

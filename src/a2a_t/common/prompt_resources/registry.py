@@ -35,6 +35,7 @@ class PromptResourceRegistry:
         version: str,
         language: str,
     ) -> tuple[str, list[ScenarioDefinition], PromptMessages]:
+        """Load scenario recognition inputs with language fallback support."""
         resolved_language, payload = self._load_with_language_fallback(
             language=language,
             loader=lambda resolved_language: (
@@ -53,6 +54,7 @@ class PromptResourceRegistry:
         *,
         reference: PromptReference,
     ) -> tuple[PromptReference, str, SlotSchema, PromptMessages]:
+        """Load generation resources with language fallback support."""
         resolved_language, payload = self._load_with_language_fallback(
             language=reference.language,
             loader=lambda language: (
@@ -94,6 +96,7 @@ class PromptResourceRegistry:
         language: str,
         loader,
     ):
+        """Retry resource loads in English when the requested language is unavailable."""
         try:
             return language, loader(language)
         except PromptResourceNotFoundError:

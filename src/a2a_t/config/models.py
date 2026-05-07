@@ -10,22 +10,26 @@ from a2a_t.config.source import DotEnvConfigSource
 
 
 def _parse_bool(raw_value: str | None, default: bool) -> bool:
+    """Parse a boolean-like environment value with a fallback default."""
     if raw_value is None or not raw_value.strip():
         return default
     return raw_value.strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _parse_float(raw_value: str | None, default: float) -> float:
+    """Parse a float-like environment value with a fallback default."""
     if raw_value is None or not raw_value.strip():
         return default
     return float(raw_value)
 
 
 def _default_prompt_resource_root_dir() -> str:
+    """Return the packaged prompt resource root directory."""
     return str((Path(__file__).resolve().parents[3] / "package_data" / "prompt_resources").resolve())
 
 
 def _resolve_prompt_resource_root_dir(raw_value: str | None, *, base_dir: Path | None = None) -> str:
+    """Resolve prompt resource roots relative to the config file when needed."""
     if raw_value is None or not raw_value.strip():
         return _default_prompt_resource_root_dir()
 
@@ -47,6 +51,7 @@ class PromptRuntimeConfig:
 
     @classmethod
     def from_mapping(cls, values: Mapping[str, str], *, base_dir: Path | None = None) -> "PromptRuntimeConfig":
+        """Build prompt runtime config from raw environment values."""
         return cls(
             language=values.get("A2AT_LANGUAGE", "en-US") or "en-US",
             prompt_resource_version=values.get("A2AT_PROMPT_RESOURCE_VERSION", "0.0.1") or "0.0.1",
@@ -81,6 +86,7 @@ class PromptComplianceConfig:
 
     @classmethod
     def from_mapping(cls, values: Mapping[str, str]) -> "PromptComplianceConfig":
+        """Build prompt compliance config from raw environment values."""
         return cls(
             enabled=_parse_bool(values.get("A2AT_PROMPT_COMPLIANCE_ENABLED"), False),
             guardrail=GuardrailProviderConfig(
@@ -105,6 +111,7 @@ class A2ATConfig:
 
     @classmethod
     def load(cls, env_path: Path) -> A2ATConfig:
+        """Load the complete runtime configuration from a .env file."""
         values = DotEnvConfigSource.load(env_path)
         return cls(
             prompt=PromptRuntimeConfig.from_mapping(values, base_dir=env_path.parent),

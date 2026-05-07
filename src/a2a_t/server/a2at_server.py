@@ -12,10 +12,13 @@ from .prompt_compliance.prompt_compliance_orchestrator_builder import PromptComp
 
 
 def _default_env_path() -> Path:
+    """Return the default .env path used by the high-level server."""
     return Path(__file__).resolve().parents[3] / "package_data" / ".env"
 
 
 class A2ATServer:
+    """Expose the server-side prompt compliance and negotiation APIs."""
+
     def __init__(
         self,
         *,
@@ -37,6 +40,7 @@ class A2ATServer:
         )
 
     def check_task_prompt(self, *, processed_prompt_text: str) -> dict[str, object]:
+        """Validate a processed task prompt and return compliance details."""
         result = self._prompt_compliance_orchestrator.check(
             processed_prompt_text=processed_prompt_text,
             request_metadata=None,
@@ -52,10 +56,13 @@ class A2ATServer:
         }
 
     def start_negotiation(self, input: StartNegotiationInput) -> dict[str, object]:
+        """Start a server-side negotiation round."""
         return self._negotiation_orchestrator.start_negotiation(input)
 
     def receive_negotiation(self, message: str, context: dict[str, object]) -> dict[str, object]:
+        """Process a negotiation message received from the remote peer."""
         return self._negotiation_orchestrator.receive_negotiation(message, context)
 
     def continue_negotiation(self, input: ContinueNegotiationInput) -> dict[str, object]:
+        """Continue an existing negotiation with a local response."""
         return self._negotiation_orchestrator.continue_negotiation(input)

@@ -65,6 +65,7 @@ class PromptComplianceOrchestrator:
         processed_prompt_text: str,
         request_metadata: dict[str, object] | None = None,
     ) -> PromptComplianceResult:
+        """Validate a processed task prompt and derive follow-up negotiation hints when needed."""
         try:
             guardrail_result = self._guardrail.check(processed_prompt_text, request_metadata)
         except GuardrailExecutionError as error:
@@ -142,6 +143,7 @@ class PromptComplianceOrchestrator:
             slot_schema=slot_schema,
         )
         if not validation_result.passed:
+            # Only negotiable slot failures become structured follow-up requests for the caller.
             error_message = self._aggregate_slot_errors(validation_result)
             slot_errors = list(validation_result.slot_errors)
             return PromptComplianceResult(
@@ -166,13 +168,16 @@ class PromptComplianceOrchestrator:
 
     @staticmethod
     def _parse_reference(processed_prompt_text: str) -> PromptReference:
+        """Extract the prompt reference embedded in task prompt front matter."""
         return parse_task_prompt_metadata(processed_prompt_text).to_prompt_reference()
 
     def _aggregate_slot_errors(self, validation_result: SlotValidationResult) -> str:
+        """Collapse slot validation messages into the single message exposed to callers."""
         messages = [slot_error.message for slot_error in validation_result.slot_errors if slot_error.message]
         return "; ".join(messages) if messages else "Slot validation failed."
 
     def _is_negotiable_slot_failure(self, slot_errors: list[SlotValidationError]) -> bool:
+        """Return whether all slot failures can be resolved through information negotiation."""
         if not slot_errors:
             return False
         return all(slot_error.code in {MISSING_INPUT, INVALID_VALUE} for slot_error in slot_errors)
@@ -183,6 +188,7 @@ class PromptComplianceOrchestrator:
         error_message: str,
         slot_errors: list[SlotValidationError],
     ) -> dict[str, object] | None:
+        """Build the structured negotiation input expected by downstream negotiation flows."""
         if not self._is_negotiable_slot_failure(slot_errors):
             return None
 
@@ -210,6 +216,7 @@ class PromptComplianceOrchestrator:
 
     @staticmethod
     def _error_result(stage: str, error_code: str, error_message: str) -> PromptComplianceResult:
+        """Build a standardized compliance failure result."""
         return PromptComplianceResult(
             passed=False,
             stage=stage,

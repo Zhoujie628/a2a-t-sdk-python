@@ -6,6 +6,8 @@ from .models import SlotValidationError, SlotValidationResult
 
 
 class SlotValidator:
+    """Apply schema-level slot presence validation on extraction results."""
+
     def validate(
         self,
         *,
@@ -13,6 +15,7 @@ class SlotValidator:
         slot_errors: list[SlotValidationError],
         slot_schema: SlotSchema,
     ) -> SlotValidationResult:
+        """Merge model-reported slot issues with local required-field checks."""
         normalized_errors = list(slot_errors)
         existing_slot_names = {error.slot_name for error in normalized_errors}
 
@@ -23,6 +26,7 @@ class SlotValidator:
             if slot.name in existing_slot_names:
                 continue
             if self._is_missing(slot_value):
+                # Preserve model-reported errors and only synthesize the missing ones locally.
                 normalized_errors.append(
                     SlotValidationError(
                         slot_name=slot.name,
@@ -37,6 +41,7 @@ class SlotValidator:
         )
 
     def _is_missing(self, value: str | None) -> bool:
+        """Treat null and blank strings as missing slot values."""
         if value is None:
             return True
         return not value.strip()

@@ -5,6 +5,8 @@ from a2a_t.negotiation.runtime.base_negotiation_orchestrator import BaseNegotiat
 
 
 class NegotiationOrchestrator(BaseNegotiationOrchestrator):
+    """Bind the shared negotiation runtime to the server role."""
+
     def __init__(self, *, handler) -> None:
         super().__init__(
             handler=handler,

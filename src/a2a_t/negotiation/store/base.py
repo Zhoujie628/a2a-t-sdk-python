@@ -6,6 +6,8 @@ from a2a_t.negotiation.common.models import NegotiationRecord
 
 
 class NegotiationStateStore(Protocol):
+    """Describe the persistence contract for negotiation records."""
+
     def get(self, negotiation_id: str) -> NegotiationRecord | None: ...
 
     def save(self, record: NegotiationRecord) -> None: ...

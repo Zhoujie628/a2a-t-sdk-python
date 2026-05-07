@@ -35,6 +35,7 @@ class LLMAdapterFactory:
 
     @classmethod
     def _resolve(cls, adapter_type: str) -> type[LLMAdapter]:
+        """Resolve an adapter type, importing it lazily when necessary."""
         adapter_class = cls._adapters.get(adapter_type)
         if adapter_class is not None:
             return adapter_class
@@ -44,6 +45,7 @@ class LLMAdapterFactory:
             available = cls.available_types()
             raise LLMConfigError(f"Unknown adapter type: {adapter_type}. Available: {available}")
 
+        # Adapter modules stay lazily imported so unsupported providers do not pull optional dependencies.
         module_name, class_name = import_target
         module = import_module(module_name)
         adapter_class = getattr(module, class_name)

@@ -4,7 +4,10 @@ from a2a_t.common.prompt_resources.models import SlotSchema
 
 
 class AnalysisJsonSchemaBuilder:
+    """Build JSON schemas that constrain prompt analysis model outputs."""
+
     def build_scenario_recognition_schema(self) -> dict[str, object]:
+        """Return the schema expected from scenario recognition."""
         return {
             "type": "object",
             "additionalProperties": False,
@@ -17,6 +20,7 @@ class AnalysisJsonSchemaBuilder:
         }
 
     def build_slot_extraction_schema(self, *, slot_schema: SlotSchema) -> dict[str, object]:
+        """Return the schema expected from slot extraction for a given slot schema."""
         slot_names = [slot.name for slot in slot_schema.slots]
         slot_properties = {slot.name: {"type": ["string", "null"]} for slot in slot_schema.slots}
         return {

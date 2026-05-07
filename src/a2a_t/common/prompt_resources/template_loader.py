@@ -6,6 +6,9 @@ from ._base import BasePromptResourceLoader
 
 
 class TemplateLoader(BasePromptResourceLoader):
+    """Load scenario-specific task prompt templates."""
+
     def load(self, *, reference: PromptReference) -> str:
+        """Return the template text for the referenced scenario resource."""
         path = f"templates/{reference.scenario_code}/{reference.version}/{reference.language}/template.md"
         return self._read_text(path)

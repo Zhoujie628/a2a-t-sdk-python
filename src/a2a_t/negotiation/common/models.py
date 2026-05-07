@@ -8,6 +8,8 @@ from .enums import NegotiationRole, NegotiationStatus, NegotiationType
 
 @dataclass(slots=True)
 class StartNegotiationInput:
+    """Carry the input required to open a negotiation."""
+
     type: NegotiationType
     content_text: str
     facts: dict[str, object]
@@ -15,6 +17,8 @@ class StartNegotiationInput:
 
 @dataclass(slots=True)
 class ContinueNegotiationInput:
+    """Carry the input required to continue an active negotiation."""
+
     context: "NegotiationContext"
     status: NegotiationStatus
     content_text: str
@@ -22,6 +26,8 @@ class ContinueNegotiationInput:
 
 @dataclass(slots=True)
 class NegotiationContext:
+    """Represent the transport-safe context shared between negotiation rounds."""
+
     negotiation_type: NegotiationType
     negotiation_id: str
     role: NegotiationRole
@@ -31,6 +37,7 @@ class NegotiationContext:
 
     @classmethod
     def from_context(cls, context: dict[str, object]) -> "NegotiationContext":
+        """Parse and validate a serialized negotiation context payload."""
         try:
             negotiation_type = NegotiationType(str(context["negotiationType"]))
             negotiation_id = str(context["negotiationId"])
@@ -54,6 +61,7 @@ class NegotiationContext:
         )
 
     def to_context(self) -> dict[str, object]:
+        """Serialize the negotiation context into the transport payload shape."""
         return {
             "negotiationType": self.negotiation_type.value,
             "negotiationId": self.negotiation_id,
@@ -66,6 +74,8 @@ class NegotiationContext:
 
 @dataclass(slots=True)
 class ReceiveResult:
+    """Represent the local outcome of processing a received negotiation message."""
+
     need_response: bool
     facts: dict[str, object]
     message: str = ""
@@ -73,12 +83,16 @@ class ReceiveResult:
 
 @dataclass(slots=True)
 class ContinueResult:
+    """Represent the prompt emitted when a negotiation is continued locally."""
+
     prompt_text: str
     final_task_prompt: str | None
 
 
 @dataclass(slots=True)
 class NegotiationRecord:
+    """Persist the local state accumulated for one negotiation."""
+
     context: NegotiationContext
     last_message: str | None
     last_receive_result: ReceiveResult | None

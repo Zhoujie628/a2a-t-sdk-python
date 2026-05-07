@@ -12,10 +12,13 @@ from .prompt_generation.prompt_generation_orchestrator_builder import PromptGene
 
 
 def _default_env_path() -> Path:
+    """Return the default .env path used by the high-level client."""
     return Path(__file__).resolve().parents[3] / "package_data" / ".env"
 
 
 class A2ATClient:
+    """Expose the client-side prompt generation and negotiation APIs."""
+
     def __init__(
         self,
         *,
@@ -36,13 +39,17 @@ class A2ATClient:
         )
 
     def generate_task_prompt(self, user_input: str | dict[str, object]) -> object:
+        """Generate a processed task prompt from user input."""
         return self._prompt_generation_orchestrator.generate(user_input)
 
     def start_negotiation(self, input: StartNegotiationInput) -> dict[str, object]:
+        """Start a client-side negotiation round."""
         return self._negotiation_orchestrator.start_negotiation(input)
 
     def receive_negotiation(self, message: str, context: dict[str, object]) -> dict[str, object]:
+        """Process a negotiation message received from the remote peer."""
         return self._negotiation_orchestrator.receive_negotiation(message, context)
 
     def continue_negotiation(self, input: ContinueNegotiationInput) -> dict[str, object]:
+        """Continue an existing negotiation with a local response."""
         return self._negotiation_orchestrator.continue_negotiation(input)

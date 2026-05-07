@@ -18,6 +18,8 @@ from .negotiation_orchestrator import NegotiationOrchestrator
 
 
 class ClientNegotiationOrchestratorBuilder:
+    """Assemble the client-side negotiation runtime."""
+
     def __init__(
         self,
         *,
@@ -37,6 +39,7 @@ class ClientNegotiationOrchestratorBuilder:
         env_path: str | Path | None = None,
         logger: Any | None = None,
     ) -> NegotiationOrchestrator:
+        """Build a client negotiation orchestrator with all supported negotiation types."""
         prompt_renderer = self._prompt_renderer_cls()
         store = self._build_store(env_path=env_path, logger=logger)
         handler = self._handler_cls(
@@ -53,6 +56,7 @@ class ClientNegotiationOrchestratorBuilder:
         )
 
     def _build_store(self, *, env_path: str | Path | None, logger: Any | None) -> object:
+        """Resolve the negotiation state store configured for the client runtime."""
         return self._store_factory.build(
             env_path=env_path,
             logger=logger,

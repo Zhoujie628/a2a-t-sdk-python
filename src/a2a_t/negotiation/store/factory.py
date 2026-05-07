@@ -10,12 +10,15 @@ from .in_memory import InMemoryNegotiationStateStore
 
 
 class NegotiationStateStoreFactory:
+    """Create negotiation state stores from environment-backed configuration."""
+
     def build(
         self,
         *,
         env_path: str | Path | None = None,
         logger: Any | None = None,
     ) -> InMemoryNegotiationStateStore:
+        """Build the configured store or fall back to the in-memory implementation."""
         if env_path is None:
             return InMemoryNegotiationStateStore()
 
@@ -32,6 +35,7 @@ class NegotiationStateStoreFactory:
         if store_type == "in_memory":
             return InMemoryNegotiationStateStore()
 
+        # Unsupported store types degrade to the in-memory store so negotiation can still proceed.
         self._warning(
             logger,
             "Negotiation state store type %s is unsupported. Falling back to in_memory store.",
@@ -41,5 +45,6 @@ class NegotiationStateStoreFactory:
 
     @staticmethod
     def _warning(logger: Any | None, message: str, *args: object) -> None:
+        """Emit a warning only when the caller supplied a warning-capable logger."""
         if logger is not None and hasattr(logger, "warning"):
             logger.warning(message, *args)

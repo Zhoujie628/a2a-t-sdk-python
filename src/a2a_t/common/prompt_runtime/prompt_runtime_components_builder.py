@@ -15,11 +15,16 @@ from .prompt_runtime_components import PromptRuntimeComponents
 
 
 class PromptRuntimeComponentsBuilder:
+    """Build the shared prompt runtime services used by client and server flows."""
+
     def build(self, *, config: A2ATConfig) -> PromptRuntimeComponents:
+        """Create loaders, validators, and guardrails from the resolved config."""
         prompt_config = config.prompt
         if prompt_config.source_type != "local_file":
             raise ValueError(f"Unsupported prompt resource source_type: {prompt_config.source_type}")
 
+        # All prompt resources currently resolve from the same local root so downstream
+        # components observe identical fallback and error behavior.
         resource_source = LocalPromptResourceSource(
             root_dir=prompt_config.local_root_dir,
             cache=None,

@@ -20,9 +20,11 @@ class LocalPromptResourceCatalog:
 
     @property
     def root_dir(self) -> Path:
+        """Expose the local root directory used for resource resolution."""
         return self._root_dir
 
     def resolve(self, *, relative_path: str) -> Path:
+        """Resolve a relative resource path and reject path traversal attempts."""
         relative = Path(relative_path)
         if relative.is_absolute():
             raise PromptSourceError("Prompt resource path must be relative.", locator=relative_path, source_type="local_file")
@@ -34,4 +36,5 @@ class LocalPromptResourceCatalog:
         return target
 
     def _default_root_dir(self) -> Path:
+        """Return the packaged prompt resource root used by default catalogs."""
         return Path(__file__).resolve().parents[4] / "package_data" / "prompt_resources"

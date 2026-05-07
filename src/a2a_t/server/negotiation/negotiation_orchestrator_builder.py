@@ -21,6 +21,8 @@ from .negotiation_orchestrator import NegotiationOrchestrator
 
 
 class ServerNegotiationOrchestratorBuilder:
+    """Assemble the server-side negotiation runtime."""
+
     def __init__(
         self,
         *,
@@ -46,6 +48,7 @@ class ServerNegotiationOrchestratorBuilder:
         env_path: str | Path | None = None,
         logger: Any | None = None,
     ) -> NegotiationOrchestrator:
+        """Build a server negotiation orchestrator with compliance-aware information flows."""
         components = self._runtime_components_builder.build(config=config)
         prompt_checker = self._prompt_compliance_builder.build(
             config=config,
@@ -71,6 +74,7 @@ class ServerNegotiationOrchestratorBuilder:
         )
 
     def _build_store(self, *, env_path: str | Path | None, logger: Any | None) -> object:
+        """Resolve the negotiation state store configured for the server runtime."""
         return self._store_factory.build(
             env_path=env_path,
             logger=logger,

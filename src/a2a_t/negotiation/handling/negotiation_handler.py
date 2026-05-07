@@ -16,6 +16,8 @@ from a2a_t.negotiation.store.base import NegotiationStateStore
 
 
 class NegotiationHandler:
+    """Own negotiation state transitions across start, receive, and continue flows."""
+
     def __init__(
         self,
         *,
@@ -26,6 +28,7 @@ class NegotiationHandler:
         self._store = store
 
     def start(self, *, input: StartNegotiationInput, role: NegotiationRole) -> dict[str, object]:
+        """Start a negotiation and persist the initial local record."""
         negotiation_type_key = self._normalize_negotiation_type(input.type)
         context = self._create_start_context(
             negotiation_type=negotiation_type_key,
@@ -51,6 +54,7 @@ class NegotiationHandler:
         )
 
     def receive(self, *, message: str, context: dict[str, object]) -> dict[str, object]:
+        """Validate and process a negotiation message received from the remote peer."""
         context = NegotiationContext.from_context(context)
         record = self._store.get(context.negotiation_id)
         if record is None:
@@ -77,6 +81,7 @@ class NegotiationHandler:
             raise NegotiationStateError("Incoming negotiation context is inconsistent with local state.")
 
         if context.status == NegotiationStatus.IN_PROGRESS and context.round >= MAX_IN_PROGRESS_NEGOTIATION_ROUND:
+            # Force an explicit stop once the safety round limit is reached instead of looping forever.
             receive_result = ReceiveResult(
                 need_response=True,
                 facts={},
@@ -109,6 +114,7 @@ class NegotiationHandler:
         )
 
     def continue_(self, *, input: ContinueNegotiationInput) -> dict[str, object]:
+        """Render the next local negotiation message and persist the advanced state."""
         record = self._store.get(input.context.negotiation_id)
         if record is None:
             raise NegotiationStateError("Negotiation record is missing.")
@@ -121,6 +127,7 @@ class NegotiationHandler:
             or input.context.round != record.context.round
             or input.context.status != record.context.status
         ):
+            # Continue operations must use the exact local snapshot to avoid diverging branches.
             raise NegotiationStateError("Negotiation continue context is inconsistent with local state.")
 
         negotiation_type = self._get_negotiation_type(input.context.negotiation_type)
@@ -146,6 +153,7 @@ class NegotiationHandler:
         )
 
     def _get_negotiation_type(self, negotiation_type: NegotiationType) -> object:
+        """Resolve the strategy object that implements one negotiation type."""
         try:
             return self._negotiation_types[negotiation_type]
         except KeyError as error:
@@ -153,6 +161,7 @@ class NegotiationHandler:
 
     @staticmethod
     def _normalize_negotiation_type(value: NegotiationType | str) -> NegotiationType:
+        """Normalize external negotiation type values into the shared enum."""
         try:
             return value if isinstance(value, NegotiationType) else NegotiationType(str(value))
         except ValueError as error:
@@ -160,10 +169,12 @@ class NegotiationHandler:
 
     @staticmethod
     def _utc_now() -> datetime:
+        """Return the current UTC timestamp used for negotiation record bookkeeping."""
         return datetime.now(timezone.utc)
 
     @staticmethod
     def _create_start_context(*, negotiation_type: NegotiationType, role: NegotiationRole) -> NegotiationContext:
+        """Create the initial context for a newly started negotiation."""
         return NegotiationContext(
             negotiation_type=negotiation_type,
             negotiation_id=str(uuid.uuid4()),
@@ -175,6 +186,7 @@ class NegotiationHandler:
 
     @staticmethod
     def _create_next_context(*, previous: NegotiationContext, status: NegotiationStatus) -> NegotiationContext:
+        """Advance a negotiation context to the next round while preserving identity."""
         return NegotiationContext(
             negotiation_type=previous.negotiation_type,
             negotiation_id=previous.negotiation_id,
@@ -191,6 +203,7 @@ class NegotiationHandler:
         context: NegotiationContext,
         final_task_prompt: str | None = None,
     ) -> dict[str, object]:
+        """Build the transport payload returned by start and continue operations."""
         result: dict[str, object] = {
             NEGOTIATION_TEXT_KEY: prompt_text,
             NEGOTIATION_CONTEXT_KEY: context.to_context(),
@@ -205,6 +218,7 @@ class NegotiationHandler:
         context: NegotiationContext,
         receive_result: ReceiveResult,
     ) -> dict[str, object]:
+        """Build the transport payload returned by receive operations."""
         return {
             "context": context.to_context(),
             "needResponse": receive_result.need_response,

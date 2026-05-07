@@ -7,6 +7,8 @@ from .base import BaseNegotiationType
 
 
 class InformationNegotiationType(BaseNegotiationType):
+    """Handle information negotiations that may end in a completed task prompt."""
+
     _COMPLETE_MESSAGE = "Task prompt is complete."
 
     def __init__(self, *, prompt_renderer, prompt_checker=None) -> None:
@@ -20,6 +22,7 @@ class InformationNegotiationType(BaseNegotiationType):
         context: NegotiationContext,
         record: NegotiationRecord | None,
     ) -> ReceiveResult:
+        """Validate received prompt content and decide whether more information is needed."""
         if context.status in {NegotiationStatus.AGREED, NegotiationStatus.REJECTED}:
             return ReceiveResult(
                 need_response=False,
@@ -32,13 +35,14 @@ class InformationNegotiationType(BaseNegotiationType):
                 message=message,
                 context=context,
                 record=None,
-            )
+        )
 
         compliance_result = self._prompt_checker.check(
             processed_prompt_text=message,
             request_metadata=None,
         )
         if compliance_result.need_negotiation and compliance_result.negotiation_input is not None:
+            # Negotiable validation issues feed back into the same information negotiation channel.
             return ReceiveResult(
                 need_response=True,
                 facts={},
@@ -65,6 +69,7 @@ class InformationNegotiationType(BaseNegotiationType):
         status: NegotiationStatus,
         content_text: str,
     ) -> ContinueResult:
+        """Render the next information negotiation prompt and finalize agreed task prompts."""
         prompt_text = self._prompt_renderer.render_continue(
             negotiation_type=context.negotiation_type,
             message=content_text,

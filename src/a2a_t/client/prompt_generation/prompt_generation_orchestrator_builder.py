@@ -11,6 +11,8 @@ from .prompt_generation_orchestrator import PromptGenerationOrchestrator
 
 
 class PromptGenerationOrchestratorBuilder:
+    """Assemble the client-side prompt generation runtime."""
+
     def __init__(
         self,
         *,
@@ -33,6 +35,7 @@ class PromptGenerationOrchestratorBuilder:
         llm_client: Any,
         logger: Any | None = None,
     ) -> PromptGenerationOrchestrator:
+        """Build a fully wired prompt generation orchestrator."""
         components = self._runtime_components_builder.build(config=config)
         scenario_recognizer = self._scenario_recognizer_cls(llm_client=llm_client)
         slot_extractor = self._slot_extractor_cls(llm_client=llm_client)

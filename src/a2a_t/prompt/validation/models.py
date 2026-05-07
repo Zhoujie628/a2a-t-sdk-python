@@ -6,16 +6,21 @@ from enum import Enum
 
 @dataclass(slots=True)
 class SlotValidationError:
+    """Describe one slot-level validation problem."""
+
     slot_name: str
     code: str
     message: str
 
     def to_dict(self) -> dict[str, object]:
+        """Serialize the slot validation error into the public response shape."""
         return asdict(self)
 
 
 @dataclass(slots=True)
 class SlotValidationResult:
+    """Represent the combined outcome of slot validation."""
+
     passed: bool
     slot_errors: list[SlotValidationError]
 
@@ -40,6 +45,8 @@ class GuardrailRequest:
 
 @dataclass(slots=True)
 class GuardrailResult:
+    """Represent the normalized result returned by a safety guardrail."""
+
     passed: bool
     decision: GuardrailDecision = GuardrailDecision.ALLOW
     category: str | None = None
