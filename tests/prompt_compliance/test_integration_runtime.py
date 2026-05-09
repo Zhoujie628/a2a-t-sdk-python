@@ -73,15 +73,14 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
         path.write_text(content, encoding="utf-8")
 
     def test_handler_check_task_prompt_succeeds_with_real_shared_components(self) -> None:
-        self._write_resource_file("templates/energy_saving/0.0.1/en-US/template.md", "Site: {site}")
-        self._write_resource_file("prompts/slot_extraction/0.0.1/en-US/system.md", "Extract slots.")
-        self._write_resource_file("prompts/slot_extraction/0.0.1/en-US/user.md", "Return slots.")
+        self._write_resource_file("templates/energy_saving/en-US/template.md", "Site: {site}")
+        self._write_resource_file("prompts/slot_extraction/en-US/system.md", "Extract slots.")
+        self._write_resource_file("prompts/slot_extraction/en-US/user.md", "Return slots.")
         self._write_resource_file(
-            "slots/energy_saving/0.0.1/en-US/slot.json",
+            "slots/energy_saving/en-US/slot.json",
             json.dumps(
                 {
                     "scenario_code": "energy_saving",
-                    "version": "0.0.1",
                     "slots": [
                         {
                             "name": "site",
@@ -105,7 +104,7 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
             scenario_resolver=FakeScenarioResolver(
                 ScenarioResolutionResult(
                     success=True,
-                    reference=PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+                    reference=PromptReference(scenario_code="energy_saving", language="en-US"),
                     scenario=ScenarioDefinition(
                         scenario_code="energy_saving",
                         scenario_name="Energy Saving",
@@ -139,11 +138,11 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
         self.assertEqual(result, {"success": True})
 
     def test_handler_check_task_prompt_returns_business_constraint_message_for_invalid_slot_value(self) -> None:
-        self._write_resource_file("templates/subscribe_incident/0.0.1/en-US/template.md", "Levels: {subscription_condition_incident_level}")
-        self._write_resource_file("prompts/slot_extraction/0.0.1/en-US/system.md", "Extract slots.")
-        self._write_resource_file("prompts/slot_extraction/0.0.1/en-US/user.md", "Return slots.")
+        self._write_resource_file("templates/subscribe_incident/en-US/template.md", "Levels: {subscription_condition_incident_level}")
+        self._write_resource_file("prompts/slot_extraction/en-US/system.md", "Extract slots.")
+        self._write_resource_file("prompts/slot_extraction/en-US/user.md", "Return slots.")
         self._write_resource_file(
-            "slots/subscribe_incident/0.0.1/en-US/slot.json",
+            "slots/subscribe_incident/en-US/slot.json",
             json.dumps(
                 {
                     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -169,7 +168,7 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
             scenario_resolver=FakeScenarioResolver(
                 ScenarioResolutionResult(
                     success=True,
-                    reference=PromptReference(scenario_code="subscribe_incident", language="en-US", version="0.0.1"),
+                    reference=PromptReference(scenario_code="subscribe_incident", language="en-US"),
                     scenario=ScenarioDefinition(
                         scenario_code="subscribe_incident",
                         scenario_name="Subscribe Incident",
@@ -213,11 +212,11 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
         )
 
     def test_handler_check_task_prompt_succeeds_when_optional_subscribe_incident_slots_are_null(self) -> None:
-        self._write_resource_file("templates/subscribe_incident/0.0.1/en-US/template.md", "Name: {subscription_condition_incident_name}\nLevels: {subscription_condition_incident_level}")
-        self._write_resource_file("prompts/slot_extraction/0.0.1/en-US/system.md", "Extract slots.")
-        self._write_resource_file("prompts/slot_extraction/0.0.1/en-US/user.md", "Return slots.")
+        self._write_resource_file("templates/subscribe_incident/en-US/template.md", "Name: {subscription_condition_incident_name}\nLevels: {subscription_condition_incident_level}")
+        self._write_resource_file("prompts/slot_extraction/en-US/system.md", "Extract slots.")
+        self._write_resource_file("prompts/slot_extraction/en-US/user.md", "Return slots.")
         self._write_resource_file(
-            "slots/subscribe_incident/0.0.1/en-US/slot.json",
+            "slots/subscribe_incident/en-US/slot.json",
             json.dumps(
                 {
                     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -249,7 +248,7 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
             scenario_resolver=FakeScenarioResolver(
                 ScenarioResolutionResult(
                     success=True,
-                    reference=PromptReference(scenario_code="subscribe_incident", language="en-US", version="0.0.1"),
+                    reference=PromptReference(scenario_code="subscribe_incident", language="en-US"),
                     scenario=ScenarioDefinition(
                         scenario_code="subscribe_incident",
                         scenario_name="Subscribe Incident",

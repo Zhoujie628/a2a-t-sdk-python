@@ -38,7 +38,6 @@ class ScenarioResolutionOrchestrator:
         """Return a resolved prompt reference or a standardized failure."""
         try:
             resolved_language, scenarios, scenario_prompts = self._resource_registry.load_scenario_resources(
-                version=self._config.prompt_resource_version,
                 language=self._config.language,
             )
         except PromptResourceNotFoundError as error:
@@ -75,7 +74,6 @@ class ScenarioResolutionOrchestrator:
                     reference=PromptReference(
                         scenario_code=scenario.scenario_code,
                         language=resolved_language,
-                        version=self._config.prompt_resource_version,
                     ),
                     scenario=scenario,
                 )

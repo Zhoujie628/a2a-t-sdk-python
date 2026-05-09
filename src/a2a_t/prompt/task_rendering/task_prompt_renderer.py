@@ -13,7 +13,6 @@ class TaskPromptRenderer:
         slots: dict[str, str | None],
         scenario_code: str,
         language: str,
-        version: str,
         description: str,
     ) -> str:
         """Render a processed task prompt body from a template and extracted slots."""

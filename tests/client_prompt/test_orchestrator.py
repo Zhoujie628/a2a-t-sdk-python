@@ -36,7 +36,7 @@ from a2a_t.common.prompt_resources.models import PromptMessages, ScenarioDefinit
 
 
 class FakeScenarioLoader:
-    def load(self, *, version: str, language: str) -> list[ScenarioDefinition]:
+    def load(self, *, language: str) -> list[ScenarioDefinition]:
         return [
             ScenarioDefinition(
                 scenario_code="energy_saving",
@@ -48,7 +48,7 @@ class FakeScenarioLoader:
 
 
 class FakePromptResourceLoader:
-    def load(self, *, analysis_action: str, version: str, language: str) -> PromptMessages:
+    def load(self, *, analysis_action: str, language: str) -> PromptMessages:
         if analysis_action == "scenario_recognition":
             return PromptMessages(system_prompt="Identify scenario.", user_prompt="Choose scenario.")
         return PromptMessages(system_prompt="Extract slots.", user_prompt="Return slots.")
@@ -71,7 +71,6 @@ class FakeSlotSchemaLoader:
         self.last_reference = reference
         return SlotSchema(
             scenario_code="energy_saving",
-            version="0.0.1",
             slots=[
                 SlotDefinition(
                     name="site",
@@ -160,7 +159,7 @@ class FakeResourceRegistry:
         self._scenario_result = scenario_result
         self._generation_result = generation_result
 
-    def load_scenario_resources(self, *, version: str, language: str) -> object:
+    def load_scenario_resources(self, *, language: str) -> object:
         if isinstance(self._scenario_result, Exception):
             raise self._scenario_result
         return self._scenario_result
@@ -178,14 +177,12 @@ class FakePromptRuntimeConfig(PromptRuntimeConfig):
         self,
         *,
         language: str = "en-US",
-        prompt_resource_version: str = "0.0.1",
         source_type: str = "local_file",
         local_root_dir: str = "./package_data/prompt_resources",
         prompt_generation_debug: bool = False,
     ) -> None:
         super().__init__(
             language=language,
-            prompt_resource_version=prompt_resource_version,
             source_type=source_type,
             local_root_dir=local_root_dir,
         )
@@ -229,7 +226,6 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         return PromptGenerationOrchestrator(
             config=FakePromptRuntimeConfig(
                 language="en-US",
-                prompt_resource_version="0.0.1",
                 prompt_generation_debug=debug_enabled,
             ),
             scenario_loader=FakeScenarioLoader(),
@@ -256,7 +252,7 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
                 scenario_resolver=FakeScenarioResolver(
                     ScenarioResolutionResult(
                         success=True,
-                        reference=PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+                        reference=PromptReference(scenario_code="energy_saving", language="en-US"),
                         scenario=ScenarioDefinition(
                             scenario_code="energy_saving",
                             scenario_name="Energy Saving",
@@ -277,7 +273,7 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         orchestrator = self._build_orchestrator(
             scenario_result=ScenarioResolutionResult(
                 success=True,
-                reference=PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+                reference=PromptReference(scenario_code="energy_saving", language="en-US"),
                 scenario=ScenarioDefinition(
                     scenario_code="energy_saving",
                     scenario_name="Energy Saving",
@@ -296,15 +292,15 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertEqual(
             self.template_loader.last_reference,
-            PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+            PromptReference(scenario_code="energy_saving", language="en-US"),
         )
         self.assertEqual(
             self.slot_schema_loader.last_reference,
-            PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+            PromptReference(scenario_code="energy_saving", language="en-US"),
         )
         self.assertEqual(
             self.slot_extractor.last_reference,
-            PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+            PromptReference(scenario_code="energy_saving", language="en-US"),
         )
         self.assertIsNone(result.failure)
         self.assertEqual(result.prompt_text, "Site: Site A\nNotes: ")
@@ -313,7 +309,7 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         orchestrator = self._build_orchestrator(
             scenario_result=ScenarioResolutionResult(
                 success=True,
-                reference=PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+                reference=PromptReference(scenario_code="energy_saving", language="en-US"),
                 scenario=ScenarioDefinition(
                     scenario_code="energy_saving",
                     scenario_name="Energy Saving",
@@ -380,7 +376,7 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         orchestrator = self._build_orchestrator(
             scenario_result=ScenarioResolutionResult(
                 success=True,
-                reference=PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+                reference=PromptReference(scenario_code="energy_saving", language="en-US"),
                 scenario=ScenarioDefinition(
                     scenario_code="energy_saving",
                     scenario_name="Energy Saving",
@@ -408,7 +404,7 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         orchestrator = self._build_orchestrator(
             scenario_result=ScenarioResolutionResult(
                 success=True,
-                reference=PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+                reference=PromptReference(scenario_code="energy_saving", language="en-US"),
                 scenario=ScenarioDefinition(
                     scenario_code="energy_saving",
                     scenario_name="Energy Saving",
@@ -431,7 +427,7 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         orchestrator = self._build_orchestrator(
             scenario_result=ScenarioResolutionResult(
                 success=True,
-                reference=PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+                reference=PromptReference(scenario_code="energy_saving", language="en-US"),
                 scenario=ScenarioDefinition(
                     scenario_code="energy_saving",
                     scenario_name="Energy Saving",
@@ -456,7 +452,7 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         orchestrator = self._build_orchestrator(
             scenario_result=ScenarioResolutionResult(
                 success=True,
-                reference=PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+                reference=PromptReference(scenario_code="energy_saving", language="en-US"),
                 scenario=ScenarioDefinition(
                     scenario_code="energy_saving",
                     scenario_name="Energy Saving",

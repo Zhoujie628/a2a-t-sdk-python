@@ -44,7 +44,7 @@ class SlotJsonSchemaLoaderTest(ManagedTempDirTestCase):
 
     def test_loader_reads_raw_json_schema_object(self) -> None:
         self._write_json(
-            "slots/energy_saving/0.0.1/en-US/slot.json",
+            "slots/energy_saving/en-US/slot.json",
             {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "type": "object",
@@ -58,7 +58,7 @@ class SlotJsonSchemaLoaderTest(ManagedTempDirTestCase):
 
         loader = SlotJsonSchemaLoader(root_dir=self.root)
         slot_schema = loader.load(
-            reference=PromptReference(scenario_code="energy_saving", version="0.0.1", language="en-US")
+            reference=PromptReference(scenario_code="energy_saving", language="en-US")
         )
 
         self.assertEqual(slot_schema["type"], "object")
@@ -67,7 +67,7 @@ class SlotJsonSchemaLoaderTest(ManagedTempDirTestCase):
 
     def test_loader_reads_via_prompt_resource_source(self) -> None:
         source = FakePromptResourceSource()
-        source.json_values["slots/energy_saving/0.0.1/en-US/slot.json"] = {
+        source.json_values["slots/energy_saving/en-US/slot.json"] = {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "type": "object",
             "properties": {"site": {"type": "string", "minLength": 1}},
@@ -78,18 +78,17 @@ class SlotJsonSchemaLoaderTest(ManagedTempDirTestCase):
 
         loader = SlotJsonSchemaLoader(source=source)
         slot_schema = loader.load(
-            reference=PromptReference(scenario_code="energy_saving", version="0.0.1", language="en-US")
+            reference=PromptReference(scenario_code="energy_saving", language="en-US")
         )
 
-        self.assertEqual(source.json_reads, ["slots/energy_saving/0.0.1/en-US/slot.json"])
+        self.assertEqual(source.json_reads, ["slots/energy_saving/en-US/slot.json"])
         self.assertEqual(slot_schema["required"], ["site"])
 
     def test_loader_translates_legacy_slot_schema_to_string_json_schema(self) -> None:
         self._write_json(
-            "slots/energy_saving/0.0.1/en-US/slot.json",
+            "slots/energy_saving/en-US/slot.json",
             {
                 "scenario_code": "energy_saving",
-                "version": "0.0.1",
                 "slots": [
                     {
                         "name": "site",
@@ -121,7 +120,7 @@ class SlotJsonSchemaLoaderTest(ManagedTempDirTestCase):
 
         loader = SlotJsonSchemaLoader(root_dir=self.root)
         slot_schema = loader.load(
-            reference=PromptReference(scenario_code="energy_saving", version="0.0.1", language="en-US")
+            reference=PromptReference(scenario_code="energy_saving", language="en-US")
         )
 
         self.assertEqual(slot_schema["type"], "object")

@@ -45,7 +45,6 @@ class PromptRuntimeConfig:
     """Prompt runtime configuration owned by the config package."""
 
     language: str = "en-US"
-    prompt_resource_version: str = "0.0.1"
     source_type: str = "local_file"
     local_root_dir: str = field(default_factory=_default_prompt_resource_root_dir)
 
@@ -54,7 +53,6 @@ class PromptRuntimeConfig:
         """Build prompt runtime config from raw environment values."""
         return cls(
             language=values.get("A2AT_LANGUAGE", "en-US") or "en-US",
-            prompt_resource_version=values.get("A2AT_PROMPT_RESOURCE_VERSION", "0.0.1") or "0.0.1",
             source_type=values.get("A2AT_PROMPT_SOURCE_TYPE", "local_file") or "local_file",
             local_root_dir=_resolve_prompt_resource_root_dir(
                 values.get("A2AT_PROMPT_RESOURCE_LOCAL_ROOT_DIR"),

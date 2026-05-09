@@ -128,7 +128,6 @@ class PromptComplianceOrchestrator:
         try:
             slot_prompts = self._prompt_resource_loader.load(
                 analysis_action="slot_extraction",
-                version=reference.version,
                 language=reference.language,
             )
         except PromptResourceNotFoundError as error:

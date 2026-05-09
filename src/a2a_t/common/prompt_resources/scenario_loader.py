@@ -7,9 +7,9 @@ from .models import ScenarioDefinition
 class ScenarioLoader(BasePromptResourceLoader):
     """Load scenario definitions for scenario recognition."""
 
-    def load(self, *, version: str, language: str) -> list[ScenarioDefinition]:
-        """Return all scenario definitions for the requested version and language."""
-        path = f"scenarios/{version}/{language}/scenarios.json"
+    def load(self, *, language: str) -> list[ScenarioDefinition]:
+        """Return all scenario definitions for the requested language."""
+        path = f"scenarios/{language}/scenarios.json"
         data = self._read_json(path)
         scenarios = data.get("scenarios") or []
 

@@ -25,7 +25,6 @@ class CommonPromptRuntimeComponentsBuilderTest(unittest.TestCase):
         config = A2ATConfig(
             prompt=PromptRuntimeConfig(
                 language="zh-CN",
-                prompt_resource_version="0.0.2",
                 source_type="local_file",
                 local_root_dir="./runtime-prompt-resources",
             ),

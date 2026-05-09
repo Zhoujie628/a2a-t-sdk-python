@@ -76,12 +76,10 @@ class PromptGenerationOrchestrator:
             self._log_debug("prompt_generation_raw_user_input raw_user_input=%s", user_input)
         normalized_input = self._input_normalizer.normalize(user_input)
         language = self._config.language
-        version = self._config.prompt_resource_version
         self._log_info(
-            "prompt_generation_input_normalized input_kind=%s requested_language=%s version=%s",
+            "prompt_generation_input_normalized input_kind=%s requested_language=%s",
             normalized_input.input_kind,
             language,
-            version,
         )
 
         scenario_resolution = self._scenario_resolver.resolve(normalized_input.normalized_input)
@@ -109,7 +107,7 @@ class PromptGenerationOrchestrator:
             resolved_language, template_text, slot_schema, slot_prompts = self._load_generation_resources(
                 reference=reference,
             )
-            reference = PromptReference(scenario_code=scenario_code, version=version, language=resolved_language)
+            reference = PromptReference(scenario_code=scenario_code, language=resolved_language)
         except _PromptGenerationResourceFailure as error:
             # At this point the scenario is known, so preserve it in the failure payload for callers.
             return self._finalize_result(
@@ -154,7 +152,6 @@ class PromptGenerationOrchestrator:
             slots=extraction_result.slots,
             scenario_code=scenario_code,
             language=resolved_language,
-            version=version,
             description=scenario.description,
         )
         self._log_info(
@@ -236,7 +233,6 @@ class PromptGenerationOrchestrator:
         slots: dict[str, str | None],
         scenario_code: str,
         language: str,
-        version: str,
         description: str,
     ) -> tuple[str | None, str | None]:
         """Render the final prompt text while preserving renderer failures as data."""
@@ -247,7 +243,6 @@ class PromptGenerationOrchestrator:
                 slots=slots,
                 scenario_code=scenario_code,
                 language=language,
-                version=version,
                 description=description,
                 ),
                 None,

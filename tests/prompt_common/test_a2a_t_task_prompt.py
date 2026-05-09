@@ -28,7 +28,6 @@ class A2ATTaskPromptCommonTest(unittest.TestCase):
             metadata=TaskPromptMetadata(
                 scenario_code="energy_saving",
                 language="en-US",
-                version="0.0.1",
                 description="Used for energy saving analysis.",
             ),
         )
@@ -39,13 +38,12 @@ class A2ATTaskPromptCommonTest(unittest.TestCase):
             TaskPromptMetadata(
                 scenario_code="energy_saving",
                 language="en-US",
-                version="0.0.1",
                 description="Used for energy saving analysis.",
             ),
         )
         self.assertEqual(
             metadata.to_prompt_reference(),
-            PromptReference(scenario_code="energy_saving", language="en-US", version="0.0.1"),
+            PromptReference(scenario_code="energy_saving", language="en-US"),
         )
 
     def test_parse_rejects_missing_language(self) -> None:
@@ -55,7 +53,6 @@ class A2ATTaskPromptCommonTest(unittest.TestCase):
             parse_task_prompt_metadata(
                 "---\n"
                 "scenario_code: energy_saving\n"
-                "version: 0.0.1\n"
                 "description: Used for energy saving analysis.\n"
                 "---\n\n"
                 "Site: Site A"
@@ -71,7 +68,6 @@ class A2ATTaskPromptCommonTest(unittest.TestCase):
                 "---\n"
                 "scenario_code: energy_saving\n"
                 "language: en-US\n"
-                "version: 0.0.1\n"
                 "---\n\n"
                 "Site: Site A"
             )
@@ -86,7 +82,6 @@ class A2ATTaskPromptCommonTest(unittest.TestCase):
                 "---\n"
                 "scenario_code: energy_saving\n"
                 "language:    \n"
-                "version: 0.0.1\n"
                 "description: Used for energy saving analysis.\n"
                 "---\n\n"
                 "Site: Site A"
@@ -102,7 +97,6 @@ class A2ATTaskPromptCommonTest(unittest.TestCase):
                 "---\n"
                 "scenario_code: energy_saving\n"
                 "language: en-US\n"
-                "version: 0.0.1\n"
                 "description:    \n"
                 "---\n\n"
                 "Site: Site A"

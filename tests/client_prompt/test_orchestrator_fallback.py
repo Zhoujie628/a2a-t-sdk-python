@@ -47,7 +47,7 @@ class PromptGenerationOrchestratorFallbackTest(ManagedTempDirTestCase):
 
     def test_generate_falls_back_to_en_us_when_requested_language_resources_are_missing(self) -> None:
         self._write_resource_file(
-            "scenarios/0.0.1/en-US/scenarios.json",
+            "scenarios/en-US/scenarios.json",
             json.dumps(
                 {
                     "scenarios": [
@@ -62,17 +62,16 @@ class PromptGenerationOrchestratorFallbackTest(ManagedTempDirTestCase):
                 ensure_ascii=True,
             ),
         )
-        self._write_resource_file("prompts/scenario_recognition/0.0.1/en-US/system.md", "Identify scenario.")
-        self._write_resource_file("prompts/scenario_recognition/0.0.1/en-US/user.md", "Choose scenario.")
-        self._write_resource_file("prompts/slot_extraction/0.0.1/en-US/system.md", "Extract slots.")
-        self._write_resource_file("prompts/slot_extraction/0.0.1/en-US/user.md", "Return slots.")
-        self._write_resource_file("templates/energy_saving/0.0.1/en-US/template.md", "Site: {site}\nNotes: {additional_notes}")
+        self._write_resource_file("prompts/scenario_recognition/en-US/system.md", "Identify scenario.")
+        self._write_resource_file("prompts/scenario_recognition/en-US/user.md", "Choose scenario.")
+        self._write_resource_file("prompts/slot_extraction/en-US/system.md", "Extract slots.")
+        self._write_resource_file("prompts/slot_extraction/en-US/user.md", "Return slots.")
+        self._write_resource_file("templates/energy_saving/en-US/template.md", "Site: {site}\nNotes: {additional_notes}")
         self._write_resource_file(
-            "slots/energy_saving/0.0.1/en-US/slot.json",
+            "slots/energy_saving/en-US/slot.json",
             json.dumps(
                 {
                     "scenario_code": "energy_saving",
-                    "version": "0.0.1",
                     "slots": [
                         {
                             "name": "site",
@@ -119,13 +118,13 @@ class PromptGenerationOrchestratorFallbackTest(ManagedTempDirTestCase):
         )
 
         orchestrator = PromptGenerationOrchestrator(
-            config=PromptRuntimeConfig(language="zh-CN", prompt_resource_version="0.0.1"),
+            config=PromptRuntimeConfig(language="zh-CN"),
             scenario_loader=ScenarioLoader(root_dir=self.root),
             prompt_resource_loader=PromptResourceLoader(root_dir=self.root),
             template_loader=TemplateLoader(root_dir=self.root),
             slot_schema_loader=SlotSchemaLoader(root_dir=self.root),
             scenario_resolver=ScenarioResolutionOrchestrator(
-                config=PromptRuntimeConfig(language="zh-CN", prompt_resource_version="0.0.1"),
+                config=PromptRuntimeConfig(language="zh-CN"),
                 resource_registry=resource_registry,
                 scenario_recognizer=ScenarioRecognizer(llm_client=llm_client),
             ),
@@ -140,7 +139,7 @@ class PromptGenerationOrchestratorFallbackTest(ManagedTempDirTestCase):
 
     def test_generate_returns_template_not_found_when_template_is_missing_after_fallback(self) -> None:
         self._write_resource_file(
-            "scenarios/0.0.1/en-US/scenarios.json",
+            "scenarios/en-US/scenarios.json",
             json.dumps(
                 {
                     "scenarios": [
@@ -155,8 +154,8 @@ class PromptGenerationOrchestratorFallbackTest(ManagedTempDirTestCase):
                 ensure_ascii=True,
             ),
         )
-        self._write_resource_file("prompts/scenario_recognition/0.0.1/en-US/system.md", "Identify scenario.")
-        self._write_resource_file("prompts/scenario_recognition/0.0.1/en-US/user.md", "Choose scenario.")
+        self._write_resource_file("prompts/scenario_recognition/en-US/system.md", "Identify scenario.")
+        self._write_resource_file("prompts/scenario_recognition/en-US/user.md", "Choose scenario.")
 
         llm_client = FakeSequencedLLMClient(
             ['{"matched": true, "scenario_code": "energy_saving", "error_message": null}']
@@ -172,13 +171,13 @@ class PromptGenerationOrchestratorFallbackTest(ManagedTempDirTestCase):
         )
 
         orchestrator = PromptGenerationOrchestrator(
-            config=PromptRuntimeConfig(language="zh-CN", prompt_resource_version="0.0.1"),
+            config=PromptRuntimeConfig(language="zh-CN"),
             scenario_loader=ScenarioLoader(root_dir=self.root),
             prompt_resource_loader=PromptResourceLoader(root_dir=self.root),
             template_loader=TemplateLoader(root_dir=self.root),
             slot_schema_loader=SlotSchemaLoader(root_dir=self.root),
             scenario_resolver=ScenarioResolutionOrchestrator(
-                config=PromptRuntimeConfig(language="zh-CN", prompt_resource_version="0.0.1"),
+                config=PromptRuntimeConfig(language="zh-CN"),
                 resource_registry=resource_registry,
                 scenario_recognizer=ScenarioRecognizer(llm_client=llm_client),
             ),

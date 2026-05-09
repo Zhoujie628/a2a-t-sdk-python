@@ -21,19 +21,17 @@ class DefaultPromptResourcePackageTest(unittest.TestCase):
         from a2a_t.common.prompt_resources.slot_schema_loader import SlotSchemaLoader
         from a2a_t.common.prompt_resources.template_loader import TemplateLoader
 
-        scenarios = ScenarioLoader().load(version="0.0.1", language="en-US")
-        reference = PromptReference(scenario_code="subscribe_incident", version="0.0.1", language="en-US")
+        scenarios = ScenarioLoader().load(language="en-US")
+        reference = PromptReference(scenario_code="subscribe_incident", language="en-US")
         template_text = TemplateLoader().load(reference=reference)
         slot_schema = SlotSchemaLoader().load(reference=reference)
         slot_json_schema = SlotJsonSchemaLoader().load(reference=reference)
         scenario_prompts = PromptResourceLoader().load(
             analysis_action="scenario_recognition",
-            version="0.0.1",
             language="en-US",
         )
         slot_prompts = PromptResourceLoader().load(
             analysis_action="slot_extraction",
-            version="0.0.1",
             language="en-US",
         )
 

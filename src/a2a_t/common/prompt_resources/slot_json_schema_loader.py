@@ -10,7 +10,7 @@ class SlotJsonSchemaLoader(BasePromptResourceLoader):
 
     def load(self, *, reference: PromptReference) -> dict[str, object]:
         """Return a JSON Schema object for the referenced scenario resource."""
-        path = f"slots/{reference.scenario_code}/{reference.version}/{reference.language}/slot.json"
+        path = f"slots/{reference.scenario_code}/{reference.language}/slot.json"
         data = self._read_json(path)
         if self._looks_like_json_schema(data):
             return dict(data)

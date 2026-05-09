@@ -64,7 +64,6 @@ class AnalysisMessageBuilder:
             [
                 f"[user_prompt]\n{user_prompt}",
                 f"[scenario_code]\n{reference.scenario_code}",
-                f"[version]\n{reference.version}",
                 f"[language]\n{reference.language}",
                 f"[input]\n{normalized_input}",
                 f"[template]\n{template_text}",

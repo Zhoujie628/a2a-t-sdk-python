@@ -15,7 +15,6 @@ def build_markdown(
     *,
     name: str,
     language: str | None,
-    version: str,
     title: str,
     description: str,
     body: str,
@@ -28,7 +27,6 @@ def build_markdown(
         lines.append(f"language: {language}")
     lines.extend(
         [
-            f"version: {version}",
             f"title: {title}",
             f"description: {description}",
             "---",

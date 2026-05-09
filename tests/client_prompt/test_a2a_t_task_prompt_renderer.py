@@ -22,7 +22,6 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
             slots={"site": "Site A", "additional_notes": None},
             scenario_code="energy_saving",
             language="en-US",
-            version="0.0.1",
             description="Used for energy saving analysis.",
         )
 
@@ -43,7 +42,6 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
                 slots={"site": "Site A"},
                 scenario_code="energy_saving",
                 language="en-US",
-                version="0.0.1",
                 description="Used for energy saving analysis.",
             )
 
@@ -59,7 +57,6 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
                 slots={"site": "Site A"},
                 scenario_code="energy_saving",
                 language="en-US",
-                version="0.0.1",
                 description="Used for energy saving analysis.",
             )
 

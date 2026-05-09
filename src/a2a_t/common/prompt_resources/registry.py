@@ -32,17 +32,15 @@ class PromptResourceRegistry:
     def load_scenario_resources(
         self,
         *,
-        version: str,
         language: str,
     ) -> tuple[str, list[ScenarioDefinition], PromptMessages]:
         """Load scenario recognition inputs with language fallback support."""
         resolved_language, payload = self._load_with_language_fallback(
             language=language,
             loader=lambda resolved_language: (
-                self._scenario_loader.load(version=version, language=resolved_language),
+                self._scenario_loader.load(language=resolved_language),
                 self._prompt_resource_loader.load(
                     analysis_action="scenario_recognition",
-                    version=version,
                     language=resolved_language,
                 ),
             ),
@@ -61,20 +59,17 @@ class PromptResourceRegistry:
                 self._template_loader.load(
                     reference=PromptReference(
                         scenario_code=reference.scenario_code,
-                        version=reference.version,
                         language=language,
                     )
                 ),
                 self._slot_schema_loader.load(
                     reference=PromptReference(
                         scenario_code=reference.scenario_code,
-                        version=reference.version,
                         language=language,
                     )
                 ),
                 self._prompt_resource_loader.load(
                     analysis_action="slot_extraction",
-                    version=reference.version,
                     language=language,
                 ),
             ),
@@ -82,7 +77,6 @@ class PromptResourceRegistry:
         return (
             PromptReference(
                 scenario_code=reference.scenario_code,
-                version=reference.version,
                 language=resolved_language,
             ),
             payload[0],

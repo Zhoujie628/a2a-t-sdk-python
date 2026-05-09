@@ -29,7 +29,6 @@ class Prompt:
 
     name: str
     language: str
-    version: str
     title: str
     description: str
     format: str
@@ -45,7 +44,6 @@ class PromptReference:
 
     scenario_code: str
     language: str
-    version: str
 
 
 @dataclass(slots=True)
@@ -54,7 +52,6 @@ class PromptAssetReference:
 
     name: str
     language: str
-    version: str
     title: str
     description: str
     source: PromptSource
@@ -79,7 +76,6 @@ class CachedPromptRecord:
     source_type: str
     name: str
     language: str
-    version: str
     format: str
     fetched_at: Any
     expires_at: Any

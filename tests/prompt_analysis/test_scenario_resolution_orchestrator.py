@@ -29,8 +29,8 @@ class FakeResourceRegistry:
         self._result = result
         self.calls: list[dict[str, str]] = []
 
-    def load_scenario_resources(self, *, version: str, language: str) -> tuple[str, list[ScenarioDefinition], PromptMessages]:
-        self.calls.append({"version": version, "language": language})
+    def load_scenario_resources(self, *, language: str) -> tuple[str, list[ScenarioDefinition], PromptMessages]:
+        self.calls.append({"language": language})
         if isinstance(self._result, Exception):
             raise self._result
         return self._result
@@ -55,7 +55,6 @@ class ScenarioResolutionOrchestratorTest(unittest.TestCase):
         resource_result: object,
         recognition_result: ScenarioRecognitionResult | Exception,
         language: str = "zh-CN",
-        version: str = "0.0.1",
     ):
         from a2a_t.prompt.analysis.scenario_resolution_orchestrator import ScenarioResolutionOrchestrator
 
@@ -63,7 +62,7 @@ class ScenarioResolutionOrchestratorTest(unittest.TestCase):
         self.scenario_recognizer = FakeScenarioRecognizer(recognition_result)
 
         return ScenarioResolutionOrchestrator(
-            config=PromptRuntimeConfig(language=language, prompt_resource_version=version),
+            config=PromptRuntimeConfig(language=language),
             resource_registry=self.resource_registry,
             scenario_recognizer=self.scenario_recognizer,
         )
@@ -95,11 +94,10 @@ class ScenarioResolutionOrchestratorTest(unittest.TestCase):
         self.assertIsNone(result.failure)
         self.assertEqual(result.reference.scenario_code, "energy_saving")
         self.assertEqual(result.reference.language, "en-US")
-        self.assertEqual(result.reference.version, "0.0.1")
         self.assertEqual(result.scenario.scenario_code, "energy_saving")
         self.assertEqual(
             self.resource_registry.calls,
-            [{"version": "0.0.1", "language": "zh-CN"}],
+            [{"language": "zh-CN"}],
         )
         self.assertEqual(self.scenario_recognizer.calls[0]["language"], "en-US")
 

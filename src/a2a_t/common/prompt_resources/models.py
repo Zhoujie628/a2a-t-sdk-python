@@ -49,5 +49,4 @@ class SlotSchema:
     """Describe all slots defined for one scenario resource."""
 
     scenario_code: str
-    version: str
     slots: list[SlotDefinition]

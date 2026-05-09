@@ -11,7 +11,7 @@ class SlotSchemaLoader(BasePromptResourceLoader):
 
     def load(self, *, reference: PromptReference) -> SlotSchema:
         """Return the slot schema for the referenced scenario resource."""
-        path = f"slots/{reference.scenario_code}/{reference.version}/{reference.language}/slot.json"
+        path = f"slots/{reference.scenario_code}/{reference.language}/slot.json"
         data = self._read_json(path)
         if self._looks_like_json_schema(data):
             return self._build_from_json_schema(data, reference=reference)
@@ -19,7 +19,6 @@ class SlotSchemaLoader(BasePromptResourceLoader):
 
         return SlotSchema(
             scenario_code=str(data["scenario_code"]),
-            version=str(data["version"]),
             slots=[self._build_slot_definition(item) for item in raw_slots],
         )
 
@@ -44,7 +43,6 @@ class SlotSchemaLoader(BasePromptResourceLoader):
         ]
         return SlotSchema(
             scenario_code=reference.scenario_code,
-            version=reference.version,
             slots=slots,
         )
 

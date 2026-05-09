@@ -11,14 +11,13 @@ class PromptStore(Protocol):
 
     def write(self, *, record: CachedPromptRecord, content: str) -> None: ...
 
-    def read(self, *, source_type: str, name: str, version: str, language: str) -> tuple[CachedPromptRecord, str]: ...
+    def read(self, *, source_type: str, name: str, language: str) -> tuple[CachedPromptRecord, str]: ...
 
     def resolve(
         self,
         *,
         source_type: str,
         name: str,
-        version: str,
         language: str,
         now: datetime,
         allow_stale_fallback: bool,

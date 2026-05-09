@@ -41,7 +41,6 @@ class SlotExtractorTest(unittest.TestCase):
 
         slot_schema = SlotSchema(
             scenario_code="energy_saving",
-            version="0.0.1",
             slots=[
                 SlotDefinition(
                     name="site",
@@ -71,7 +70,7 @@ class SlotExtractorTest(unittest.TestCase):
 
         result = extractor.extract(
             normalized_input="Analyze Site A and focus on power system.",
-            reference=PromptReference(scenario_code="energy_saving", version="0.0.1", language="en-US"),
+            reference=PromptReference(scenario_code="energy_saving", language="en-US"),
             template_text="Site: {site}\nNotes: {additional_notes}",
             slot_schema=slot_schema,
             system_prompt="Extract slots.",
@@ -131,11 +130,10 @@ class SlotExtractorTest(unittest.TestCase):
         with self.assertRaises(SlotExtractionError):
             extractor.extract(
                 normalized_input="Analyze Site A.",
-                reference=PromptReference(scenario_code="energy_saving", version="0.0.1", language="en-US"),
+                reference=PromptReference(scenario_code="energy_saving", language="en-US"),
                 template_text="Site: {site}",
                 slot_schema=SlotSchema(
                     scenario_code="energy_saving",
-                    version="0.0.1",
                     slots=[
                         SlotDefinition(
                             name="site",
@@ -168,11 +166,10 @@ class SlotExtractorTest(unittest.TestCase):
 
         result = extractor.extract(
             normalized_input="Analyze Site A.",
-            reference=PromptReference(scenario_code="energy_saving", version="0.0.1", language="en-US"),
+            reference=PromptReference(scenario_code="energy_saving", language="en-US"),
             template_text="Site: {site}",
             slot_schema=SlotSchema(
                 scenario_code="energy_saving",
-                version="0.0.1",
                 slots=[
                     SlotDefinition(
                         name="site",

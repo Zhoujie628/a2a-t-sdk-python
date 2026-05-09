@@ -22,7 +22,6 @@ class TaskPromptMetadata:
 
     scenario_code: str
     language: str
-    version: str
     description: str
 
     def to_prompt_reference(self) -> PromptReference:
@@ -30,7 +29,6 @@ class TaskPromptMetadata:
         return PromptReference(
             scenario_code=self.scenario_code,
             language=self.language,
-            version=self.version,
         )
 
 
@@ -40,7 +38,6 @@ def format_task_prompt(*, body: str, metadata: TaskPromptMetadata) -> str:
         _FRONT_MATTER_OPEN
         + f"scenario_code: {metadata.scenario_code}\n"
         + f"language: {metadata.language}\n"
-        + f"version: {metadata.version}\n"
         + f"description: {metadata.description}\n"
         + "---\n\n"
         + f"{body}"
@@ -75,13 +72,11 @@ def parse_task_prompt_metadata(prompt_text: str) -> TaskPromptMetadata:
 
     scenario_code = _require_metadata_field(metadata, "scenario_code")
     language = _require_metadata_field(metadata, "language")
-    version = _require_metadata_field(metadata, "version")
     description = _require_metadata_field(metadata, "description")
 
     return TaskPromptMetadata(
         scenario_code=scenario_code,
         language=language,
-        version=version,
         description=description,
     )
 
