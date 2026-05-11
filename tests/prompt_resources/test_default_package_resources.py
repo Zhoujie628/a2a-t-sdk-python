@@ -28,10 +28,12 @@ class DefaultPromptResourcePackageTest(unittest.TestCase):
 
         with self.assertRaises(PromptResourceNotFoundError):
             TemplateLoader().load(reference=en_reference)
+        with self.assertRaises(PromptResourceNotFoundError):
+            SlotSchemaLoader().load(reference=en_reference)
+        with self.assertRaises(PromptResourceNotFoundError):
+            SlotJsonSchemaLoader().load(reference=en_reference)
 
         template_text = TemplateLoader().load(reference=zh_reference)
-        slot_schema = SlotSchemaLoader().load(reference=en_reference)
-        slot_json_schema = SlotJsonSchemaLoader().load(reference=en_reference)
         scenario_prompts = PromptResourceLoader().load(
             analysis_action="scenario_recognition",
             language="en-US",
@@ -43,16 +45,6 @@ class DefaultPromptResourcePackageTest(unittest.TestCase):
 
         self.assertTrue(any(item.scenario_code == "subscribe_incident" for item in scenarios))
         self.assertIn("{{", template_text)
-        self.assertEqual(slot_schema.scenario_code, "subscribe_incident")
-        self.assertEqual(slot_schema.slots[0].name, "subscription_condition_incident_name")
-        self.assertEqual(slot_json_schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
-        self.assertEqual(slot_json_schema["type"], "object")
-        self.assertFalse(slot_json_schema["additionalProperties"])
-        self.assertNotIn("slots", slot_json_schema)
-        self.assertEqual(
-            slot_json_schema["properties"]["subscription_condition_incident_name"]["type"],
-            "string",
-        )
         self.assertTrue(scenario_prompts.system_prompt.strip())
         self.assertTrue(slot_prompts.user_prompt.strip())
 
