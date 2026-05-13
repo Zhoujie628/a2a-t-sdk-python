@@ -101,6 +101,7 @@ class SlotExtractorTest(unittest.TestCase):
         self.assertIn("Extract slots.", llm_client.calls[0]["messages"][0]["content"])
         self.assertIn("Return slots and slot errors.", llm_client.calls[0]["messages"][1]["content"])
         self.assertIn("Analyze Site A and focus on power system.", llm_client.calls[0]["messages"][1]["content"])
+        self.assertNotIn("[template]", llm_client.calls[0]["messages"][1]["content"])
         self.assertEqual(
             llm_client.calls[0]["json_schema"]["properties"]["slots"]["required"],
             ["site", "additional_notes"],

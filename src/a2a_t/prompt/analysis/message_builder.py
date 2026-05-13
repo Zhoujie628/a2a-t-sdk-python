@@ -44,7 +44,6 @@ class AnalysisMessageBuilder:
         *,
         normalized_input: str,
         reference: PromptReference,
-        template_text: str,
         slot_schema: SlotSchema,
         system_prompt: str,
         user_prompt: str,
@@ -66,7 +65,6 @@ class AnalysisMessageBuilder:
                 f"[scenario_code]\n{reference.scenario_code}",
                 f"[language]\n{reference.language}",
                 f"[input]\n{normalized_input}",
-                f"[template]\n{template_text}",
                 "[slots]\n" + "\n".join(slot_lines),
             ]
         )
