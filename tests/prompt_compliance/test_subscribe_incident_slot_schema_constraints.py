@@ -37,11 +37,13 @@ class SubscribeIncidentSlotSchemaConstraintsTest(unittest.TestCase):
         self.assertIn("x-a2at-value-constraint", condition_schema)
         constraint = condition_schema["x-a2at-value-constraint"]
         self.assertIsInstance(constraint, str)
-        self.assertIn("中文或英文任一命中即可视为有效", constraint)
+        self.assertIn("语义支持中英文同义表达", constraint)
         self.assertIn("紧急/critical", constraint)
         self.assertIn("高/high", constraint)
         self.assertIn("中/medium", constraint)
         self.assertIn("低/low", constraint)
+        self.assertIn("中文或英文任一命中即可视为有效", constraint)
+        self.assertIn("取值范围为网络侧故障名称列表", constraint)
 
 
 if __name__ == "__main__":
