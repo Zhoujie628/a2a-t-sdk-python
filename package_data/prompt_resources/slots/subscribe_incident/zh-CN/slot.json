@@ -28,5 +28,7 @@
       "x-a2at-value-constraint": "可描述上报的数据类型与承载 Part。数据类型可为 Incident、故障等；承载格式可为 A2A Part，如 DataPart、TextPart。"
     }
   },
-  "required": []
+  "required": [
+    "通知主题"
+  ]
 }

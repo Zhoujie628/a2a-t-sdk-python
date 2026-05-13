@@ -42,7 +42,6 @@ class SlotExtractor:
         messages = self._message_builder.build_slot_extraction_messages(
             normalized_input=normalized_input,
             reference=reference,
-            template_text=template_text,
             slot_schema=slot_schema,
             system_prompt=system_prompt,
             user_prompt=user_prompt,
