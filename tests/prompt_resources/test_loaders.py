@@ -4,6 +4,7 @@ import json
 import sys
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -272,6 +273,19 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
         self.assertEqual(scenarios[0].scenario_name, "Custom Incident Subscription")
         self.assertEqual(template_text, "CUSTOM TEMPLATE")
         self.assertEqual([slot.name for slot in slot_schema.slots], ["custom_field"])
+
+    def test_default_packaged_root_uses_site_packages_when_installed(self) -> None:
+        import a2a_t.common.prompt_resources.local_resources as local_resources
+
+        installed_module_path = self.root / "Lib" / "site-packages" / "a2a_t" / "common" / "prompt_resources" / "local_resources.py"
+        expected_root = self.root / "prompt_resources"
+
+        with (
+            patch.object(local_resources, "__file__", str(installed_module_path)),
+            patch("sysconfig.get_path", return_value=str(self.root)),
+        ):
+            self.assertEqual(local_resources.LocalPromptResourceFiles().root_dir, expected_root)
+            self.assertEqual(local_resources.BasePromptResourceLoader()._default_root_dir(), expected_root)
 
     def test_public_package_no_longer_exports_source_catalog_provider_cache_or_registry_layers(self) -> None:
         import a2a_t.common.prompt_resources as prompt_resources

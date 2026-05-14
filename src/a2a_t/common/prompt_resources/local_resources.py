@@ -4,9 +4,18 @@ import json
 from pathlib import Path
 from typing import Any
 
+from a2a_t.common.package_data import resolve_package_data_dir
 from a2a_t.prompt.common.errors import PromptSourceError
 
 from .errors import PromptResourceNotFoundError, PromptResourceParseError
+
+
+def _packaged_prompt_resource_root() -> Path:
+    """Resolve the packaged prompt resource root for both source and installed layouts."""
+    return resolve_package_data_dir(
+        module_file=__file__,
+        source_package_data_parent_depth=4,
+    ) / "prompt_resources"
 
 
 class LocalPromptResourceFiles:
@@ -62,7 +71,7 @@ class LocalPromptResourceFiles:
 
     def _default_root_dir(self) -> Path:
         """Return the packaged prompt resource root."""
-        return Path(__file__).resolve().parents[4] / "package_data" / "prompt_resources"
+        return _packaged_prompt_resource_root()
 
 
 class BasePromptResourceLoader:
@@ -79,7 +88,7 @@ class BasePromptResourceLoader:
 
     def _default_root_dir(self) -> Path:
         """Return the packaged prompt resource root used by default loaders."""
-        return Path(__file__).resolve().parents[4] / "package_data" / "prompt_resources"
+        return _packaged_prompt_resource_root()
 
     def _read_text(self, relative_path: str) -> str:
         """Read a text resource through the configured source."""
