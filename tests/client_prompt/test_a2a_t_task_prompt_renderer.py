@@ -44,6 +44,66 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
 
         self.assertEqual(prompt_text, "Topic: Incident\nCondition: critical alert")
 
+    def test_render_keeps_only_slot_value_for_section_with_slot_header_body(self) -> None:
+        from a2a_t.prompt.task_rendering import TaskPromptRenderer
+
+        renderer = TaskPromptRenderer()
+        prompt_text = renderer.render(
+            template_text=(
+                "## Task Type\n"
+                "Diagnosis\n\n"
+                "## Task Target\n"
+                "{{task_target}}（Required）\n\n"
+                "Requirement: explain the target.\n"
+                "Example: complete the diagnosis.\n\n"
+                "## Expected Output\n"
+                "{{expected_output}}（Optional）\n"
+            ),
+            slots={
+                "task_target": "Complete the diagnosis and provide remediation advice.",
+                "expected_output": "Return a structured diagnosis result.",
+            },
+            scenario_code="fault_diagnosis",
+            language="en-US",
+            description="Used for fault diagnosis prompts.",
+        )
+
+        self.assertEqual(
+            prompt_text,
+            "## Task Type\n"
+            "Diagnosis\n\n"
+            "## Task Target\n"
+            "Complete the diagnosis and provide remediation advice.\n\n"
+            "## Expected Output\n"
+            "Return a structured diagnosis result.\n",
+        )
+
+    def test_render_preserves_regular_inline_placeholder_content(self) -> None:
+        from a2a_t.prompt.task_rendering import TaskPromptRenderer
+
+        renderer = TaskPromptRenderer()
+        prompt_text = renderer.render(
+            template_text=(
+                "## Subscription\n"
+                "Please subscribe to {{topic}} incidents.\n\n"
+                "## Condition\n"
+                "{{condition}}（Optional）\n"
+                "Requirement: describe the filter.\n"
+            ),
+            slots={"topic": "network", "condition": "critical only"},
+            scenario_code="subscribe_incident",
+            language="en-US",
+            description="Used for incident subscription prompts.",
+        )
+
+        self.assertEqual(
+            prompt_text,
+            "## Subscription\n"
+            "Please subscribe to network incidents.\n\n"
+            "## Condition\n"
+            "critical only\n",
+        )
+
     def test_render_raises_when_template_references_unknown_slot(self) -> None:
         from a2a_t.prompt.task_rendering import TaskPromptRenderError
         from a2a_t.prompt.task_rendering import TaskPromptRenderer
