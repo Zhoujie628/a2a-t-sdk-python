@@ -7,7 +7,7 @@ General-purpose agent interconnection protocols in the industry mainly focus on 
 
 ### 1.1.2 Relationship Between A2A-T SDK and A2A SDK
  
-The A2A-T protocol is an extension based on the Google A2A protocol. The A2A-T SDK is provided for the protocol extension content, supporting rapid construction of agents for complex collaboration scenarios in the telecom domain. A2A-T SDK is independent of A2A SDK. By integrating both A2A-T SDK and A2A SDK, you can build agents that support the A2A-T protocol, enabling deterministic, highly reliable, efficient, and secure collaboration among multiple agents in the telecom domain.
+The A2A-T protocol is an extension based on the A2A protocol. The A2A-T SDK is provided for the protocol extension content, supporting rapid construction of agents for complex collaboration scenarios in the telecom domain. A2A-T SDK is independent of A2A SDK. By integrating both A2A-T SDK and A2A SDK, you can build agents that support the A2A-T protocol, enabling deterministic, highly reliable, efficient, and secure collaboration among multiple agents in the telecom domain.
 
 ### 1.1.3 Capability Introduction
 
