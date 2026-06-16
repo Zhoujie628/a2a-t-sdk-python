@@ -1,11 +1,8 @@
 from __future__ import annotations
 
-GUARDRAIL_REJECTED = "guardrail_rejected"
-GUARDRAIL_EXECUTION_ERROR = "guardrail_execution_error"
 PROMPT_RESOURCE_PARSE_ERROR = "prompt_resource_parse_error"
 PROMPT_RESOURCE_ACCESS_ERROR = "prompt_resource_access_error"
 
-GUARDRAIL_STAGE = "guardrail"
 GENERATION_STAGE = "generation"
 PROMPT_PARSE_STAGE = "prompt_parse"
 SLOT_EXTRACTION_STAGE = "slot_extraction"

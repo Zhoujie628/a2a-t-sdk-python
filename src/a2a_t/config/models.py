@@ -68,24 +68,10 @@ class PromptRuntimeConfig:
 
 
 @dataclass(slots=True)
-class GuardrailProviderConfig:
-    """Provider configuration for safety guardrail adapters."""
-
-    provider: str = "noop"
-    timeout: float = 10.0
-    policy_id: str = ""
-    endpoint: str = ""
-    region: str = ""
-    credentials_ref: str = ""
-    config: dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass(slots=True)
 class PromptComplianceConfig:
     """Top-level configuration for prompt compliance."""
 
     enabled: bool = False
-    guardrail: GuardrailProviderConfig = field(default_factory=GuardrailProviderConfig)
     providers: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     @classmethod
@@ -93,17 +79,6 @@ class PromptComplianceConfig:
         """Build prompt compliance config from raw environment values."""
         return cls(
             enabled=_parse_bool(values.get("A2AT_PROMPT_COMPLIANCE_ENABLED"), False),
-            guardrail=GuardrailProviderConfig(
-                provider=values.get("A2AT_PROMPT_COMPLIANCE_GUARDRAIL_PROVIDER", "noop") or "noop",
-                timeout=_parse_float(
-                    values.get("A2AT_PROMPT_COMPLIANCE_GUARDRAIL_TIMEOUT_SECONDS"),
-                    10.0,
-                ),
-                policy_id=values.get("A2AT_PROMPT_COMPLIANCE_GUARDRAIL_POLICY_ID", "") or "",
-                endpoint=values.get("A2AT_PROMPT_COMPLIANCE_GUARDRAIL_ENDPOINT", "") or "",
-                region=values.get("A2AT_PROMPT_COMPLIANCE_GUARDRAIL_REGION", "") or "",
-                credentials_ref=values.get("A2AT_PROMPT_COMPLIANCE_GUARDRAIL_CREDENTIALS_REF", "") or "",
-            ),
         )
 
 @dataclass
