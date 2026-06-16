@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from a2a_t.config.errors import ConfigFileNotFoundError
 from a2a_t.config.source import DotEnvConfigSource
-from a2a_t.llm.base import LLMResponse
 from a2a_t.llm.errors import LLMConfigError, LLMRuntimeError
 from a2a_t.llm.factory import LLMAdapterFactory
+from a2a_t.llm.models import LLMClientConfig, LLMResponse
 from a2a_t.llm.session_store import InMemorySessionStore, ProviderScopedSessionStore
 
 _MAX_HISTORY_WINDOW = 100
@@ -75,20 +74,6 @@ def _coerce_optional_float(value: str | None, key: str) -> float | None:
         return float(value)
     except ValueError as exc:
         raise LLMConfigError(f"{key} must be a float") from exc
-
-
-@dataclass(frozen=True)
-class LLMClientConfig:
-    provider: str
-    model: str
-    api_key: str
-    base_url: str | None
-    history_window: int
-    max_tokens: int | None
-    temperature: float | None
-    timeout_seconds: float | None
-    session_max_total: int
-    session_max_per_provider: int
 
 
 class LLMClient:

@@ -6,7 +6,7 @@ import json
 from abc import ABC, abstractmethod
 from typing import Any
 
-from a2a_t.llm.base import ChatMessage
+from a2a_t.llm.models import ChatMessage
 
 _JSON_MODE_INSTRUCTION_DEFAULT = (
     "Return a valid JSON object string. "

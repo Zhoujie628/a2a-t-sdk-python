@@ -1,35 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
-from .models import PromptReference
+from .errors import TaskPromptFormatError
+from .models import TaskPromptMetadata
 
 _FRONT_MATTER_OPEN = "---\n"
 _FRONT_MATTER_CLOSE = "\n---\n"
-
-
-class TaskPromptFormatError(ValueError):
-    """Describe a task prompt front-matter formatting error."""
-
-    def __init__(self, message: str, *, field: str | None = None) -> None:
-        super().__init__(message)
-        self.field = field
-
-
-@dataclass(slots=True)
-class TaskPromptMetadata:
-    """Represent the front-matter metadata embedded in task prompts."""
-
-    scenario_code: str
-    language: str
-    description: str
-
-    def to_prompt_reference(self) -> PromptReference:
-        """Convert prompt metadata into the shared prompt reference model."""
-        return PromptReference(
-            scenario_code=self.scenario_code,
-            language=self.language,
-        )
 
 
 def format_task_prompt(*, body: str, metadata: TaskPromptMetadata) -> str:

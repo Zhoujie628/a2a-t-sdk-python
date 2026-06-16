@@ -1,23 +1,11 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Protocol
 
 from a2a_t.common.prompt_resources.models import SlotSchema
 from a2a_t.prompt.common.models import PromptReference
 
-
-@dataclass(frozen=True)
-class SemanticValidationError:
-    slot_name: str
-    code: str
-    message: str
-
-
-@dataclass(frozen=True)
-class SemanticValidationResult:
-    passed: bool
-    errors: list[SemanticValidationError]
+from .models import SemanticValidationResult
 
 
 class SemanticSlotValidator(Protocol):

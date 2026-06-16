@@ -24,7 +24,7 @@ class FakePromptChecker:
 
 class NegotiationTypesTest(unittest.TestCase):
     def _prompt_compliance_result(self):
-        from a2a_t.server.prompt_compliance.result import PromptComplianceResult
+        from a2a_t.server.prompt_compliance.models import PromptComplianceResult
 
         return PromptComplianceResult(
             success=False,
@@ -90,7 +90,7 @@ class NegotiationTypesTest(unittest.TestCase):
     def test_information_type_on_server_side_returns_completion_message_when_prompt_is_valid(self) -> None:
         from a2a_t.negotiation.rendering.negotiation_prompt_renderer import NegotiationPromptRenderer
         from a2a_t.negotiation.types.information import InformationNegotiationType
-        from a2a_t.server.prompt_compliance.result import PromptComplianceResult
+        from a2a_t.server.prompt_compliance.models import PromptComplianceResult
 
         checker = FakePromptChecker(
             PromptComplianceResult(
@@ -115,7 +115,7 @@ class NegotiationTypesTest(unittest.TestCase):
     def test_information_type_on_server_side_returns_error_when_prompt_fails_without_negotiation(self) -> None:
         from a2a_t.negotiation.rendering.negotiation_prompt_renderer import NegotiationPromptRenderer
         from a2a_t.negotiation.types.information import InformationNegotiationType
-        from a2a_t.server.prompt_compliance.result import PromptComplianceResult
+        from a2a_t.server.prompt_compliance.models import PromptComplianceResult
 
         checker = FakePromptChecker(
             PromptComplianceResult(

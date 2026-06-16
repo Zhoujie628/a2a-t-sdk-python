@@ -1,4 +1,4 @@
-from .exceptions import TaskPromptRenderError
+from .errors import TaskPromptRenderError
 from .task_prompt_renderer import TaskPromptRenderer
 
 __all__ = [

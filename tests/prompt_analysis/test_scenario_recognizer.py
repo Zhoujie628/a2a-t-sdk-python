@@ -12,7 +12,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 
-from a2a_t.llm.base import LLMResponse
+from a2a_t.llm.models import LLMResponse
 from a2a_t.common.prompt_resources.models import ScenarioDefinition
 
 

@@ -11,7 +11,7 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from a2a_t.llm.base import ChatMessage, ChatSession
+from a2a_t.llm.models import ChatMessage, ChatSession
 from a2a_t.llm.errors import LLMConfigError
 from a2a_t.llm.session_store import InMemorySessionStore, ProviderScopedSessionStore
 

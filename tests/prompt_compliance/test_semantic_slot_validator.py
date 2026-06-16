@@ -13,7 +13,7 @@ if str(SRC_ROOT) not in sys.path:
 
 
 from a2a_t.common.prompt_resources.models import SlotDefinition, SlotSchema
-from a2a_t.llm.base import LLMResponse
+from a2a_t.llm.models import LLMResponse
 from a2a_t.prompt.common.models import PromptReference
 
 

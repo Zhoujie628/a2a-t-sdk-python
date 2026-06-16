@@ -1,6 +1,6 @@
 from .constants import NEGOTIATION_CONTEXT_KEY, NEGOTIATION_TEXT_KEY, TASK_PROMPT_KEY
 from .enums import NegotiationRole, NegotiationStatus, NegotiationType
-from .exceptions import (
+from .errors import (
     NegotiationContextError,
     NegotiationInputError,
     NegotiationParseError,

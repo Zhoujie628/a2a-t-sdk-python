@@ -172,7 +172,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
 
     def test_handler_receive_rejects_incoming_round_that_skips_local_progress(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationStatus, NegotiationType
-        from a2a_t.negotiation.common.exceptions import NegotiationStateError
+        from a2a_t.negotiation.common.errors import NegotiationStateError
         from a2a_t.negotiation.common.models import NegotiationContext, NegotiationRecord
         from a2a_t.negotiation.handling.negotiation_handler import NegotiationHandler
         from a2a_t.negotiation.store.in_memory import InMemoryNegotiationStateStore
@@ -216,7 +216,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
 
     def test_handler_continue_rejects_context_round_mismatch(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationStatus, NegotiationType
-        from a2a_t.negotiation.common.exceptions import NegotiationStateError
+        from a2a_t.negotiation.common.errors import NegotiationStateError
         from a2a_t.negotiation.common.models import ContinueNegotiationInput, NegotiationContext, NegotiationRecord
         from a2a_t.negotiation.handling.negotiation_handler import NegotiationHandler
         from a2a_t.negotiation.store.in_memory import InMemoryNegotiationStateStore

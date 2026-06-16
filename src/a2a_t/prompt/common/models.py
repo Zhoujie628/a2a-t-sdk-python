@@ -47,6 +47,22 @@ class PromptReference:
 
 
 @dataclass(slots=True)
+class TaskPromptMetadata:
+    """Represent the front-matter metadata embedded in task prompts."""
+
+    scenario_code: str
+    language: str
+    description: str
+
+    def to_prompt_reference(self) -> PromptReference:
+        """Convert prompt metadata into the shared prompt reference model."""
+        return PromptReference(
+            scenario_code=self.scenario_code,
+            language=self.language,
+        )
+
+
+@dataclass(slots=True)
 class PromptAssetReference:
     """Describe prompt metadata without embedding the full prompt body."""
 

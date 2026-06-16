@@ -21,7 +21,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "a2a_t.server.prompt_compliance.prompt_compliance_orchestrator",
         "PromptComplianceOrchestrator",
     ),
-    "PromptComplianceResult": ("a2a_t.server.prompt_compliance.result", "PromptComplianceResult"),
+    "PromptComplianceResult": ("a2a_t.server.prompt_compliance.models", "PromptComplianceResult"),
 }
 
 

@@ -11,14 +11,8 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from a2a_t.llm.base import (
-    ChatMessage,
-    ComposedLLMAdapter,
-    LLMResponse,
-    PayloadBuilder,
-    ResponseParser,
-    TransportAdapter,
-)
+from a2a_t.llm.base import ComposedLLMAdapter, PayloadBuilder, ResponseParser, TransportAdapter
+from a2a_t.llm.models import ChatMessage, LLMResponse
 
 
 class RecordingTransport(TransportAdapter):

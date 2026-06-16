@@ -16,12 +16,12 @@ __all__ = [
 
 _EXPORTS: dict[str, tuple[str, str]] = {
     "PromptReference": ("a2a_t.prompt.common.models", "PromptReference"),
-    "TaskPromptMetadata": ("a2a_t.prompt.common.task_prompt_format", "TaskPromptMetadata"),
-    "TaskPromptFormatError": ("a2a_t.prompt.common.task_prompt_format", "TaskPromptFormatError"),
+    "TaskPromptMetadata": ("a2a_t.prompt.common.models", "TaskPromptMetadata"),
+    "TaskPromptFormatError": ("a2a_t.prompt.common.errors", "TaskPromptFormatError"),
     "format_task_prompt": ("a2a_t.prompt.common.task_prompt_format", "format_task_prompt"),
     "parse_task_prompt_metadata": ("a2a_t.prompt.common.task_prompt_format", "parse_task_prompt_metadata"),
     "TaskPromptRenderer": ("a2a_t.prompt.task_rendering", "TaskPromptRenderer"),
-    "TaskPromptRenderError": ("a2a_t.prompt.task_rendering", "TaskPromptRenderError"),
+    "TaskPromptRenderError": ("a2a_t.prompt.task_rendering.errors", "TaskPromptRenderError"),
 }
 
 

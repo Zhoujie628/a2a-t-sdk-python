@@ -6,7 +6,7 @@ import json
 from abc import ABC, abstractmethod
 from typing import Any
 
-from a2a_t.llm.base import LLMResponse
+from a2a_t.llm.models import LLMResponse
 from a2a_t.llm.errors import LLMRuntimeError
 
 

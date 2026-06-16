@@ -30,8 +30,8 @@ from a2a_t.server.prompt_compliance.constants import (
     SLOT_VALIDATION_STAGE,
     TEMPLATE_LOAD_ERROR,
 )
-from a2a_t.server.prompt_compliance.result import PromptComplianceResult
-from a2a_t.server.prompt_compliance.semantic_validator import SemanticValidationError, SemanticValidationResult
+from a2a_t.server.prompt_compliance.models import PromptComplianceResult
+from a2a_t.server.prompt_compliance.models import SemanticValidationError, SemanticValidationResult
 
 
 class FakeTemplateLoader:

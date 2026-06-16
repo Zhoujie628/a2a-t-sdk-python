@@ -14,13 +14,13 @@ if str(SRC_ROOT) not in sys.path:
 from a2a_t.llm.base import (
     ComposedLLMAdapter,
     LLMAdapter,
-    LLMResponse,
     PayloadBuilder,
     ResponseParser,
     TransportAdapter,
 )
 from a2a_t.llm.errors import LLMConfigError
 from a2a_t.llm.factory import LLMAdapterFactory
+from a2a_t.llm.models import LLMResponse
 
 
 class DirectAdapter(LLMAdapter):

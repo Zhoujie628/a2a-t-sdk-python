@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from .exceptions import TaskPromptRenderError
+from .errors import TaskPromptRenderError
 
 
 _DOUBLE_BRACED_SLOT_PATTERN = re.compile(r"\{\{([^{}]+)\}\}")

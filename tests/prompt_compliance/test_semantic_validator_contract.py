@@ -14,7 +14,7 @@ if str(SRC_ROOT) not in sys.path:
 
 class SemanticValidatorContractTest(unittest.TestCase):
     def test_semantic_validation_models_exist(self) -> None:
-        from a2a_t.server.prompt_compliance.semantic_validator import SemanticValidationError, SemanticValidationResult
+        from a2a_t.server.prompt_compliance.models import SemanticValidationError, SemanticValidationResult
 
         error = SemanticValidationError(slot_name="site", code="semantic_mismatch", message="site is mismatched")
         result = SemanticValidationResult(passed=False, errors=[error])

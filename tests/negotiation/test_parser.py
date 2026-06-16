@@ -35,7 +35,7 @@ class NegotiationContextParseTest(unittest.TestCase):
         self.assertEqual(context.status, NegotiationStatus.IN_PROGRESS)
 
     def test_from_context_rejects_invalid_root_fields(self) -> None:
-        from a2a_t.negotiation.common.exceptions import NegotiationContextError
+        from a2a_t.negotiation.common.errors import NegotiationContextError
         from a2a_t.negotiation.common.models import NegotiationContext
 
         with self.assertRaises(NegotiationContextError):

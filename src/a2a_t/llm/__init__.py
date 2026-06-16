@@ -7,10 +7,11 @@ from typing import Any
 
 from a2a_t.llm.adapters.composed_adapter import ComposedLLMAdapter
 from a2a_t.llm.adapters.openai_compatible import OpenAICompatibleAdapter
-from a2a_t.llm.base import ChatMessage, ChatSession, LLMAdapter, LLMResponse
+from a2a_t.llm.base import LLMAdapter
 from a2a_t.llm.client import LLMClient
 from a2a_t.llm.errors import LLMConfigError, LLMError, LLMRuntimeError
 from a2a_t.llm.factory import LLMAdapterFactory
+from a2a_t.llm.models import ChatMessage, ChatSession, LLMResponse
 from a2a_t.llm.payload_builders import OpenAICompatiblePayloadBuilder, PayloadBuilder
 from a2a_t.llm.response_parsers import OpenAICompatibleResponseParser, ResponseParser
 from a2a_t.llm.session_store import InMemorySessionStore, SessionStore
@@ -126,10 +127,10 @@ def __getattr__(name: str) -> Any:
                 raise AttributeError(
                     f"module 'a2a_t.llm' has no attribute '{name}' in this phase"
                 ) from exc
-        from a2a_t.llm import base as llm_base
+        from a2a_t.llm import models as llm_models
 
         try:
-            return getattr(llm_base, name)
+            return getattr(llm_models, name)
         except AttributeError as exc:
             raise AttributeError(
                 f"module 'a2a_t.llm' has no attribute '{name}' in this phase"

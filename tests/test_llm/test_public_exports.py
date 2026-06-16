@@ -34,7 +34,10 @@ class LLMModulePublicExportsTest(unittest.TestCase):
 
     def test_llm_module_exports_composed_adapter_primitives(self) -> None:
         from a2a_t.llm import (
+            ChatMessage,
+            ChatSession,
             ComposedLLMAdapter,
+            LLMResponse,
             OpenAICompatiblePayloadBuilder,
             OpenAICompatibleResponseParser,
             OpenAICompatibleTransportAdapter,
@@ -43,7 +46,10 @@ class LLMModulePublicExportsTest(unittest.TestCase):
             TransportAdapter,
         )
 
+        self.assertIsNotNone(ChatMessage)
+        self.assertIsNotNone(ChatSession)
         self.assertIsNotNone(ComposedLLMAdapter)
+        self.assertIsNotNone(LLMResponse)
         self.assertIsNotNone(OpenAICompatiblePayloadBuilder)
         self.assertIsNotNone(OpenAICompatibleResponseParser)
         self.assertIsNotNone(OpenAICompatibleTransportAdapter)
@@ -79,6 +85,14 @@ class LLMModulePublicExportsTest(unittest.TestCase):
         self.assertFalse(hasattr(llm, "DefaultOpenAICompatibleResponseParser"))
         self.assertFalse(hasattr(payload_builders, "DefaultOpenAICompatiblePayloadBuilder"))
         self.assertFalse(hasattr(response_parsers, "DefaultOpenAICompatibleResponseParser"))
+
+    def test_llm_models_module_exports_data_models(self) -> None:
+        from a2a_t.llm.models import ChatMessage, ChatSession, LLMClientConfig, LLMResponse
+
+        self.assertIsNotNone(ChatMessage)
+        self.assertIsNotNone(ChatSession)
+        self.assertIsNotNone(LLMClientConfig)
+        self.assertIsNotNone(LLMResponse)
 
 
 if __name__ == "__main__":

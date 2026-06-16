@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from a2a_t.llm.base import ChatMessage, LLMAdapter, LLMResponse
+from a2a_t.llm.base import LLMAdapter
+from a2a_t.llm.models import ChatMessage, LLMResponse
 from a2a_t.llm.payload_builders import PayloadBuilder
 from a2a_t.llm.response_parsers import ResponseParser
 from a2a_t.llm.transports import TransportAdapter

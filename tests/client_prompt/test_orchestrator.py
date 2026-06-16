@@ -433,7 +433,7 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         self.assertEqual(result.failure.message, "llm transport down")
 
     def test_generate_returns_render_failure_when_renderer_rejects_slots(self) -> None:
-        from a2a_t.prompt.task_rendering import TaskPromptRenderError
+        from a2a_t.prompt.task_rendering.errors import TaskPromptRenderError
 
         orchestrator = self._build_orchestrator(
             scenario_result=ScenarioResolutionResult(

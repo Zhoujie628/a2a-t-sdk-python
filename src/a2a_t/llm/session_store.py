@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Protocol
 from a2a_t.llm.errors import LLMConfigError
 
 if TYPE_CHECKING:
-    from a2a_t.llm.base import ChatSession
+    from a2a_t.llm.models import ChatSession
 
 
 class SessionStore(Protocol):

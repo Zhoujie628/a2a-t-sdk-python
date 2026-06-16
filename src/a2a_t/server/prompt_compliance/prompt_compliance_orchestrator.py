@@ -13,10 +13,8 @@ from a2a_t.common.prompt_resources import (
 from a2a_t.prompt.common.errors import PromptSourceError
 from a2a_t.prompt.validation.models import SlotValidationResult
 from a2a_t.prompt.validation.json_schema_slot_validator import JsonSchemaSlotValidator
-from a2a_t.server.prompt_compliance.semantic_validator import (
-    SemanticSlotValidator,
-    SemanticValidationResult,
-)
+from a2a_t.server.prompt_compliance.models import PromptComplianceResult, SemanticValidationResult
+from a2a_t.server.prompt_compliance.semantic_validator import SemanticSlotValidator
 from a2a_t.server.prompt_compliance.constants import (
     PREPARATION_STAGE,
     PROMPT_RESOURCE_ACCESS_ERROR,
@@ -31,7 +29,6 @@ from a2a_t.server.prompt_compliance.constants import (
     SLOT_VALIDATION_STAGE,
     TEMPLATE_LOAD_ERROR,
 )
-from a2a_t.server.prompt_compliance.result import PromptComplianceResult
 
 
 class PromptComplianceOrchestrator:

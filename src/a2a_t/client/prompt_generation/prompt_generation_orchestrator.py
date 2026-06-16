@@ -12,7 +12,8 @@ from a2a_t.prompt.analysis import ScenarioResolutionOrchestrator
 from a2a_t.prompt.analysis.errors import PromptAnalysisError
 from a2a_t.prompt.analysis.scenario_resolution_orchestrator import PREPARATION_STAGE
 from a2a_t.prompt.common.errors import PromptSourceError
-from a2a_t.prompt.task_rendering import TaskPromptRenderError, TaskPromptRenderer
+from a2a_t.prompt.task_rendering import TaskPromptRenderer
+from a2a_t.prompt.task_rendering.errors import TaskPromptRenderError
 
 from .generation_constants import (
     GENERATION_STAGE,

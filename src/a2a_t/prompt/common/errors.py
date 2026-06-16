@@ -61,3 +61,11 @@ class PromptCatalogRegistryError(PromptLoaderError):
     """Raised when prompt catalog or registry resolution fails."""
 
     pass
+
+
+class TaskPromptFormatError(ValueError):
+    """Describe a task prompt front-matter formatting error."""
+
+    def __init__(self, message: str, *, field: str | None = None) -> None:
+        super().__init__(message)
+        self.field = field

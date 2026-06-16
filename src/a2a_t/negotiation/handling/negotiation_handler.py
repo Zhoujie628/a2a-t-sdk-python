@@ -10,7 +10,7 @@ from a2a_t.negotiation.common.constants import (
     TASK_PROMPT_KEY,
 )
 from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationStatus, NegotiationType
-from a2a_t.negotiation.common.exceptions import NegotiationInputError, NegotiationStateError, NegotiationTerminalStateError
+from a2a_t.negotiation.common.errors import NegotiationInputError, NegotiationStateError, NegotiationTerminalStateError
 from a2a_t.negotiation.common.models import ContinueNegotiationInput, NegotiationContext, NegotiationRecord, ReceiveResult, StartNegotiationInput
 from a2a_t.negotiation.store.base import NegotiationStateStore
 

@@ -18,10 +18,10 @@ from a2a_t.prompt.common.models import PromptReference
 class A2ATTaskPromptCommonTest(unittest.TestCase):
     def test_render_and_parse_a2a_t_task_prompt_share_one_protocol(self) -> None:
         from a2a_t.prompt.common.task_prompt_format import (
-            TaskPromptMetadata,
             format_task_prompt,
             parse_task_prompt_metadata,
         )
+        from a2a_t.prompt.common.models import TaskPromptMetadata
 
         prompt_text = format_task_prompt(
             body="Site: Site A",
@@ -47,7 +47,8 @@ class A2ATTaskPromptCommonTest(unittest.TestCase):
         )
 
     def test_parse_rejects_missing_language(self) -> None:
-        from a2a_t.prompt.common.task_prompt_format import TaskPromptFormatError, parse_task_prompt_metadata
+        from a2a_t.prompt.common.errors import TaskPromptFormatError
+        from a2a_t.prompt.common.task_prompt_format import parse_task_prompt_metadata
 
         with self.assertRaises(TaskPromptFormatError) as context:
             parse_task_prompt_metadata(
@@ -61,7 +62,8 @@ class A2ATTaskPromptCommonTest(unittest.TestCase):
         self.assertEqual(context.exception.field, "language")
 
     def test_parse_rejects_missing_description(self) -> None:
-        from a2a_t.prompt.common.task_prompt_format import TaskPromptFormatError, parse_task_prompt_metadata
+        from a2a_t.prompt.common.errors import TaskPromptFormatError
+        from a2a_t.prompt.common.task_prompt_format import parse_task_prompt_metadata
 
         with self.assertRaises(TaskPromptFormatError) as context:
             parse_task_prompt_metadata(
@@ -75,7 +77,8 @@ class A2ATTaskPromptCommonTest(unittest.TestCase):
         self.assertEqual(context.exception.field, "description")
 
     def test_parse_rejects_blank_language(self) -> None:
-        from a2a_t.prompt.common.task_prompt_format import TaskPromptFormatError, parse_task_prompt_metadata
+        from a2a_t.prompt.common.errors import TaskPromptFormatError
+        from a2a_t.prompt.common.task_prompt_format import parse_task_prompt_metadata
 
         with self.assertRaises(TaskPromptFormatError) as context:
             parse_task_prompt_metadata(
@@ -90,7 +93,8 @@ class A2ATTaskPromptCommonTest(unittest.TestCase):
         self.assertEqual(context.exception.field, "language")
 
     def test_parse_rejects_blank_description(self) -> None:
-        from a2a_t.prompt.common.task_prompt_format import TaskPromptFormatError, parse_task_prompt_metadata
+        from a2a_t.prompt.common.errors import TaskPromptFormatError
+        from a2a_t.prompt.common.task_prompt_format import parse_task_prompt_metadata
 
         with self.assertRaises(TaskPromptFormatError) as context:
             parse_task_prompt_metadata(

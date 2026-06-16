@@ -7,7 +7,8 @@ from a2a_t.common.prompt_resources.models import SlotSchema
 from a2a_t.common.prompt_resources import PromptResourceLoader
 from a2a_t.prompt.common.models import PromptReference
 
-from .semantic_validator import SemanticSlotValidator, SemanticValidationError, SemanticValidationResult
+from .models import SemanticValidationError, SemanticValidationResult
+from .semantic_validator import SemanticSlotValidator
 
 
 class LLMSemanticSlotValidator(SemanticSlotValidator):
