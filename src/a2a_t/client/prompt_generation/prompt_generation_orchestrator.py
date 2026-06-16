@@ -88,11 +88,7 @@ class PromptGenerationOrchestrator:
             return self._failure_result(
                 code=failure.code if failure is not None else SCENARIO_PARSE_FAILED,
                 message=failure.message if failure is not None else "Scenario recognition failed.",
-                stage=(
-                    GENERATION_STAGE
-                    if failure is not None and failure.stage == PREPARATION_STAGE
-                    else failure.stage if failure is not None else SCENARIO_STAGE
-                ),
+                stage=failure.stage if failure is not None else SCENARIO_STAGE,
             )
         reference = scenario_resolution.reference
         scenario = scenario_resolution.scenario
@@ -207,30 +203,30 @@ class PromptGenerationOrchestrator:
                 raise _PromptGenerationResourceFailure(
                     code=TEMPLATE_NOT_FOUND,
                     message=str(error),
-                    stage=GENERATION_STAGE,
+                    stage=PREPARATION_STAGE,
                 ) from error
             if resource_path.endswith("slot.json"):
                 raise _PromptGenerationResourceFailure(
                     code=SLOT_SCHEMA_NOT_FOUND,
                     message=str(error),
-                    stage=GENERATION_STAGE,
+                    stage=PREPARATION_STAGE,
                 ) from error
             raise _PromptGenerationResourceFailure(
                 code=PROMPT_NOT_FOUND,
                 message=str(error),
-                stage=GENERATION_STAGE,
+                stage=PREPARATION_STAGE,
             ) from error
         except PromptResourceParseError as error:
             raise _PromptGenerationResourceFailure(
                 code=PROMPT_RESOURCE_PARSE_ERROR,
                 message=str(error),
-                stage=GENERATION_STAGE,
+                stage=PREPARATION_STAGE,
             ) from error
         except PromptSourceError as error:
             raise _PromptGenerationResourceFailure(
                 code=PROMPT_RESOURCE_ACCESS_ERROR,
                 message=str(error),
-                stage=GENERATION_STAGE,
+                stage=PREPARATION_STAGE,
             ) from error
 
     def _render_prompt_text(
