@@ -31,6 +31,7 @@ class A2ATServer:
         self._prompt_compliance_orchestrator = PromptComplianceOrchestratorBuilder().build(
             config=config,
             llm_client=llm_client,
+            logger=logger,
         )
         self._negotiation_orchestrator = ServerNegotiationOrchestratorBuilder().build(
             config=config,

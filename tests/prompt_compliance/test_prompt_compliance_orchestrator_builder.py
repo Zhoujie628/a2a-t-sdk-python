@@ -61,6 +61,18 @@ class FakeSemanticValidator:
         self.prompt_resource_loader = prompt_resource_loader
 
 
+class FakeLogger:
+    def __init__(self) -> None:
+        self.info_messages: list[tuple[str, tuple[object, ...]]] = []
+        self.debug_messages: list[tuple[str, tuple[object, ...]]] = []
+
+    def info(self, message: str, *args: object) -> None:
+        self.info_messages.append((message, args))
+
+    def debug(self, message: str, *args: object) -> None:
+        self.debug_messages.append((message, args))
+
+
 class PromptComplianceOrchestratorBuilderTest(unittest.TestCase):
     def test_builder_uses_runtime_components_builder_and_injects_llm_client(self) -> None:
         from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator_builder import PromptComplianceOrchestratorBuilder
@@ -113,6 +125,7 @@ class PromptComplianceOrchestratorBuilderTest(unittest.TestCase):
         self.assertIs(orchestrator.kwargs["semantic_validator"].llm_client, llm_client)
         self.assertIs(orchestrator.kwargs["semantic_validator"].prompt_resource_loader, components.prompt_resource_loader)
         self.assertNotIn("guardrail", orchestrator.kwargs)
+        self.assertIsNone(orchestrator.kwargs["logger"])
 
     def test_builder_reuses_provided_runtime_components_without_rebuilding(self) -> None:
         from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator_builder import PromptComplianceOrchestratorBuilder
@@ -164,6 +177,45 @@ class PromptComplianceOrchestratorBuilderTest(unittest.TestCase):
         self.assertIsInstance(orchestrator.kwargs["semantic_validator"], FakeSemanticValidator)
         self.assertIs(orchestrator.kwargs["semantic_validator"].llm_client, llm_client)
         self.assertIs(orchestrator.kwargs["semantic_validator"].prompt_resource_loader, components.prompt_resource_loader)
+
+    def test_builder_injects_logger_into_orchestrator(self) -> None:
+        from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator_builder import PromptComplianceOrchestratorBuilder
+
+        components = type(
+            "Components",
+            (),
+            {
+                "scenario_loader": object(),
+                "prompt_resource_loader": object(),
+                "template_loader": object(),
+                "slot_schema_loader": object(),
+                "slot_json_schema_loader": object(),
+                "json_schema_slot_validator": object(),
+            },
+        )()
+        runtime_builder = FakeRuntimeComponentsBuilder(components)
+        llm_client = object()
+        logger = FakeLogger()
+        builder = PromptComplianceOrchestratorBuilder(
+            runtime_components_builder=runtime_builder,
+            scenario_recognizer_cls=FakeScenarioRecognizer,
+            scenario_resolver_cls=FakeScenarioResolver,
+            slot_extractor_cls=FakeSlotExtractor,
+            semantic_validator_cls=FakeSemanticValidator,
+            orchestrator_cls=FakeOrchestrator,
+        )
+        config = A2ATConfig(
+            prompt=PromptRuntimeConfig(local_root_dir="./default-root"),
+            prompt_compliance=PromptComplianceConfig(),
+        )
+
+        orchestrator = builder.build(
+            config=config,
+            llm_client=llm_client,
+            logger=logger,
+        )
+
+        self.assertIs(orchestrator.kwargs["logger"], logger)
 
 if __name__ == "__main__":
     unittest.main()

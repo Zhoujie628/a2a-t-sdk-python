@@ -63,6 +63,14 @@ class FakeNegotiationOrchestrator:
         return {"continued": True}
 
 
+class FakeLogger:
+    def __init__(self) -> None:
+        self.info_messages: list[tuple[str, tuple[object, ...]]] = []
+
+    def info(self, message: str, *args: object) -> None:
+        self.info_messages.append((message, args))
+
+
 class A2ATServerTest(unittest.TestCase):
     def test_a2at_server_delegates_all_public_methods_with_typed_negotiation_inputs(self) -> None:
         from a2a_t.server.a2at_server import A2ATServer
@@ -78,6 +86,7 @@ class A2ATServerTest(unittest.TestCase):
         compliance = FakePromptComplianceOrchestrator(compliance_result)
         compliance_builder = FakePromptComplianceBuilder(compliance)
         negotiation = FakeNegotiationOrchestrator()
+        logger = FakeLogger()
         start_input = StartNegotiationInput(
             type=NegotiationType.INFORMATION,
             content_text="Need more information.",
@@ -105,7 +114,7 @@ class A2ATServerTest(unittest.TestCase):
             patch("a2a_t.server.a2at_server.LLMClient", return_value=object()),
         ):
             negotiation_builder_cls.return_value.build.return_value = negotiation
-            server = A2ATServer()
+            server = A2ATServer(logger=logger)
 
             self.assertEqual(
                 server.check_task_prompt(processed_prompt_text="prompt"),
@@ -147,6 +156,7 @@ class A2ATServerTest(unittest.TestCase):
         self.assertEqual(negotiation.start_calls, [start_input])
         self.assertEqual(negotiation.receive_calls[0]["message"], "Need more information")
         self.assertEqual(negotiation.continue_calls, [continue_input])
+        self.assertIs(compliance_builder.calls[0]["logger"], logger)
 
     def test_check_task_prompt_returns_success_only_when_compliance_passes(self) -> None:
         from a2a_t.server.a2at_server import A2ATServer

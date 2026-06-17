@@ -36,6 +36,7 @@ class PromptComplianceOrchestratorBuilder:
         config: A2ATConfig,
         llm_client: Any,
         runtime_components: PromptRuntimeComponents | None = None,
+        logger: Any | None = None,
     ) -> PromptComplianceOrchestrator:
         """Build a fully wired prompt compliance orchestrator."""
         components = runtime_components or self._runtime_components_builder.build(config=config)
@@ -60,4 +61,5 @@ class PromptComplianceOrchestratorBuilder:
             extractor=extractor,
             validator=components.json_schema_slot_validator,
             semantic_validator=semantic_validator,
+            logger=logger,
         )

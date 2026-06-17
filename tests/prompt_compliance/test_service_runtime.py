@@ -132,6 +132,14 @@ class FakeSemanticValidator:
         )
 
 
+class FakeLogger:
+    def __init__(self) -> None:
+        self.info_messages: list[tuple[str, tuple[object, ...]]] = []
+
+    def info(self, message: str, *args: object) -> None:
+        self.info_messages.append((message, args))
+
+
 class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
     def setUp(self) -> None:
         self.processed_prompt = "processed body"
@@ -178,6 +186,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
         extractor: FakeExtractor | None = None,
         validator: FakeValidator | None = None,
         semantic_validator: FakeSemanticValidator | None = None,
+        logger: FakeLogger | None = None,
     ):
         from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator import PromptComplianceOrchestrator
 
@@ -200,6 +209,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             extractor=extractor or FakeExtractor(SlotExtractionResult(slots={"site": "Site A"}, slot_errors=[])),
             validator=validator or FakeValidator(SlotValidationResult(passed=True, slot_errors=[])),
             semantic_validator=semantic_validator or FakeSemanticValidator(passed=True),
+            logger=logger,
         )
 
     def test_check_returns_success_result(self) -> None:
@@ -362,12 +372,43 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
 
     def test_check_returns_success_when_schema_and_semantic_validation_pass(self) -> None:
         semantic_validator = FakeSemanticValidator(passed=True)
-        service = self._build_service(semantic_validator=semantic_validator)
+        logger = FakeLogger()
+        service = self._build_service(semantic_validator=semantic_validator, logger=logger)
 
         result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
 
         self.assertEqual(semantic_validator.calls, 1)
         self.assertEqual(result, PromptComplianceResult(success=True))
+        messages = [message for message, _ in logger.info_messages]
+        self.assertIn("prompt_compliance_started", messages)
+        self.assertTrue(any(message.startswith("prompt_compliance_scenario_resolved") for message in messages))
+        self.assertTrue(any(message.startswith("prompt_compliance_completed") for message in messages))
+
+    def test_check_logs_failure_stage_and_code(self) -> None:
+        logger = FakeLogger()
+        service = self._build_service(
+            validator=FakeValidator(
+                SlotValidationResult(
+                    passed=False,
+                    slot_errors=[
+                        SlotValidationError(
+                            slot_name="site",
+                            code=MISSING_INPUT,
+                            message="Required slot 'site' is missing.",
+                        )
+                    ],
+                )
+            ),
+            logger=logger,
+        )
+
+        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+
+        self.assertFalse(result.success)
+        self.assertIn(
+            ("prompt_compliance_completed success=%s stage=%s code=%s", (False, SLOT_VALIDATION_STAGE, SLOT_VALIDATION_ERROR)),
+            logger.info_messages,
+        )
 
     def test_check_returns_template_load_error_when_template_resource_is_missing(self) -> None:
         service = self._build_service(
