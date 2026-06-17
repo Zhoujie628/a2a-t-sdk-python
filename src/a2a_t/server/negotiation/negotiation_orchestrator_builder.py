@@ -72,6 +72,7 @@ class ServerNegotiationOrchestratorBuilder:
         )
         return self._orchestrator_cls(
             handler=handler,
+            logger=logger,
         )
 
     def _build_store(self, *, env_path: str | Path | None, logger: Any | None) -> object:

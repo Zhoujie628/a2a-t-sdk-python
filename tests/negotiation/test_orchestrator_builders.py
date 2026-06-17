@@ -42,6 +42,16 @@ class FakePromptRenderer:
         type(self).last_kwargs = dict(kwargs)
 
 
+class FakeOrchestrator:
+    last_kwargs: dict[str, object] | None = None
+
+    def __init__(self, **kwargs: object) -> None:
+        type(self).last_kwargs = dict(kwargs)
+
+    def start_negotiation(self, input: object) -> dict[str, object]:
+        return {"https://github.com/a2aproject/telecommunication/extensions/DATA-NEGOTIATION-T/v1": {"role": "fake"}}
+
+
 class FakeStoreFactory:
     def __init__(self) -> None:
         self.calls: list[dict[str, object]] = []
@@ -182,3 +192,36 @@ class NegotiationOrchestratorBuilderTest(unittest.TestCase):
         )
 
         self.assertIs(prompt_compliance_builder.calls[0]["logger"], logger)
+
+    def test_client_builder_passes_logger_to_orchestrator(self) -> None:
+        from a2a_t.client.negotiation.negotiation_orchestrator_builder import ClientNegotiationOrchestratorBuilder
+
+        logger = FakeLogger()
+        builder = ClientNegotiationOrchestratorBuilder(
+            store_factory=FakeStoreFactory(),
+            orchestrator_cls=FakeOrchestrator,
+        )
+
+        builder.build(logger=logger)
+
+        assert FakeOrchestrator.last_kwargs is not None
+        self.assertIs(FakeOrchestrator.last_kwargs["logger"], logger)
+
+    def test_server_builder_passes_logger_to_orchestrator(self) -> None:
+        from a2a_t.server.negotiation.negotiation_orchestrator_builder import ServerNegotiationOrchestratorBuilder
+
+        logger = FakeLogger()
+        builder = ServerNegotiationOrchestratorBuilder(
+            prompt_compliance_builder=FakePromptComplianceBuilder(FakePromptChecker()),
+            store_factory=FakeStoreFactory(),
+            orchestrator_cls=FakeOrchestrator,
+        )
+
+        builder.build(
+            config=self._config(),
+            llm_client=object(),
+            logger=logger,
+        )
+
+        assert FakeOrchestrator.last_kwargs is not None
+        self.assertIs(FakeOrchestrator.last_kwargs["logger"], logger)

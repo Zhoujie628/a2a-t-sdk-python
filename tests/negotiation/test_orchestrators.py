@@ -43,6 +43,14 @@ class FakeNegotiationHandler:
         return {"continued": True}
 
 
+class FakeLogger:
+    def __init__(self) -> None:
+        self.info_messages: list[tuple[str, tuple[object, ...]]] = []
+
+    def info(self, message: str, *args: object) -> None:
+        self.info_messages.append((message, args))
+
+
 class NegotiationOrchestratorTest(unittest.TestCase):
     def test_client_orchestrator_start_negotiation_uses_client_role(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationType
@@ -135,3 +143,63 @@ class NegotiationOrchestratorTest(unittest.TestCase):
         self.assertEqual(result, {"continued": True})
         self.assertEqual(len(handler.continue_calls), 1)
         self.assertEqual(handler.continue_calls[0]["input"].context.negotiation_id, "neg-1")
+
+    def test_orchestrator_logs_lifecycle_events_without_message_content(self) -> None:
+        from a2a_t.negotiation.common.enums import NegotiationStatus, NegotiationType
+        from a2a_t.negotiation.common.models import ContinueNegotiationInput, NegotiationContext, StartNegotiationInput
+        from a2a_t.server.negotiation.negotiation_orchestrator import NegotiationOrchestrator
+
+        logger = FakeLogger()
+        orchestrator = NegotiationOrchestrator(
+            handler=FakeNegotiationHandler(),
+            logger=logger,
+        )
+        start_input = StartNegotiationInput(
+            type=NegotiationType.INFORMATION,
+            content_text="Need more information.",
+            facts={},
+        )
+        context = {
+            "negotiationType": "clarification",
+            "negotiationId": "neg-1",
+            "role": "client",
+            "round": 1,
+            "status": "in-progress",
+            "extra": {},
+        }
+
+        orchestrator.start_negotiation(start_input)
+        orchestrator.receive_negotiation("sensitive message", context)
+        orchestrator.continue_negotiation(
+            ContinueNegotiationInput(
+                context=NegotiationContext.from_context(context),
+                status=NegotiationStatus.IN_PROGRESS,
+                content_text="sensitive continuation",
+            )
+        )
+
+        self.assertIn(
+            ("negotiation_start_started role=%s type=%s", ("server", "information")),
+            logger.info_messages,
+        )
+        self.assertIn(
+            ("negotiation_start_completed role=%s type=%s id=%s status=%s", ("server", None, None, None)),
+            logger.info_messages,
+        )
+        self.assertIn(
+            ("negotiation_receive_started role=%s type=%s id=%s", ("server", "clarification", "neg-1")),
+            logger.info_messages,
+        )
+        self.assertIn(
+            ("negotiation_receive_completed role=%s type=%s id=%s status=%s", ("server", "clarification", "neg-1", "in-progress")),
+            logger.info_messages,
+        )
+        self.assertIn(
+            ("negotiation_continue_started role=%s type=%s id=%s status=%s", ("server", "clarification", "neg-1", "in-progress")),
+            logger.info_messages,
+        )
+        self.assertIn(
+            ("negotiation_continue_completed role=%s type=%s id=%s status=%s", ("server", None, None, None)),
+            logger.info_messages,
+        )
+        self.assertFalse(any("sensitive" in message for message, _ in logger.info_messages))
