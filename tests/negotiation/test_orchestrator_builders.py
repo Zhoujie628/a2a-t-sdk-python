@@ -67,6 +67,11 @@ class FakePromptChecker:
         )
 
 
+class FakeLogger:
+    def info(self, message: str, *args: object) -> None:
+        pass
+
+
 class NegotiationOrchestratorBuilderTest(unittest.TestCase):
     def _config(self) -> A2ATConfig:
         return A2ATConfig(
@@ -158,3 +163,22 @@ class NegotiationOrchestratorBuilderTest(unittest.TestCase):
         self.assertIs(prompt_compliance_builder.calls[0]["runtime_components"], components)
         self.assertNotIn("resource_root", prompt_compliance_builder.calls[0])
         self.assertEqual(FakePromptRenderer.last_kwargs, {})
+
+    def test_server_builder_passes_logger_to_prompt_compliance_builder(self) -> None:
+        from a2a_t.server.negotiation.negotiation_orchestrator_builder import ServerNegotiationOrchestratorBuilder
+
+        prompt_checker = FakePromptChecker()
+        prompt_compliance_builder = FakePromptComplianceBuilder(prompt_checker)
+        logger = FakeLogger()
+        builder = ServerNegotiationOrchestratorBuilder(
+            prompt_compliance_builder=prompt_compliance_builder,
+            store_factory=FakeStoreFactory(),
+        )
+
+        builder.build(
+            config=self._config(),
+            llm_client=object(),
+            logger=logger,
+        )
+
+        self.assertIs(prompt_compliance_builder.calls[0]["logger"], logger)
