@@ -24,11 +24,10 @@ class FakePromptComplianceOrchestrator:
         self._result = result
         self.calls: list[dict[str, object]] = []
 
-    def check(self, *, processed_prompt_text: str, request_metadata: dict[str, object] | None) -> PromptComplianceResult:
+    def check(self, *, processed_prompt_text: str) -> PromptComplianceResult:
         self.calls.append(
             {
                 "processed_prompt_text": processed_prompt_text,
-                "request_metadata": request_metadata,
             }
         )
         return self._result
@@ -149,7 +148,6 @@ class A2ATServerTest(unittest.TestCase):
             [
                 {
                     "processed_prompt_text": "prompt",
-                    "request_metadata": None,
                 }
             ],
         )

@@ -44,7 +44,6 @@ class A2ATServer:
         """Validate a processed task prompt and return compliance details."""
         result = self._prompt_compliance_orchestrator.check(
             processed_prompt_text=processed_prompt_text,
-            request_metadata=None,
         )
         payload: dict[str, object] = {"success": result.success}
         if result.failure is not None:

@@ -39,7 +39,6 @@ class InformationNegotiationType(BaseNegotiationType):
 
         compliance_result = self._prompt_checker.check(
             processed_prompt_text=message,
-            request_metadata=None,
         )
         if compliance_result.success:
             return ReceiveResult(

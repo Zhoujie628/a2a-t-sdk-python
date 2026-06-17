@@ -67,7 +67,6 @@ class PromptComplianceOrchestrator:
         self,
         *,
         processed_prompt_text: str,
-        request_metadata: dict[str, object] | None = None,
     ) -> PromptComplianceResult:
         """Validate a processed task prompt and derive follow-up negotiation hints when needed."""
         self._log_info("prompt_compliance_started")

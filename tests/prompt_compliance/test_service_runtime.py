@@ -232,7 +232,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             extractor=extractor,
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata={"task_id": "task-1"})
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(template_loader.last_reference, PromptReference(scenario_code="energy_saving", language="en-US"))
         self.assertEqual(slot_schema_loader.last_reference, PromptReference(scenario_code="energy_saving", language="en-US"))
@@ -262,7 +262,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             )
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(
             result,
@@ -297,7 +297,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             )
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(
             result,
@@ -329,7 +329,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             semantic_validator=semantic_validator,
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(semantic_validator.calls, 0)
         self.assertEqual(result.success, False)
@@ -341,7 +341,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
         semantic_validator = FakeSemanticValidator(passed=False, message="semantic mismatch for site")
         service = self._build_service(semantic_validator=semantic_validator)
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(semantic_validator.calls, 1)
         self.assertEqual(
@@ -375,7 +375,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
         logger = FakeLogger()
         service = self._build_service(semantic_validator=semantic_validator, logger=logger)
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(semantic_validator.calls, 1)
         self.assertEqual(result, PromptComplianceResult(success=True))
@@ -402,7 +402,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             logger=logger,
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertFalse(result.success)
         self.assertIn(
@@ -415,7 +415,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             template_loader=FakeTemplateLoader(PromptResourceNotFoundError("missing template")),
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(
             result,
@@ -443,7 +443,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             ),
         )
 
-        result = service.check(processed_prompt_text="natural language prompt", request_metadata=None)
+        result = service.check(processed_prompt_text="natural language prompt")
 
         self.assertEqual(
             result,
@@ -471,7 +471,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             ),
         )
 
-        result = service.check(processed_prompt_text="natural language prompt", request_metadata=None)
+        result = service.check(processed_prompt_text="natural language prompt")
 
         self.assertEqual(
             result,
@@ -490,7 +490,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             template_loader=FakeTemplateLoader(PromptResourceParseError("template is invalid")),
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(
             result,
@@ -509,7 +509,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             slot_schema_loader=FakeSlotSchemaLoader(PromptResourceParseError("slot schema is invalid")),
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(
             result,
@@ -528,7 +528,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             prompt_resource_loader=FakePromptResourceLoader(PromptResourceNotFoundError("missing slot extraction prompts")),
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(
             result,
@@ -547,7 +547,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             prompt_resource_loader=FakePromptResourceLoader(PromptSourceError("prompt resource path escapes local root")),
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(
             result,
@@ -566,7 +566,7 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
             template_loader=FakeTemplateLoader(PromptSourceError("resource path escapes local root")),
         )
 
-        result = service.check(processed_prompt_text=self.processed_prompt, request_metadata=None)
+        result = service.check(processed_prompt_text=self.processed_prompt)
 
         self.assertEqual(
             result,

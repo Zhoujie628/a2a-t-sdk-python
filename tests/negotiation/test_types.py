@@ -17,7 +17,7 @@ class FakePromptChecker:
         self._result = result
         self.calls: list[str] = []
 
-    def check(self, *, processed_prompt_text: str, request_metadata=None):
+    def check(self, *, processed_prompt_text: str):
         self.calls.append(processed_prompt_text)
         return self._result
 

@@ -69,7 +69,7 @@ class FakeStoreFactory:
 
 
 class FakePromptChecker:
-    def check(self, *, processed_prompt_text: str, request_metadata: dict[str, object] | None = None):
+    def check(self, *, processed_prompt_text: str):
         from a2a_t.server.prompt_compliance.models import PromptComplianceResult
 
         return PromptComplianceResult(
