@@ -51,6 +51,11 @@ class FakeLogger:
         self.info_messages.append((message, args))
 
 
+class FalsyLogger(FakeLogger):
+    def __bool__(self) -> bool:
+        return False
+
+
 class NegotiationOrchestratorTest(unittest.TestCase):
     def test_client_orchestrator_start_negotiation_uses_client_role(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationType
@@ -143,6 +148,30 @@ class NegotiationOrchestratorTest(unittest.TestCase):
         self.assertEqual(result, {"continued": True})
         self.assertEqual(len(handler.continue_calls), 1)
         self.assertEqual(handler.continue_calls[0]["input"].context.negotiation_id, "neg-1")
+
+    def test_orchestrator_uses_explicit_logger_even_when_logger_is_falsy(self) -> None:
+        from a2a_t.negotiation.common.enums import NegotiationType
+        from a2a_t.negotiation.common.models import StartNegotiationInput
+        from a2a_t.server.negotiation.negotiation_orchestrator import NegotiationOrchestrator
+
+        logger = FalsyLogger()
+        orchestrator = NegotiationOrchestrator(
+            handler=FakeNegotiationHandler(),
+            logger=logger,
+        )
+
+        orchestrator.start_negotiation(
+            StartNegotiationInput(
+                type=NegotiationType.INFORMATION,
+                content_text="Need more information.",
+                facts={},
+            )
+        )
+
+        self.assertIn(
+            ("negotiation_start_started role=%s type=%s", ("server", "information")),
+            logger.info_messages,
+        )
 
     def test_orchestrator_logs_lifecycle_events_without_message_content(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationStatus, NegotiationType

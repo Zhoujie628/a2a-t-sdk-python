@@ -141,6 +141,11 @@ class FakeLogger:
         self.debug_calls.append(message % args if args else message)
 
 
+class FalsyLogger(FakeLogger):
+    def __bool__(self) -> bool:
+        return False
+
+
 class FakeRenderer:
     def __init__(self, error: Exception) -> None:
         self._error = error
@@ -203,7 +208,7 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         self.slot_schema_loader = slot_schema_loader or FakeSlotSchemaLoader()
         self.prompt_resource_loader = prompt_resource_loader or FakePromptResourceLoader()
         self.slot_extractor = slot_extractor or FakeSlotExtractor(extraction_result)
-        self.logger = logger or FakeLogger()
+        self.logger = logger if logger is not None else FakeLogger()
 
         return PromptGenerationOrchestrator(
             config=FakePromptRuntimeConfig(
@@ -283,6 +288,30 @@ class PromptGenerationOrchestratorTest(unittest.TestCase):
         )
         self.assertIsNone(result.failure)
         self.assertEqual(result.prompt_text, "Site: Site A\nNotes: ")
+
+    def test_orchestrator_uses_explicit_logger_even_when_logger_is_falsy(self) -> None:
+        logger = FalsyLogger()
+        orchestrator = self._build_orchestrator(
+            scenario_result=ScenarioResolutionResult(
+                success=True,
+                reference=PromptReference(scenario_code="energy_saving", language="en-US"),
+                scenario=ScenarioDefinition(
+                    scenario_code="energy_saving",
+                    scenario_name="Energy Saving",
+                    description="Used for energy saving analysis.",
+                    example="Analyze site power usage and suggest optimization.",
+                ),
+            ),
+            extraction_result=SlotExtractionResult(
+                slots={"site": "Site A", "additional_notes": None},
+                slot_errors=[],
+            ),
+            logger=logger,
+        )
+
+        orchestrator.generate("Analyze Site A energy usage.")
+
+        self.assertIn("prompt_generation_started", logger.info_calls)
 
     def test_generate_returns_success_result_when_extracted_slots_are_missing(self) -> None:
         orchestrator = self._build_orchestrator(

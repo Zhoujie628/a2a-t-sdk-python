@@ -33,7 +33,7 @@ from a2a_t.server.prompt_compliance.constants import (
 )
 
 
-logger = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 
 
 class PromptComplianceOrchestrator:
@@ -58,7 +58,7 @@ class PromptComplianceOrchestrator:
         self._extractor = extractor
         self._validator = validator
         self._semantic_validator = semantic_validator
-        self._logger = logger or globals()["logger"]
+        self._logger = logger if logger is not None else _LOGGER
 
     def check(
         self,
@@ -210,5 +210,4 @@ class PromptComplianceOrchestrator:
 
     def _log_info(self, message: str, *args: object) -> None:
         """Write an info log through the configured logger."""
-        if self._logger is not None and hasattr(self._logger, "info"):
-            self._logger.info(message, *args)
+        self._logger.info(message, *args)

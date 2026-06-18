@@ -7,7 +7,7 @@ from a2a_t.negotiation.common.enums import NegotiationRole
 from a2a_t.negotiation.common.models import ContinueNegotiationInput, StartNegotiationInput
 
 
-logger = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 
 
 class BaseNegotiationOrchestrator:
@@ -16,7 +16,7 @@ class BaseNegotiationOrchestrator:
     def __init__(self, *, handler, role: NegotiationRole, logger: Any | None = None) -> None:
         self._handler = handler
         self._role = role
-        self._logger = logger or globals()["logger"]
+        self._logger = logger if logger is not None else _LOGGER
 
     def start_negotiation(self, input: StartNegotiationInput) -> dict[str, object]:
         """Start a negotiation from the bound local role."""
@@ -66,5 +66,4 @@ class BaseNegotiationOrchestrator:
         )
 
     def _log_info(self, message: str, *args: object) -> None:
-        if self._logger is not None and hasattr(self._logger, "info"):
-            self._logger.info(message, *args)
+        self._logger.info(message, *args)

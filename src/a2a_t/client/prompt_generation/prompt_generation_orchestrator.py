@@ -34,7 +34,7 @@ from .input_normalizer import InputNormalizer
 from .models import PromptGenerationFailure, PromptGenerationResult
 
 
-logger = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 
 
 class PromptGenerationOrchestrator:
@@ -63,7 +63,7 @@ class PromptGenerationOrchestrator:
         self._slot_extractor = slot_extractor
         self._input_normalizer = input_normalizer or InputNormalizer()
         self._renderer = renderer or TaskPromptRenderer()
-        self._logger = logger or globals()["logger"]
+        self._logger = logger if logger is not None else _LOGGER
 
     def generate(self, user_input: str | dict[str, object]) -> PromptGenerationResult:
         """Run prompt generation from input normalization through prompt rendering."""

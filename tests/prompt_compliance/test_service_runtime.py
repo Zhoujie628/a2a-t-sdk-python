@@ -150,6 +150,11 @@ class FakeLogger:
         self.info_messages.append((message, args))
 
 
+class FalsyLogger(FakeLogger):
+    def __bool__(self) -> bool:
+        return False
+
+
 class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
     def setUp(self) -> None:
         self.processed_prompt = "processed body"
@@ -379,6 +384,14 @@ class PromptComplianceOrchestratorRuntimeTest(unittest.TestCase):
         self.assertIn("prompt_compliance_started", messages)
         self.assertTrue(any(message.startswith("prompt_compliance_scenario_resolved") for message in messages))
         self.assertTrue(any(message.startswith("prompt_compliance_completed") for message in messages))
+
+    def test_check_uses_explicit_logger_even_when_logger_is_falsy(self) -> None:
+        logger = FalsyLogger()
+        service = self._build_service(logger=logger)
+
+        service.check(processed_prompt_text=self.processed_prompt)
+
+        self.assertIn(("prompt_compliance_started", ()), logger.info_messages)
 
     def test_check_logs_failure_stage_and_code(self) -> None:
         logger = FakeLogger()
