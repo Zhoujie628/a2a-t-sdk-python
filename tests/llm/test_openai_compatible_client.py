@@ -21,11 +21,11 @@ from a2a_t.llm.models import LLMClientConfig
 from a2a_t.llm.provider import LLMClient
 
 
-def build_config(provider: str = "deepseek", base_url: str | None = None) -> LLMClientConfig:
+def build_config(provider: str = "openai", base_url: str | None = None) -> LLMClientConfig:
     return LLMClientConfig(
         provider=provider,
-        model="deepseek-chat",
-        api_key="deepseek-key",
+        model="gpt-4o-mini",
+        api_key="sk-test",
         base_url=base_url,
         history_window=10,
         max_tokens=None,
@@ -70,7 +70,7 @@ class OpenAIClientTest(unittest.TestCase):
     def test_structured_forces_json_mode_and_includes_schema_instruction(self, openai_cls: Mock) -> None:
         sdk_client = Mock()
         sdk_client.chat.completions.create.return_value = SimpleNamespace(
-            model="deepseek-chat",
+            model="gpt-4o-mini",
             choices=[SimpleNamespace(message=SimpleNamespace(content='{"device_type":"router"}'))],
             usage=SimpleNamespace(prompt_tokens=7, completion_tokens=2),
         )
@@ -93,16 +93,16 @@ class OpenAIClientTest(unittest.TestCase):
         )
 
         self.assertEqual(response.content, '{"device_type":"router"}')
-        self.assertEqual(response.model, "deepseek-chat")
+        self.assertEqual(response.model, "gpt-4o-mini")
         self.assertEqual(response.usage["prompt_tokens"], 7)
         self.assertEqual(response.usage["completion_tokens"], 2)
         openai_cls.assert_called_once_with(
-            api_key="deepseek-key",
+            api_key="sk-test",
             base_url="https://custom.example/v1",
             timeout=None,
         )
         payload = sdk_client.chat.completions.create.call_args.kwargs
-        self.assertEqual(payload["model"], "deepseek-chat")
+        self.assertEqual(payload["model"], "gpt-4o-mini")
         self.assertEqual(payload["temperature"], 0.2)
         self.assertEqual(payload["max_tokens"], 9)
         self.assertEqual(payload["response_format"], {"type": "json_object"})
@@ -115,7 +115,7 @@ class OpenAIClientTest(unittest.TestCase):
     def test_structured_rejects_non_json_object_response(self, openai_cls: Mock) -> None:
         sdk_client = Mock()
         sdk_client.chat.completions.create.return_value = SimpleNamespace(
-            model="deepseek-chat",
+            model="gpt-4o-mini",
             choices=[SimpleNamespace(message=SimpleNamespace(content='["not-object"]'))],
             usage=SimpleNamespace(prompt_tokens=1, completion_tokens=1),
         )
@@ -123,7 +123,7 @@ class OpenAIClientTest(unittest.TestCase):
 
         from a2a_t.llm.providers.openai import OpenAIClient
 
-        client = OpenAIClient(build_config(base_url="https://api.deepseek.com"))
+        client = OpenAIClient(build_config(base_url="https://api.example.test/v1"))
 
         with self.assertRaises(LLMRuntimeError):
             client.structured(messages=[{"role": "user", "content": "extract"}], json_schema={"type": "object"})

@@ -23,8 +23,8 @@ class LLMConfigLoaderTest(ManagedTempDirTestCase):
         env_path = self._write_env(
             "\n".join(
                 [
-                    "A2AT_LLM_PROVIDER=deepseek",
-                    "A2AT_LLM_MODEL=deepseek-chat",
+                    "A2AT_LLM_PROVIDER=openai",
+                    "A2AT_LLM_MODEL=gpt-4o-mini",
                     "A2AT_LLM_API_KEY=sk-test",
                     "A2AT_LLM_BASE_URL=https://example.test/v1",
                     "A2AT_LLM_HISTORY_WINDOW=6",
@@ -42,8 +42,8 @@ class LLMConfigLoaderTest(ManagedTempDirTestCase):
 
         config = LLMConfigLoader.load(env_path)
 
-        self.assertEqual(config.provider, "deepseek")
-        self.assertEqual(config.model, "deepseek-chat")
+        self.assertEqual(config.provider, "openai")
+        self.assertEqual(config.model, "gpt-4o-mini")
         self.assertEqual(config.api_key, "sk-test")
         self.assertEqual(config.base_url, "https://example.test/v1")
         self.assertEqual(config.history_window, 6)
@@ -57,8 +57,8 @@ class LLMConfigLoaderTest(ManagedTempDirTestCase):
         env_path = self._write_env(
             "\n".join(
                 [
-                    "A2AT_LLM_PROVIDER=deepseek",
-                    "A2AT_LLM_MODEL=deepseek-chat",
+                    "A2AT_LLM_PROVIDER=openai",
+                    "A2AT_LLM_MODEL=gpt-4o-mini",
                     "A2AT_LLM_API_KEY=sk-test",
                 ]
             )
@@ -87,10 +87,10 @@ class LLMConfigLoaderTest(ManagedTempDirTestCase):
 
     def test_load_rejects_missing_provider_model_or_api_key(self) -> None:
         cases = [
-            "A2AT_LLM_MODEL=deepseek-chat\nA2AT_LLM_API_KEY=sk-test\n",
-            "A2AT_LLM_PROVIDER=deepseek\nA2AT_LLM_API_KEY=sk-test\n",
-            "A2AT_LLM_PROVIDER=deepseek\nA2AT_LLM_MODEL=deepseek-chat\n",
-            "A2AT_LLM_PROVIDER=deepseek\nA2AT_LLM_MODEL=deepseek-chat\nA2AT_LLM_API_KEY=   \n",
+            "A2AT_LLM_MODEL=gpt-4o-mini\nA2AT_LLM_API_KEY=sk-test\n",
+            "A2AT_LLM_PROVIDER=openai\nA2AT_LLM_API_KEY=sk-test\n",
+            "A2AT_LLM_PROVIDER=openai\nA2AT_LLM_MODEL=gpt-4o-mini\n",
+            "A2AT_LLM_PROVIDER=openai\nA2AT_LLM_MODEL=gpt-4o-mini\nA2AT_LLM_API_KEY=   \n",
         ]
 
         from a2a_t.llm.config_loader import LLMConfigLoader
@@ -118,8 +118,8 @@ class LLMConfigLoaderTest(ManagedTempDirTestCase):
                 env_path = self._write_env(
                     "\n".join(
                         [
-                            "A2AT_LLM_PROVIDER=deepseek",
-                            "A2AT_LLM_MODEL=deepseek-chat",
+                            "A2AT_LLM_PROVIDER=openai",
+                            "A2AT_LLM_MODEL=gpt-4o-mini",
                             "A2AT_LLM_API_KEY=sk-test",
                             line,
                         ]
@@ -144,8 +144,8 @@ class LLMConfigLoaderTest(ManagedTempDirTestCase):
                 env_path = self._write_env(
                     "\n".join(
                         [
-                            "A2AT_LLM_PROVIDER=deepseek",
-                            "A2AT_LLM_MODEL=deepseek-chat",
+                            "A2AT_LLM_PROVIDER=openai",
+                            "A2AT_LLM_MODEL=gpt-4o-mini",
                             "A2AT_LLM_API_KEY=sk-test",
                             lines,
                         ]

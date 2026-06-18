@@ -23,8 +23,8 @@ from tests.test_support import ManagedTempDirTestCase, TEST_ENV_PATH
 
 def build_llm_config() -> LLMClientConfig:
     return LLMClientConfig(
-        provider="deepseek",
-        model="deepseek-chat",
+        provider="openai",
+        model="gpt-4o-mini",
         api_key="sk-test",
         base_url=None,
         history_window=10,

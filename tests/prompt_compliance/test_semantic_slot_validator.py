@@ -55,7 +55,7 @@ class LLMSemanticSlotValidatorTest(unittest.TestCase):
         llm = FakeLLMClient(
             LLMResponse(
                 content='{"passed": true, "errors": []}',
-                model="deepseek-chat",
+                model="gpt-4o-mini",
                 usage={},
                 metadata={},
             )
@@ -100,7 +100,7 @@ class LLMSemanticSlotValidatorTest(unittest.TestCase):
         llm = FakeLLMClient(
             LLMResponse(
                 content="not-json",
-                model="deepseek-chat",
+                model="gpt-4o-mini",
                 usage={},
                 metadata={},
             )
