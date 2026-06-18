@@ -7,12 +7,13 @@ from typing import Any
 from a2a_t.llm.errors import LLMConfigError
 from a2a_t.llm.models import LLMClientConfig
 from a2a_t.llm.provider import LLMClient
+from a2a_t.llm.providers.openai import OpenAIClient
 
 
 class LLMClientFactory:
     """Registry and factory for provider-facing LLM clients."""
 
-    _clients: dict[str, type[LLMClient]] = {}
+    _clients: dict[str, type[LLMClient]] = {"openai": OpenAIClient}
     _client_defaults: dict[str, dict[str, Any]] = {}
 
     @classmethod

@@ -46,19 +46,17 @@ class OpenAIClientTest(unittest.TestCase):
         LLMClientFactory._client_defaults = self.original_client_defaults
 
     @patch("a2a_t.llm.providers.openai.OpenAI")
-    def test_factory_creates_registered_openai_client(self, openai_cls: Mock) -> None:
+    def test_factory_creates_default_openai_client(self, openai_cls: Mock) -> None:
         openai_cls.return_value = Mock()
 
         from a2a_t.llm.providers.openai import OpenAIClient
 
-        LLMClientFactory.register("deepseek", OpenAIClient)
-        client = LLMClientFactory.create("deepseek", build_config(base_url="https://api.deepseek.com"))
+        client = LLMClientFactory.create("openai", build_config(provider="openai"))
 
         self.assertIsInstance(client, OpenAIClient)
         self.assertIsInstance(client, LLMClient)
         openai_cls.assert_called_once_with(
             api_key="deepseek-key",
-            base_url="https://api.deepseek.com",
             timeout=None,
         )
 
