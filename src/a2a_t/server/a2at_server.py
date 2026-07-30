@@ -9,6 +9,7 @@ from a2a_t.llm.factory import LLMClientFactory
 from a2a_t.negotiation.common.models import ContinueNegotiationInput, StartNegotiationInput
 
 from .negotiation.negotiation_orchestrator_builder import ServerNegotiationOrchestratorBuilder
+from .prompt_compliance.models import PromptComplianceResult
 from .prompt_compliance.prompt_compliance_orchestrator_builder import PromptComplianceOrchestratorBuilder
 
 
@@ -42,15 +43,12 @@ class A2ATServer:
             logger=logger,
         )
 
-    def check_task_prompt(self, *, processed_prompt_text: str) -> dict[str, object]:
-        """Validate a processed task prompt and return compliance details."""
+    def check_task_prompt(self, *, processed_prompt_text: str) -> PromptComplianceResult:
+        """Validate a processed task prompt and return the compliance result."""
         result = self._prompt_compliance_orchestrator.check(
             processed_prompt_text=processed_prompt_text,
         )
-        payload: dict[str, object] = {"success": result.success}
-        if result.failure is not None:
-            payload["failure"] = result.failure
-        return payload
+        return result
 
     def start_negotiation(self, input: StartNegotiationInput) -> dict[str, object]:
         """Start a server-side negotiation round."""

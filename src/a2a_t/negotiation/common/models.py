@@ -41,14 +41,19 @@ class NegotiationContext:
         try:
             negotiation_type = NegotiationType(str(context["negotiationType"]))
             negotiation_id = str(context["negotiationId"])
-            role = NegotiationRole(str(context["role"]))
+            # role is optional: Java SDK context payload omits it; default to CLIENT.
+            raw_role = context.get("role", NegotiationRole.CLIENT.value)
+            role = NegotiationRole(str(raw_role))
             round_value = int(context["round"])
             status = NegotiationStatus(str(context["status"]))
-            extra = context["extra"]
+            # extra is optional: Java SDK defaults it to empty map.
+            extra = context.get("extra", {})
         except (KeyError, TypeError, ValueError) as error:
             raise NegotiationContextError("Invalid negotiation context.") from error
 
-        if not negotiation_id or round_value < 1 or not isinstance(extra, dict):
+        if not negotiation_id or round_value < 1:
+            raise NegotiationContextError("Invalid negotiation context.")
+        if not isinstance(extra, dict):
             raise NegotiationContextError("Invalid negotiation context.")
 
         return cls(

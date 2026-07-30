@@ -14,6 +14,7 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 
+from a2a_t.server.prompt_compliance.models import PromptComplianceResult
 from a2a_t.common.prompt_resources import PromptResourceLoader, SlotSchemaLoader, TemplateLoader
 from a2a_t.common.prompt_resources.models import ScenarioDefinition
 from a2a_t.llm.models import LLMClientConfig, LLMResponse
@@ -141,7 +142,7 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
 
             result = server.check_task_prompt(processed_prompt_text="processed body")
 
-        self.assertEqual(result, {"success": True})
+        self.assertEqual(result, PromptComplianceResult(success=True))
 
     def test_handler_check_task_prompt_returns_business_constraint_message_for_invalid_slot_value(self) -> None:
         self._write_resource_file("templates/subscribe_incident/en-US/template.md", "Levels: {subscription_condition_incident_level}")
@@ -206,14 +207,14 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
 
         self.assertEqual(
             result,
-            {
-                "success": False,
-                "failure": {
+            PromptComplianceResult(
+                success=False,
+                failure={
                     "code": "slot_validation_error",
                     "message": "Must be a JSON array string containing one or more of: critical, major.",
                     "stage": "slot_validation",
                 },
-            },
+            ),
         )
 
     def test_handler_check_task_prompt_succeeds_when_optional_subscribe_incident_slots_are_null(self) -> None:
@@ -285,7 +286,7 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
 
             result = server.check_task_prompt(processed_prompt_text="processed body")
 
-        self.assertEqual(result, {"success": True})
+        self.assertEqual(result, PromptComplianceResult(success=True))
 
 
 if __name__ == "__main__":

@@ -146,14 +146,14 @@ class A2ATServerTest(unittest.TestCase):
 
             self.assertEqual(
                 server.check_task_prompt(processed_prompt_text="prompt"),
-                {
-                    "success": False,
-                    "failure": {
+                PromptComplianceResult(
+                    success=False,
+                    failure={
                         "code": "slot_validation_error",
                         "message": "Site format is invalid.",
                         "stage": "slot_validation",
                     },
-                },
+                ),
             )
             self.assertEqual(server.start_negotiation(start_input), {"started": True})
             self.assertEqual(
@@ -208,9 +208,7 @@ class A2ATServerTest(unittest.TestCase):
 
             self.assertEqual(
                 server.check_task_prompt(processed_prompt_text="prompt"),
-                {
-                    "success": True,
-                },
+                PromptComplianceResult(success=True),
             )
 
 
@@ -262,14 +260,14 @@ class A2ATServerPromptResourceTimingTest(ManagedTempDirTestCase):
 
         self.assertEqual(
             result,
-            {
-                "success": False,
-                "failure": {
+            PromptComplianceResult(
+                success=False,
+                failure={
                     "code": "prompt_resource_load_error",
                     "message": "Prompt resource file does not exist.",
                     "stage": "preparation",
                 },
-            },
+            ),
         )
 
 
