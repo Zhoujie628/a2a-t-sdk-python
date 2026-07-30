@@ -51,9 +51,7 @@ class NegotiationContext:
         except (KeyError, TypeError, ValueError) as error:
             raise NegotiationContextError("Invalid negotiation context.") from error
 
-        if not negotiation_id or round_value < 1:
-            raise NegotiationContextError("Invalid negotiation context.")
-        if not isinstance(extra, dict):
+        if not negotiation_id or round_value < 1 or not isinstance(extra, dict):
             raise NegotiationContextError("Invalid negotiation context.")
 
         return cls(
