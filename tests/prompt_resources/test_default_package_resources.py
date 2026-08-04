@@ -14,7 +14,6 @@ if str(SRC_ROOT) not in sys.path:
 
 class DefaultPromptResourcePackageTest(unittest.TestCase):
     def test_default_package_resources_include_expected_default_bundle(self) -> None:
-        from a2a_t.common.prompt_resources.errors import PromptResourceNotFoundError
         from a2a_t.common.prompt_resources.prompt_resource_loader import PromptResourceLoader
         from a2a_t.common.prompt_resources.scenario_loader import ScenarioLoader
         from a2a_t.common.prompt_resources.slot_schema_loader import SlotSchemaLoader
@@ -22,15 +21,13 @@ class DefaultPromptResourcePackageTest(unittest.TestCase):
         from a2a_t.prompt.common.models import PromptReference
 
         scenarios = ScenarioLoader().load(language="zh-CN")
+        en_scenarios = ScenarioLoader().load(language="en-US")
         en_reference = PromptReference(scenario_code="subscribe_incident", language="en-US")
         zh_reference = PromptReference(scenario_code="subscribe_incident", language="zh-CN")
 
-        with self.assertRaises(PromptResourceNotFoundError):
-            TemplateLoader().load(reference=en_reference)
-        with self.assertRaises(PromptResourceNotFoundError):
-            SlotSchemaLoader().load(reference=en_reference)
-        with self.assertRaises(PromptResourceNotFoundError):
-            SlotSchemaLoader().load_json_schema(reference=en_reference)
+        en_template_text = TemplateLoader().load(reference=en_reference)
+        en_slot_schema = SlotSchemaLoader().load(reference=en_reference)
+        en_json_schema = SlotSchemaLoader().load_json_schema(reference=en_reference)
 
         template_text = TemplateLoader().load(reference=zh_reference)
         scenario_prompts = PromptResourceLoader().load(
@@ -43,7 +40,12 @@ class DefaultPromptResourcePackageTest(unittest.TestCase):
         )
 
         self.assertTrue(any(item.scenario_code == "subscribe_incident" for item in scenarios))
+        self.assertTrue(any(item.scenario_code == "subscribe_incident" for item in en_scenarios))
         self.assertIn("{{", template_text)
+        self.assertIn("{{", en_template_text)
+        self.assertTrue(en_slot_schema.slots)
+        self.assertEqual(en_json_schema.get("type"), "object")
+        self.assertIn("properties", en_json_schema)
         self.assertTrue(scenario_prompts.system_prompt.strip())
         self.assertTrue(slot_prompts.user_prompt.strip())
 
