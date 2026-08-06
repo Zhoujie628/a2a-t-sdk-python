@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -12,6 +11,8 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 
+from a2a_t.common.prompt_resources.errors import PromptResourceNotFoundError, PromptResourceParseError
+from a2a_t.common.prompt_resources.models import PromptMessages, ScenarioDefinition, SlotDefinition, SlotSchema
 from a2a_t.prompt.analysis.models import (
     ScenarioResolutionFailure,
     ScenarioResolutionResult,
@@ -19,8 +20,6 @@ from a2a_t.prompt.analysis.models import (
 )
 from a2a_t.prompt.common.errors import PromptSourceError
 from a2a_t.prompt.common.models import PromptReference
-from a2a_t.common.prompt_resources.errors import PromptResourceNotFoundError, PromptResourceParseError
-from a2a_t.common.prompt_resources.models import PromptMessages, ScenarioDefinition, SlotDefinition, SlotSchema
 from a2a_t.prompt.validation.constants import INVALID_VALUE, MISSING_INPUT
 from a2a_t.prompt.validation.models import SlotValidationError, SlotValidationResult
 from a2a_t.server.prompt_compliance.constants import (
@@ -30,8 +29,11 @@ from a2a_t.server.prompt_compliance.constants import (
     SLOT_VALIDATION_STAGE,
     TEMPLATE_LOAD_ERROR,
 )
-from a2a_t.server.prompt_compliance.models import PromptComplianceResult
-from a2a_t.server.prompt_compliance.models import SemanticValidationError, SemanticValidationResult
+from a2a_t.server.prompt_compliance.models import (
+    PromptComplianceResult,
+    SemanticValidationError,
+    SemanticValidationResult,
+)
 
 
 class FakeTemplateLoader:

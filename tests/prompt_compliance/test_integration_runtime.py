@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import json
 import sys
-from pathlib import Path
 import unittest
+from pathlib import Path
 from unittest.mock import patch
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -14,7 +13,6 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 
-from a2a_t.server.prompt_compliance.models import PromptComplianceResult
 from a2a_t.common.prompt_resources import PromptResourceLoader, SlotSchemaLoader, TemplateLoader
 from a2a_t.common.prompt_resources.models import ScenarioDefinition
 from a2a_t.llm.models import LLMClientConfig, LLMResponse
@@ -23,8 +21,9 @@ from a2a_t.prompt.analysis.models import ScenarioResolutionResult
 from a2a_t.prompt.common.models import PromptReference
 from a2a_t.prompt.validation.json_schema_slot_validator import JsonSchemaSlotValidator
 from a2a_t.server.a2at_server import A2ATServer
+from a2a_t.server.prompt_compliance.models import PromptComplianceResult
 from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator import PromptComplianceOrchestrator
-from tests.support import ManagedTempDirTestCase, TEST_ENV_PATH
+from tests.support import TEST_ENV_PATH, ManagedTempDirTestCase
 
 
 def build_llm_config() -> LLMClientConfig:

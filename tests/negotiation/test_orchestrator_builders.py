@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -100,7 +99,7 @@ class NegotiationOrchestratorBuilderTest(unittest.TestCase):
 
         result = orchestrator.start_negotiation(
             StartNegotiationInput(
-                type=NegotiationType.CLARIFICATION,
+                type=NegotiationType.TARGET,
                 content_text="Please clarify.",
                 facts={},
             )
@@ -112,9 +111,9 @@ class NegotiationOrchestratorBuilderTest(unittest.TestCase):
         self.assertEqual(len(store_factory.calls), 1)
 
     def test_server_builder_builds_working_orchestrator(self) -> None:
-        from a2a_t.server.negotiation.negotiation_orchestrator_builder import ServerNegotiationOrchestratorBuilder
         from a2a_t.negotiation.common.enums import NegotiationType
         from a2a_t.negotiation.common.models import StartNegotiationInput
+        from a2a_t.server.negotiation.negotiation_orchestrator_builder import ServerNegotiationOrchestratorBuilder
 
         prompt_checker = FakePromptChecker()
         prompt_compliance_builder = FakePromptComplianceBuilder(prompt_checker)

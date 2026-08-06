@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -21,7 +20,7 @@ class InMemoryNegotiationStateStoreTest(unittest.TestCase):
         store = InMemoryNegotiationStateStore()
         record = NegotiationRecord(
             context=NegotiationContext(
-                negotiation_type=NegotiationType.FULFILLMENT,
+                negotiation_type=NegotiationType.TARGET,
                 negotiation_id="neg-store",
                 role=NegotiationRole.SERVER,
                 round=1,

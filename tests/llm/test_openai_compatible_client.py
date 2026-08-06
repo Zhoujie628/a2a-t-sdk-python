@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import sys
+import unittest
 from json import dumps
 from pathlib import Path
 from types import SimpleNamespace
-import unittest
 from unittest.mock import Mock, patch
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]

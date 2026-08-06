@@ -33,12 +33,20 @@ class LocalPromptResourceFiles:
         """Resolve one resource-relative path under the configured root."""
         relative = Path(relative_path)
         if relative.is_absolute():
-            raise PromptSourceError("Prompt resource path must be relative.", locator=relative_path, source_type="local_file")
+            raise PromptSourceError(
+                "Prompt resource path must be relative.",
+                locator=relative_path,
+                source_type="local_file",
+            )
 
         root = self._root_dir.resolve()
         target = root.joinpath(relative).resolve()
         if root != target and root not in target.parents:
-            raise PromptSourceError("Prompt resource path escapes local root.", locator=relative_path, source_type="local_file")
+            raise PromptSourceError(
+                "Prompt resource path escapes local root.",
+                locator=relative_path,
+                source_type="local_file",
+            )
         return target
 
     def exists(self, relative_path: str) -> bool:

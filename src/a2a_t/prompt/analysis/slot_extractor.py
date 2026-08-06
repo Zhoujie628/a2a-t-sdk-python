@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from a2a_t.prompt.common.models import PromptReference
 from a2a_t.common.prompt_resources.models import SlotSchema
+from a2a_t.prompt.common.models import PromptReference
 from a2a_t.prompt.validation.models import SlotValidationError
 
 from .errors import SlotExtractionError
@@ -89,7 +89,14 @@ class SlotExtractor:
                 )
             normalized_slots[slot_name] = slot_value
 
-        slot_errors = [self._build_slot_error(item, expected_slot_names=expected_slot_names, raw_content=content) for item in raw_slot_errors]
+        slot_errors = [
+            self._build_slot_error(
+                item,
+                expected_slot_names=expected_slot_names,
+                raw_content=content,
+            )
+            for item in raw_slot_errors
+        ]
         return SlotExtractionResult(slots=normalized_slots, slot_errors=slot_errors)
 
     def _build_slot_error(

@@ -3,9 +3,8 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -13,10 +12,9 @@ SRC_ROOT = PROJECT_ROOT / "src"
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-
-from a2a_t.common.prompt_resources.errors import PromptResourceParseError
-from a2a_t.prompt.common.models import PromptReference
-from tests.support import ManagedTempDirTestCase
+from a2a_t.common.prompt_resources.errors import PromptResourceParseError  # noqa: E402
+from a2a_t.prompt.common.models import PromptReference  # noqa: E402
+from tests.support import ManagedTempDirTestCase  # noqa: E402
 
 
 class SlotSchemaLoaderJsonViewTest(ManagedTempDirTestCase):

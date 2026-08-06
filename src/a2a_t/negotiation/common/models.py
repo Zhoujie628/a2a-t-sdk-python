@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .errors import NegotiationContextError
 from .enums import NegotiationRole, NegotiationStatus, NegotiationType
+from .errors import NegotiationContextError
 
 
 @dataclass(slots=True)

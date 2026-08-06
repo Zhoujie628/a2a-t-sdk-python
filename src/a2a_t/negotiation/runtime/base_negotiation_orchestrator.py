@@ -6,7 +6,6 @@ from typing import Any
 from a2a_t.negotiation.common.enums import NegotiationRole
 from a2a_t.negotiation.common.models import ContinueNegotiationInput, StartNegotiationInput
 
-
 _LOGGER = logging.getLogger(__name__)
 
 

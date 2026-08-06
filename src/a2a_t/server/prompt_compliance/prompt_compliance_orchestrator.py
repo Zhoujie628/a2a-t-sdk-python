@@ -3,8 +3,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from a2a_t.prompt.analysis import ScenarioResolutionOrchestrator, SlotExtractor
-from a2a_t.prompt.analysis.errors import PromptAnalysisError
 from a2a_t.common.prompt_resources import (
     PromptResourceLoader,
     PromptResourceNotFoundError,
@@ -12,18 +10,18 @@ from a2a_t.common.prompt_resources import (
     SlotSchemaLoader,
     TemplateLoader,
 )
+from a2a_t.prompt.analysis import ScenarioResolutionOrchestrator, SlotExtractor
+from a2a_t.prompt.analysis.errors import PromptAnalysisError
 from a2a_t.prompt.common.errors import PromptSourceError
-from a2a_t.prompt.validation.models import SlotValidationResult
 from a2a_t.prompt.validation.json_schema_slot_validator import JsonSchemaSlotValidator
-from a2a_t.server.prompt_compliance.models import PromptComplianceResult, SemanticValidationResult
-from a2a_t.server.prompt_compliance.semantic_validator import SemanticSlotValidator
+from a2a_t.prompt.validation.models import SlotValidationResult
 from a2a_t.server.prompt_compliance.constants import (
     PREPARATION_STAGE,
-    PROMPT_RESOURCE_ACCESS_ERROR,
-    PROMPT_RESOURCE_PARSE_ERROR,
     PROCESSED_PROMPT_PARSE_ERROR,
     PROMPT_PARSE_STAGE,
+    PROMPT_RESOURCE_ACCESS_ERROR,
     PROMPT_RESOURCE_LOAD_ERROR,
+    PROMPT_RESOURCE_PARSE_ERROR,
     SLOT_EXTRACTION_ERROR,
     SLOT_EXTRACTION_STAGE,
     SLOT_SCHEMA_LOAD_ERROR,
@@ -31,7 +29,8 @@ from a2a_t.server.prompt_compliance.constants import (
     SLOT_VALIDATION_STAGE,
     TEMPLATE_LOAD_ERROR,
 )
-
+from a2a_t.server.prompt_compliance.models import PromptComplianceResult, SemanticValidationResult
+from a2a_t.server.prompt_compliance.semantic_validator import SemanticSlotValidator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -91,7 +90,13 @@ class PromptComplianceOrchestrator:
         except PromptResourceParseError as error:
             return self._finalize_result(self._error_result(PREPARATION_STAGE, PROMPT_RESOURCE_PARSE_ERROR, str(error)))
         except PromptSourceError as error:
-            return self._finalize_result(self._error_result(PREPARATION_STAGE, PROMPT_RESOURCE_ACCESS_ERROR, str(error)))
+            return self._finalize_result(
+                self._error_result(
+                    PREPARATION_STAGE,
+                    PROMPT_RESOURCE_ACCESS_ERROR,
+                    str(error),
+                )
+            )
 
         try:
             slot_json_schema = self._slot_schema_loader.load_json_schema(reference=reference)
@@ -100,7 +105,13 @@ class PromptComplianceOrchestrator:
         except PromptResourceParseError as error:
             return self._finalize_result(self._error_result(PREPARATION_STAGE, PROMPT_RESOURCE_PARSE_ERROR, str(error)))
         except PromptSourceError as error:
-            return self._finalize_result(self._error_result(PREPARATION_STAGE, PROMPT_RESOURCE_ACCESS_ERROR, str(error)))
+            return self._finalize_result(
+                self._error_result(
+                    PREPARATION_STAGE,
+                    PROMPT_RESOURCE_ACCESS_ERROR,
+                    str(error),
+                )
+            )
 
         try:
             slot_schema = self._slot_schema_loader.load_slot_schema(reference=reference)
@@ -109,7 +120,13 @@ class PromptComplianceOrchestrator:
         except PromptResourceParseError as error:
             return self._finalize_result(self._error_result(PREPARATION_STAGE, PROMPT_RESOURCE_PARSE_ERROR, str(error)))
         except PromptSourceError as error:
-            return self._finalize_result(self._error_result(PREPARATION_STAGE, PROMPT_RESOURCE_ACCESS_ERROR, str(error)))
+            return self._finalize_result(
+                self._error_result(
+                    PREPARATION_STAGE,
+                    PROMPT_RESOURCE_ACCESS_ERROR,
+                    str(error),
+                )
+            )
 
         try:
             slot_prompts = self._prompt_resource_loader.load(
@@ -121,7 +138,13 @@ class PromptComplianceOrchestrator:
         except PromptResourceParseError as error:
             return self._finalize_result(self._error_result(PREPARATION_STAGE, PROMPT_RESOURCE_PARSE_ERROR, str(error)))
         except PromptSourceError as error:
-            return self._finalize_result(self._error_result(PREPARATION_STAGE, PROMPT_RESOURCE_ACCESS_ERROR, str(error)))
+            return self._finalize_result(
+                self._error_result(
+                    PREPARATION_STAGE,
+                    PROMPT_RESOURCE_ACCESS_ERROR,
+                    str(error),
+                )
+            )
 
         try:
             extraction_result = self._extractor.extract(

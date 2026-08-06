@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from a2a_t.config.models import A2ATConfig
 from a2a_t.common.prompt_runtime import PromptRuntimeComponents, PromptRuntimeComponentsBuilder
+from a2a_t.config.models import A2ATConfig
 from a2a_t.prompt.analysis import ScenarioRecognizer, ScenarioResolutionOrchestrator, SlotExtractor
 
 from .llm_semantic_slot_validator import LLMSemanticSlotValidator

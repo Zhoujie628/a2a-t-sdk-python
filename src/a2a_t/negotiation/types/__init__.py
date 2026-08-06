@@ -1,13 +1,11 @@
 from .base import BaseNegotiationType
-from .clarification import ClarificationNegotiationType
 from .feasibility import FeasibilityNegotiationType
-from .fulfillment import FulfillmentNegotiationType
 from .information import InformationNegotiationType
+from .target import TargetNegotiationType
 
 __all__ = [
     "BaseNegotiationType",
-    "ClarificationNegotiationType",
     "FeasibilityNegotiationType",
-    "FulfillmentNegotiationType",
     "InformationNegotiationType",
+    "TargetNegotiationType",
 ]

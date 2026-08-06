@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import inspect
 import sys
-from pathlib import Path
 import unittest
+from pathlib import Path
 from unittest.mock import patch
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -18,7 +17,7 @@ from a2a_t.client.prompt_generation.models import PromptGenerationResult
 from a2a_t.llm.models import LLMClientConfig
 from a2a_t.negotiation.common.enums import NegotiationStatus, NegotiationType
 from a2a_t.negotiation.common.models import ContinueNegotiationInput, NegotiationContext, StartNegotiationInput
-from tests.support import ManagedTempDirTestCase, TEST_ENV_PATH
+from tests.support import TEST_ENV_PATH, ManagedTempDirTestCase
 
 
 def build_llm_config() -> LLMClientConfig:
@@ -100,14 +99,14 @@ class A2ATClientTest(unittest.TestCase):
         llm_client = object()
 
         start_input = StartNegotiationInput(
-            type=NegotiationType.CLARIFICATION,
+            type=NegotiationType.TARGET,
             content_text="Clarify please",
             facts={},
         )
         continue_input = ContinueNegotiationInput(
             context=NegotiationContext.from_context(
                 {
-                    "negotiationType": "clarification",
+                    "negotiationType": "target",
                     "negotiationId": "neg-1",
                     "role": "client",
                     "round": 1,
@@ -137,7 +136,7 @@ class A2ATClientTest(unittest.TestCase):
                 client.receive_negotiation(
                     "Clarify intent",
                     {
-                        "negotiationType": "clarification",
+                        "negotiationType": "target",
                         "negotiationId": "neg-1",
                         "role": "client",
                         "round": 1,

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from a2a_t.prompt.common.models import PromptReference
 
-from .local_resources import BasePromptResourceLoader
 from .errors import PromptResourceParseError
+from .local_resources import BasePromptResourceLoader
 from .models import SlotDefinition, SlotRange, SlotSchema
 
 

@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -55,9 +54,8 @@ class DefaultPromptResourcePackageTest(unittest.TestCase):
         loader = PromptResourceLoader()
 
         for analysis_action in (
-            "clarification_negotiation",
+            "target_negotiation",
             "feasibility_negotiation",
-            "fulfillment_negotiation",
             "information_negotiation",
         ):
             messages = loader.load(

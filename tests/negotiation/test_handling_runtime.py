@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -13,13 +12,13 @@ if str(SRC_ROOT) not in sys.path:
 
 
 class NegotiationHandlingRuntimeTest(unittest.TestCase):
-    def _clarification_types(self):
-        from a2a_t.negotiation.rendering.negotiation_prompt_renderer import NegotiationPromptRenderer
+    def _target_types(self):
         from a2a_t.negotiation.common.enums import NegotiationType
-        from a2a_t.negotiation.types.clarification import ClarificationNegotiationType
+        from a2a_t.negotiation.rendering.negotiation_prompt_renderer import NegotiationPromptRenderer
+        from a2a_t.negotiation.types.target import TargetNegotiationType
 
         return {
-            NegotiationType.CLARIFICATION: ClarificationNegotiationType(prompt_renderer=NegotiationPromptRenderer()),
+            NegotiationType.TARGET: TargetNegotiationType(prompt_renderer=NegotiationPromptRenderer()),
         }
 
     def test_handler_start_returns_fixed_key_map_and_saves_record(self) -> None:
@@ -31,15 +30,15 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
 
         store = InMemoryNegotiationStateStore()
         handler = NegotiationHandler(
-            negotiation_types=self._clarification_types(),
+            negotiation_types=self._target_types(),
             store=store,
         )
 
         payload = handler.start(
             input=StartNegotiationInput(
-                type=NegotiationType.CLARIFICATION,
+                type=NegotiationType.TARGET,
                 content_text="Please clarify the request.",
-                facts={"clarificationItems": [{"name": "intent"}]},
+                facts={"targetItems": [{"name": "intent"}]},
             ),
             role=NegotiationRole.CLIENT,
         )
@@ -56,14 +55,14 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
         from a2a_t.negotiation.store.in_memory import InMemoryNegotiationStateStore
 
         handler = NegotiationHandler(
-            negotiation_types=self._clarification_types(),
+            negotiation_types=self._target_types(),
             store=InMemoryNegotiationStateStore(),
         )
 
         result = handler.receive(
             message="Clarify intent",
             context={
-                "negotiationType": "clarification",
+                "negotiationType": "target",
                 "negotiationId": "neg-receive",
                 "role": "client",
                 "round": 1,
@@ -73,7 +72,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
         )
 
         self.assertTrue(result["needResponse"])
-        self.assertEqual(result["context"]["negotiationType"], NegotiationType.CLARIFICATION.value)
+        self.assertEqual(result["context"]["negotiationType"], NegotiationType.TARGET.value)
         self.assertEqual(result["context"]["role"], NegotiationRole.CLIENT.value)
         self.assertEqual(result["context"]["status"], NegotiationStatus.IN_PROGRESS.value)
         self.assertEqual(result["facts"], {})
@@ -81,13 +80,18 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
 
     def test_handler_continue_returns_map_with_incremented_round(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationStatus, NegotiationType
-        from a2a_t.negotiation.common.models import ContinueNegotiationInput, NegotiationContext, NegotiationRecord, ReceiveResult
+        from a2a_t.negotiation.common.models import (
+            ContinueNegotiationInput,
+            NegotiationContext,
+            NegotiationRecord,
+            ReceiveResult,
+        )
         from a2a_t.negotiation.handling.negotiation_handler import NegotiationHandler
         from a2a_t.negotiation.store.in_memory import InMemoryNegotiationStateStore
 
         store = InMemoryNegotiationStateStore()
         context = NegotiationContext(
-            negotiation_type=NegotiationType.CLARIFICATION,
+            negotiation_type=NegotiationType.TARGET,
             negotiation_id="neg-continue",
             role=NegotiationRole.CLIENT,
             round=1,
@@ -98,7 +102,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             NegotiationRecord(
                 context=context,
                 last_message="old",
-                last_receive_result=ReceiveResult(need_response=True, facts={"clarificationItems": []}),
+                last_receive_result=ReceiveResult(need_response=True, facts={"targetItems": []}),
                 last_continue_result=None,
                 last_task_prompt=None,
                 created_at="t1",
@@ -106,7 +110,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             )
         )
         handler = NegotiationHandler(
-            negotiation_types=self._clarification_types(),
+            negotiation_types=self._target_types(),
             store=store,
         )
 
@@ -114,13 +118,13 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             input=ContinueNegotiationInput(
                 context=context,
                 status=NegotiationStatus.IN_PROGRESS,
-                content_text="Here is the clarification.",
+                content_text="Here is the target.",
             )
         )
 
         negotiation_data = payload["https://projects.tmforum.org/a2aproject/telecommunication/extensions/Negotiation-T/NL/v1"]
         self.assertEqual(negotiation_data["round"], 2)
-        self.assertEqual(negotiation_data["message"], "Here is the clarification.")
+        self.assertEqual(negotiation_data["message"], "Here is the target.")
 
     def test_handler_receive_terminal_message_returns_need_response_false(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationStatus, NegotiationType
@@ -132,7 +136,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
         store.save(
             NegotiationRecord(
                 context=NegotiationContext(
-                    negotiation_type=NegotiationType.CLARIFICATION,
+                    negotiation_type=NegotiationType.TARGET,
                     negotiation_id="neg-terminal",
                     role=NegotiationRole.CLIENT,
                     round=1,
@@ -148,14 +152,14 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             )
         )
         handler = NegotiationHandler(
-            negotiation_types=self._clarification_types(),
+            negotiation_types=self._target_types(),
             store=store,
         )
 
         result = handler.receive(
             message="Clarify intent",
             context={
-                "negotiationType": "clarification",
+                "negotiationType": "target",
                 "negotiationId": "neg-terminal",
                 "role": "client",
                 "round": 2,
@@ -177,7 +181,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
         store.save(
             NegotiationRecord(
                 context=NegotiationContext(
-                    negotiation_type=NegotiationType.CLARIFICATION,
+                    negotiation_type=NegotiationType.TARGET,
                     negotiation_id="neg-round-skip",
                     role=NegotiationRole.CLIENT,
                     round=2,
@@ -193,7 +197,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             )
         )
         handler = NegotiationHandler(
-            negotiation_types=self._clarification_types(),
+            negotiation_types=self._target_types(),
             store=store,
         )
 
@@ -201,7 +205,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             handler.receive(
                 message="Clarify intent",
                 context={
-                    "negotiationType": "clarification",
+                    "negotiationType": "target",
                     "negotiationId": "neg-round-skip",
                     "role": "client",
                     "round": 4,
@@ -221,7 +225,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
         store.save(
             NegotiationRecord(
                 context=NegotiationContext(
-                    negotiation_type=NegotiationType.CLARIFICATION,
+                    negotiation_type=NegotiationType.TARGET,
                     negotiation_id="neg-continue-mismatch",
                     role=NegotiationRole.CLIENT,
                     round=2,
@@ -237,7 +241,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             )
         )
         handler = NegotiationHandler(
-            negotiation_types=self._clarification_types(),
+            negotiation_types=self._target_types(),
             store=store,
         )
 
@@ -245,7 +249,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             handler.continue_(
                 input=ContinueNegotiationInput(
                     context=NegotiationContext(
-                        negotiation_type=NegotiationType.CLARIFICATION,
+                        negotiation_type=NegotiationType.TARGET,
                         negotiation_id="neg-continue-mismatch",
                         role=NegotiationRole.CLIENT,
                         round=1,
@@ -253,7 +257,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
                         extra={},
                     ),
                     status=NegotiationStatus.IN_PROGRESS,
-                    content_text="Here is the clarification.",
+                    content_text="Here is the target.",
                 )
             )
 
@@ -269,7 +273,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
         store.save(
             NegotiationRecord(
                 context=NegotiationContext(
-                    negotiation_type=NegotiationType.CLARIFICATION,
+                    negotiation_type=NegotiationType.TARGET,
                     negotiation_id="neg-round-limit",
                     role=NegotiationRole.CLIENT,
                     round=previous_round,
@@ -285,14 +289,14 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             )
         )
         handler = NegotiationHandler(
-            negotiation_types=self._clarification_types(),
+            negotiation_types=self._target_types(),
             store=store,
         )
 
         result = handler.receive(
             message="Clarify intent",
             context={
-                "negotiationType": "clarification",
+                "negotiationType": "target",
                 "negotiationId": "neg-round-limit",
                 "role": "client",
                 "round": MAX_IN_PROGRESS_NEGOTIATION_ROUND,

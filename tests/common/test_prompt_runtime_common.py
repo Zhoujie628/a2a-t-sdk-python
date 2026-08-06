@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -18,9 +17,9 @@ from tests.support import ManagedTempDirTestCase
 
 class CommonPromptRuntimeComponentsBuilderTest(unittest.TestCase):
     def test_common_builder_creates_shared_runtime_components_from_config(self) -> None:
-        from a2a_t.common.prompt_runtime import PromptRuntimeComponentsBuilder
         from a2a_t.common.prompt_resources.prompt_resource_loader import PromptResourceLoader
         from a2a_t.common.prompt_resources.slot_schema_loader import SlotSchemaLoader
+        from a2a_t.common.prompt_runtime import PromptRuntimeComponentsBuilder
         from a2a_t.prompt.validation.json_schema_slot_validator import JsonSchemaSlotValidator
 
         config = A2ATConfig(
@@ -88,8 +87,8 @@ class CommonPromptRuntimeComponentsBuilderRootScopeAdjustmentTest(ManagedTempDir
         self.assertTrue(any("prompts" in message for message in logs.output))
 
     def test_common_builder_does_not_warn_when_local_root_is_sdk_packaged_root(self) -> None:
-        from a2a_t.common.prompt_runtime import PromptRuntimeComponentsBuilder
         from a2a_t.common.prompt_resources.prompt_resource_loader import PromptResourceLoader
+        from a2a_t.common.prompt_runtime import PromptRuntimeComponentsBuilder
 
         packaged_root = PromptResourceLoader().root_dir
         config = A2ATConfig(

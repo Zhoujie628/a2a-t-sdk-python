@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -167,17 +166,17 @@ class NegotiationTypesTest(unittest.TestCase):
         self.assertEqual(result.final_task_prompt, "final prompt")
         self.assertEqual(result.prompt_text, "final prompt")
 
-    def test_clarification_type_passthroughs_facts(self) -> None:
+    def test_target_type_passthroughs_facts(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationStatus, NegotiationType
         from a2a_t.negotiation.common.models import NegotiationContext
         from a2a_t.negotiation.rendering.negotiation_prompt_renderer import NegotiationPromptRenderer
-        from a2a_t.negotiation.types.clarification import ClarificationNegotiationType
+        from a2a_t.negotiation.types.target import TargetNegotiationType
 
-        negotiation_type = ClarificationNegotiationType(prompt_renderer=NegotiationPromptRenderer())
+        negotiation_type = TargetNegotiationType(prompt_renderer=NegotiationPromptRenderer())
         result = negotiation_type.process_received_message(
             message="clarify this",
             context=NegotiationContext(
-                negotiation_type=NegotiationType.CLARIFICATION,
+                negotiation_type=NegotiationType.TARGET,
                 negotiation_id="neg-2",
                 role=NegotiationRole.CLIENT,
                 round=1,
@@ -190,17 +189,17 @@ class NegotiationTypesTest(unittest.TestCase):
         self.assertEqual(result.facts, {})
         self.assertEqual(result.message, "clarify this")
 
-    def test_clarification_type_on_terminal_message_does_not_require_response(self) -> None:
+    def test_target_type_on_terminal_message_does_not_require_response(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationStatus, NegotiationType
         from a2a_t.negotiation.common.models import NegotiationContext
         from a2a_t.negotiation.rendering.negotiation_prompt_renderer import NegotiationPromptRenderer
-        from a2a_t.negotiation.types.clarification import ClarificationNegotiationType
+        from a2a_t.negotiation.types.target import TargetNegotiationType
 
-        negotiation_type = ClarificationNegotiationType(prompt_renderer=NegotiationPromptRenderer())
+        negotiation_type = TargetNegotiationType(prompt_renderer=NegotiationPromptRenderer())
         result = negotiation_type.process_received_message(
             message="clarify this",
             context=NegotiationContext(
-                negotiation_type=NegotiationType.CLARIFICATION,
+                negotiation_type=NegotiationType.TARGET,
                 negotiation_id="neg-3",
                 role=NegotiationRole.CLIENT,
                 round=2,

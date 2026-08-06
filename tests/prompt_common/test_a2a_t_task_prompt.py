@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -17,11 +16,11 @@ from a2a_t.prompt.common.models import PromptReference
 
 class A2ATTaskPromptCommonTest(unittest.TestCase):
     def test_render_and_parse_a2a_t_task_prompt_share_one_protocol(self) -> None:
+        from a2a_t.prompt.common.models import TaskPromptMetadata
         from a2a_t.prompt.common.task_prompt_format import (
             format_task_prompt,
             parse_task_prompt_metadata,
         )
-        from a2a_t.prompt.common.models import TaskPromptMetadata
 
         prompt_text = format_task_prompt(
             body="Site: Site A",

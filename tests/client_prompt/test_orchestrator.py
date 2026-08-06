@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -12,10 +11,6 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 
-from a2a_t.prompt.analysis.models import ScenarioDefinition, ScenarioResolutionFailure, ScenarioResolutionResult, SlotExtractionResult
-from a2a_t.config.models import PromptRuntimeConfig
-from a2a_t.prompt.analysis.errors import PromptAnalysisError
-from a2a_t.prompt.common.errors import PromptSourceError
 from a2a_t.client.prompt_generation.generation_constants import (
     GENERATION_STAGE,
     INVALID_LLM_OUTPUT,
@@ -30,9 +25,17 @@ from a2a_t.client.prompt_generation.generation_constants import (
     SLOT_SCHEMA_NOT_FOUND,
     TEMPLATE_NOT_FOUND,
 )
+from a2a_t.common.prompt_resources.models import PromptMessages, SlotDefinition, SlotSchema
+from a2a_t.config.models import PromptRuntimeConfig
+from a2a_t.prompt.analysis.errors import PromptAnalysisError
+from a2a_t.prompt.analysis.models import (
+    ScenarioDefinition,
+    ScenarioResolutionFailure,
+    ScenarioResolutionResult,
+    SlotExtractionResult,
+)
+from a2a_t.prompt.common.errors import PromptSourceError
 from a2a_t.prompt.common.models import PromptReference
-from a2a_t.common.prompt_resources.errors import PromptResourceParseError
-from a2a_t.common.prompt_resources.models import PromptMessages, ScenarioDefinition, SlotDefinition, SlotSchema
 
 
 class FakeScenarioLoader:
