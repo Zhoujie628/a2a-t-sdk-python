@@ -1,4 +1,4 @@
-from .constants import NEGOTIATION_CONTEXT_KEY, NEGOTIATION_TEXT_KEY, TASK_PROMPT_KEY
+from .constants import NEGOTIATION_T_URI, NEGOTIATION_T_URI_NL, TASK_PROMPT_KEY, TASK_PROMPT_KEY_NL
 from .enums import NegotiationRole, NegotiationStatus, NegotiationType
 from .errors import (
     NegotiationContextError,
@@ -19,8 +19,8 @@ from .models import (
 __all__ = [
     "ContinueNegotiationInput",
     "ContinueResult",
-    "NEGOTIATION_CONTEXT_KEY",
-    "NEGOTIATION_TEXT_KEY",
+    "NEGOTIATION_T_URI",
+    "NEGOTIATION_T_URI_NL",
     "NegotiationContext",
     "NegotiationContextError",
     "NegotiationInputError",
@@ -34,4 +34,5 @@ __all__ = [
     "ReceiveResult",
     "StartNegotiationInput",
     "TASK_PROMPT_KEY",
+    "TASK_PROMPT_KEY_NL",
 ]

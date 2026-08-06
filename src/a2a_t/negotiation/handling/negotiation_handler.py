@@ -5,9 +5,8 @@ import uuid
 
 from a2a_t.negotiation.common.constants import (
     MAX_IN_PROGRESS_NEGOTIATION_ROUND,
-    NEGOTIATION_CONTEXT_KEY,
-    NEGOTIATION_TEXT_KEY,
-    TASK_PROMPT_KEY,
+    NEGOTIATION_T_URI_NL,
+    TASK_PROMPT_KEY_NL,
 )
 from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationStatus, NegotiationType
 from a2a_t.negotiation.common.errors import NegotiationInputError, NegotiationStateError, NegotiationTerminalStateError
@@ -204,12 +203,13 @@ class NegotiationHandler:
         final_task_prompt: str | None = None,
     ) -> dict[str, object]:
         """Build the transport payload returned by start and continue operations."""
+        negotiation_data: dict[str, object] = {"message": prompt_text}
+        negotiation_data.update(context.to_context())
         result: dict[str, object] = {
-            NEGOTIATION_TEXT_KEY: prompt_text,
-            NEGOTIATION_CONTEXT_KEY: context.to_context(),
+            NEGOTIATION_T_URI_NL: negotiation_data,
         }
         if final_task_prompt is not None:
-            result[TASK_PROMPT_KEY] = final_task_prompt
+            result[TASK_PROMPT_KEY_NL] = final_task_prompt
         return result
 
     @staticmethod

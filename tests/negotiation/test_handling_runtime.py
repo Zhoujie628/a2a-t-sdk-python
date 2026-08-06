@@ -23,7 +23,7 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
         }
 
     def test_handler_start_returns_fixed_key_map_and_saves_record(self) -> None:
-        from a2a_t.negotiation.common.constants import NEGOTIATION_CONTEXT_KEY, NEGOTIATION_TEXT_KEY
+        from a2a_t.negotiation.common.constants import NEGOTIATION_T_URI_NL
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationType
         from a2a_t.negotiation.common.models import StartNegotiationInput
         from a2a_t.negotiation.handling.negotiation_handler import NegotiationHandler
@@ -44,10 +44,11 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             role=NegotiationRole.CLIENT,
         )
 
-        self.assertIn(NEGOTIATION_TEXT_KEY, payload)
-        self.assertEqual(payload[NEGOTIATION_TEXT_KEY], "Please clarify the request.")
-        self.assertTrue(payload[NEGOTIATION_CONTEXT_KEY]["negotiationId"])
-        self.assertIsNotNone(store.get(payload[NEGOTIATION_CONTEXT_KEY]["negotiationId"]))
+        self.assertIn(NEGOTIATION_T_URI_NL, payload)
+        negotiation_data = payload[NEGOTIATION_T_URI_NL]
+        self.assertEqual(negotiation_data["message"], "Please clarify the request.")
+        self.assertTrue(negotiation_data["negotiationId"])
+        self.assertIsNotNone(store.get(negotiation_data["negotiationId"]))
 
     def test_handler_receive_allows_first_round_without_existing_record(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationStatus, NegotiationType
@@ -117,14 +118,9 @@ class NegotiationHandlingRuntimeTest(unittest.TestCase):
             )
         )
 
-        self.assertEqual(
-            payload["https://projects.tmforum.org/a2aproject/telecommunication/extensions/DATA-NEGOTIATION-T/v1"]["round"],
-            2,
-        )
-        self.assertEqual(
-            payload["https://projects.tmforum.org/a2aproject/telecommunication/extensions/NEGOTIATION-T"],
-            "Here is the clarification.",
-        )
+        negotiation_data = payload["https://projects.tmforum.org/a2aproject/telecommunication/extensions/Negotiation-T/NL/v1"]
+        self.assertEqual(negotiation_data["round"], 2)
+        self.assertEqual(negotiation_data["message"], "Here is the clarification.")
 
     def test_handler_receive_terminal_message_returns_need_response_false(self) -> None:
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationStatus, NegotiationType
