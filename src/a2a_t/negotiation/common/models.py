@@ -44,7 +44,7 @@ class NegotiationContext:
             # role is optional: Java SDK context payload omits it; default to CLIENT.
             raw_role = context.get("role", NegotiationRole.CLIENT.value)
             role = NegotiationRole(str(raw_role))
-            round_value = int(context["round"])
+            round_value = int(str(context["round"]))
             status = NegotiationStatus(str(context["status"]))
             # extra is optional: Java SDK defaults it to empty map.
             extra = context.get("extra", {})

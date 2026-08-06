@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 __all__ = [
     "A2ATConfig",
@@ -13,7 +14,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     if name in {"ConfigError", "ConfigFileNotFoundError"}:
         value = getattr(import_module("a2a_t.config.errors"), name)
     elif name == "A2ATConfig":

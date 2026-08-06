@@ -48,7 +48,7 @@ class PromptGenerationOrchestratorBuilder:
         )
         slot_extractor = self._slot_extractor_cls(llm_client=llm_client)
 
-        return self._orchestrator_cls(
+        return self._orchestrator_cls(  # type: ignore[no-any-return]
             config=config.prompt,
             prompt_resource_loader=components.prompt_resource_loader,
             template_loader=components.template_loader,

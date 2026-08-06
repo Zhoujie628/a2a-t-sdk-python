@@ -12,7 +12,7 @@ _LOGGER = logging.getLogger(__name__)
 class BaseNegotiationOrchestrator:
     """Expose the shared negotiation handler behind a role-specific facade."""
 
-    def __init__(self, *, handler, role: NegotiationRole, logger: Any | None = None) -> None:
+    def __init__(self, *, handler: Any, role: NegotiationRole, logger: Any | None = None) -> None:
         self._handler = handler
         self._role = role
         self._logger = logger if logger is not None else _LOGGER
@@ -20,7 +20,7 @@ class BaseNegotiationOrchestrator:
     def start_negotiation(self, input: StartNegotiationInput) -> dict[str, object]:
         """Start a negotiation from the bound local role."""
         self._log_info("negotiation_start_started role=%s type=%s", self._role.value, input.type.value)
-        result = self._handler.start(input=input, role=self._role)
+        result: dict[str, object] = self._handler.start(input=input, role=self._role)
         self._log_result("negotiation_start_completed role=%s type=%s id=%s status=%s", result)
         return result
 
@@ -32,7 +32,7 @@ class BaseNegotiationOrchestrator:
             context.get("negotiationType"),
             context.get("negotiationId"),
         )
-        result = self._handler.receive(
+        result: dict[str, object] = self._handler.receive(
             message=message,
             context=context,
         )
@@ -48,7 +48,7 @@ class BaseNegotiationOrchestrator:
             input.context.negotiation_id,
             input.status.value,
         )
-        result = self._handler.continue_(input=input)
+        result: dict[str, object] = self._handler.continue_(input=input)
         self._log_result("negotiation_continue_completed role=%s type=%s id=%s status=%s", result)
         return result
 

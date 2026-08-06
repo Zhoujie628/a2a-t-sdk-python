@@ -49,7 +49,7 @@ class ClientNegotiationOrchestratorBuilder:
             },
             store=store,
         )
-        return self._orchestrator_cls(
+        return self._orchestrator_cls(  # type: ignore[no-any-return]
             handler=handler,
             logger=logger,
         )

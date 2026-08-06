@@ -52,7 +52,7 @@ class PromptComplianceOrchestratorBuilder:
             llm_client=llm_client,
             prompt_resource_loader=components.prompt_resource_loader,
         )
-        return self._orchestrator_cls(
+        return self._orchestrator_cls(  # type: ignore[no-any-return]
             scenario_resolver=scenario_resolver,
             template_loader=components.template_loader,
             slot_schema_loader=components.slot_schema_loader,

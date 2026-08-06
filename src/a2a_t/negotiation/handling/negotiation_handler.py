@@ -18,6 +18,7 @@ from a2a_t.negotiation.common.models import (
     StartNegotiationInput,
 )
 from a2a_t.negotiation.store.base import NegotiationStateStore
+from a2a_t.negotiation.types.base import BaseNegotiationType
 
 
 class NegotiationHandler:
@@ -60,14 +61,14 @@ class NegotiationHandler:
 
     def receive(self, *, message: str, context: dict[str, object]) -> dict[str, object]:
         """Validate and process a negotiation message received from the remote peer."""
-        context = NegotiationContext.from_context(context)
-        record = self._store.get(context.negotiation_id)
+        parsed_context = NegotiationContext.from_context(context)
+        record = self._store.get(parsed_context.negotiation_id)
         if record is None:
-            if context.round != 1:
+            if parsed_context.round != 1:
                 raise NegotiationStateError("Negotiation record is missing for non-initial round.")
             now = self._utc_now()
             record = NegotiationRecord(
-                context=context,
+                context=parsed_context,
                 last_message=None,
                 last_receive_result=None,
                 last_continue_result=None,
@@ -77,44 +78,46 @@ class NegotiationHandler:
             )
         elif record.context.status in {NegotiationStatus.AGREED, NegotiationStatus.REJECTED}:
             raise NegotiationTerminalStateError("Cannot receive a terminal negotiation again.")
-        elif context.round != record.context.round + 1:
+        elif parsed_context.round != record.context.round + 1:
             raise NegotiationStateError("Incoming negotiation round is inconsistent with local state.")
         elif (
-            context.negotiation_type != record.context.negotiation_type
-            or context.role != record.context.role
+            parsed_context.negotiation_type != record.context.negotiation_type
+            or parsed_context.role != record.context.role
         ):
             raise NegotiationStateError("Incoming negotiation context is inconsistent with local state.")
 
-        if context.status == NegotiationStatus.IN_PROGRESS and context.round >= MAX_IN_PROGRESS_NEGOTIATION_ROUND:
-            # Force an explicit stop once the safety round limit is reached instead of looping forever.
+        if (
+            parsed_context.status == NegotiationStatus.IN_PROGRESS
+            and parsed_context.round >= MAX_IN_PROGRESS_NEGOTIATION_ROUND
+        ):
             receive_result = ReceiveResult(
                 need_response=True,
                 facts={},
                 message="Negotiation reached the maximum in-progress round limit. Please reject it.",
             )
-            record.context = context
+            record.context = parsed_context
             record.last_message = message
             record.last_receive_result = receive_result
             record.updated_at = self._utc_now()
             self._store.save(record)
             return self._build_receive_result_map(
-                context=context,
+                context=parsed_context,
                 receive_result=receive_result,
             )
 
-        negotiation_type = self._get_negotiation_type(context.negotiation_type)
+        negotiation_type = self._get_negotiation_type(parsed_context.negotiation_type)
         receive_result = negotiation_type.process_received_message(
             message=message,
-            context=context,
+            context=parsed_context,
             record=record,
         )
-        record.context = context
+        record.context = parsed_context
         record.last_message = message
         record.last_receive_result = receive_result
         record.updated_at = self._utc_now()
         self._store.save(record)
         return self._build_receive_result_map(
-            context=context,
+            context=parsed_context,
             receive_result=receive_result,
         )
 
@@ -157,10 +160,10 @@ class NegotiationHandler:
             final_task_prompt=continue_result.final_task_prompt,
         )
 
-    def _get_negotiation_type(self, negotiation_type: NegotiationType) -> object:
+    def _get_negotiation_type(self, negotiation_type: NegotiationType) -> BaseNegotiationType:
         """Resolve the strategy object that implements one negotiation type."""
         try:
-            return self._negotiation_types[negotiation_type]
+            return self._negotiation_types[negotiation_type]  # type: ignore[return-value]
         except KeyError as error:
             raise NegotiationInputError(f"Unsupported negotiation type: {negotiation_type.value}") from error
 

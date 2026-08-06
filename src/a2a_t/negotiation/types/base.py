@@ -43,7 +43,7 @@ class BaseNegotiationType:
         *,
         record: NegotiationRecord,
         context: NegotiationContext,
-        status,
+        status: NegotiationStatus,
         content_text: str,
     ) -> ContinueResult:
         """Render the next outbound prompt using the default passthrough behavior."""
