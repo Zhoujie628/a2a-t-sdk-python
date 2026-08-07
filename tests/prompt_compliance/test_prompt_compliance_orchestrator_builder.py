@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -75,7 +74,9 @@ class FakeLogger:
 
 class PromptComplianceOrchestratorBuilderTest(unittest.TestCase):
     def test_builder_uses_runtime_components_builder_and_injects_llm_client(self) -> None:
-        from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator_builder import PromptComplianceOrchestratorBuilder
+        from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator_builder import (
+            PromptComplianceOrchestratorBuilder,
+        )
 
         components = type(
             "Components",
@@ -127,7 +128,9 @@ class PromptComplianceOrchestratorBuilderTest(unittest.TestCase):
         self.assertIsNone(orchestrator.kwargs["logger"])
 
     def test_builder_reuses_provided_runtime_components_without_rebuilding(self) -> None:
-        from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator_builder import PromptComplianceOrchestratorBuilder
+        from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator_builder import (
+            PromptComplianceOrchestratorBuilder,
+        )
 
         components = type(
             "Components",
@@ -177,7 +180,9 @@ class PromptComplianceOrchestratorBuilderTest(unittest.TestCase):
         self.assertIs(orchestrator.kwargs["semantic_validator"].prompt_resource_loader, components.prompt_resource_loader)
 
     def test_builder_injects_logger_into_orchestrator(self) -> None:
-        from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator_builder import PromptComplianceOrchestratorBuilder
+        from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator_builder import (
+            PromptComplianceOrchestratorBuilder,
+        )
 
         components = type(
             "Components",

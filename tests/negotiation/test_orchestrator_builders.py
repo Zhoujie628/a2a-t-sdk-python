@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -49,7 +48,7 @@ class FakeOrchestrator:
         type(self).last_kwargs = dict(kwargs)
 
     def start_negotiation(self, input: object) -> dict[str, object]:
-        return {"https://projects.tmforum.org/a2aproject/telecommunication/extensions/DATA-NEGOTIATION-T/v1": {"role": "fake"}}
+        return {"https://projects.tmforum.org/a2aproject/telecommunication/extensions/Negotiation-T/NL/v1": {"role": "fake", "message": "fake"}}
 
 
 class FakeStoreFactory:
@@ -100,23 +99,21 @@ class NegotiationOrchestratorBuilderTest(unittest.TestCase):
 
         result = orchestrator.start_negotiation(
             StartNegotiationInput(
-                type=NegotiationType.CLARIFICATION,
+                type=NegotiationType.TARGET,
                 content_text="Please clarify.",
                 facts={},
             )
         )
 
-        self.assertIn("https://projects.tmforum.org/a2aproject/telecommunication/extensions/NEGOTIATION-T", result)
-        self.assertEqual(
-            result["https://projects.tmforum.org/a2aproject/telecommunication/extensions/DATA-NEGOTIATION-T/v1"]["role"],
-            "client",
-        )
+        self.assertIn("https://projects.tmforum.org/a2aproject/telecommunication/extensions/Negotiation-T/NL/v1", result)
+        negotiation_data = result["https://projects.tmforum.org/a2aproject/telecommunication/extensions/Negotiation-T/NL/v1"]
+        self.assertEqual(negotiation_data["role"], "client")
         self.assertEqual(len(store_factory.calls), 1)
 
     def test_server_builder_builds_working_orchestrator(self) -> None:
-        from a2a_t.server.negotiation.negotiation_orchestrator_builder import ServerNegotiationOrchestratorBuilder
         from a2a_t.negotiation.common.enums import NegotiationType
         from a2a_t.negotiation.common.models import StartNegotiationInput
+        from a2a_t.server.negotiation.negotiation_orchestrator_builder import ServerNegotiationOrchestratorBuilder
 
         prompt_checker = FakePromptChecker()
         prompt_compliance_builder = FakePromptComplianceBuilder(prompt_checker)
@@ -138,11 +135,9 @@ class NegotiationOrchestratorBuilderTest(unittest.TestCase):
             )
         )
 
-        self.assertIn("https://projects.tmforum.org/a2aproject/telecommunication/extensions/NEGOTIATION-T", result)
-        self.assertEqual(
-            result["https://projects.tmforum.org/a2aproject/telecommunication/extensions/DATA-NEGOTIATION-T/v1"]["role"],
-            "server",
-        )
+        self.assertIn("https://projects.tmforum.org/a2aproject/telecommunication/extensions/Negotiation-T/NL/v1", result)
+        negotiation_data = result["https://projects.tmforum.org/a2aproject/telecommunication/extensions/Negotiation-T/NL/v1"]
+        self.assertEqual(negotiation_data["role"], "server")
         self.assertEqual(len(prompt_compliance_builder.calls), 1)
         self.assertEqual(len(store_factory.calls), 1)
 

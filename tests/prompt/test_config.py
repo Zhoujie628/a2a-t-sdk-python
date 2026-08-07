@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import sys
+import unittest
 from pathlib import Path
 from unittest import mock
-import unittest
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"

@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import json
 import sys
-from pathlib import Path
 import unittest
+from pathlib import Path
 from unittest.mock import patch
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -22,8 +21,9 @@ from a2a_t.prompt.analysis.models import ScenarioResolutionResult
 from a2a_t.prompt.common.models import PromptReference
 from a2a_t.prompt.validation.json_schema_slot_validator import JsonSchemaSlotValidator
 from a2a_t.server.a2at_server import A2ATServer
+from a2a_t.server.prompt_compliance.models import PromptComplianceResult
 from a2a_t.server.prompt_compliance.prompt_compliance_orchestrator import PromptComplianceOrchestrator
-from tests.support import ManagedTempDirTestCase, TEST_ENV_PATH
+from tests.support import TEST_ENV_PATH, ManagedTempDirTestCase
 
 
 def build_llm_config() -> LLMClientConfig:
@@ -141,7 +141,7 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
 
             result = server.check_task_prompt(processed_prompt_text="processed body")
 
-        self.assertEqual(result, {"success": True})
+        self.assertEqual(result, PromptComplianceResult(success=True))
 
     def test_handler_check_task_prompt_returns_business_constraint_message_for_invalid_slot_value(self) -> None:
         self._write_resource_file("templates/subscribe_incident/en-US/template.md", "Levels: {subscription_condition_incident_level}")
@@ -206,14 +206,14 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
 
         self.assertEqual(
             result,
-            {
-                "success": False,
-                "failure": {
+            PromptComplianceResult(
+                success=False,
+                failure={
                     "code": "slot_validation_error",
                     "message": "Must be a JSON array string containing one or more of: critical, major.",
                     "stage": "slot_validation",
                 },
-            },
+            ),
         )
 
     def test_handler_check_task_prompt_succeeds_when_optional_subscribe_incident_slots_are_null(self) -> None:
@@ -285,7 +285,7 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
 
             result = server.check_task_prompt(processed_prompt_text="processed body")
 
-        self.assertEqual(result, {"success": True})
+        self.assertEqual(result, PromptComplianceResult(success=True))
 
 
 if __name__ == "__main__":

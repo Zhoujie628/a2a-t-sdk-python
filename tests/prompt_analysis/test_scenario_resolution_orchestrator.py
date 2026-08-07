@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -17,9 +16,9 @@ from a2a_t.common.prompt_resources.models import PromptMessages, ScenarioDefinit
 from a2a_t.config.models import PromptRuntimeConfig
 from a2a_t.prompt.analysis.models import ScenarioRecognitionResult
 from a2a_t.server.prompt_compliance.constants import (
+    PROCESSED_PROMPT_PARSE_ERROR,
     PROMPT_PARSE_STAGE,
     PROMPT_RESOURCE_LOAD_ERROR,
-    PROCESSED_PROMPT_PARSE_ERROR,
 )
 
 

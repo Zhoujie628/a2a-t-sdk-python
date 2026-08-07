@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -105,8 +104,8 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
         )
 
     def test_render_raises_when_template_references_unknown_slot(self) -> None:
-        from a2a_t.prompt.task_rendering.errors import TaskPromptRenderError
         from a2a_t.prompt.task_rendering import TaskPromptRenderer
+        from a2a_t.prompt.task_rendering.errors import TaskPromptRenderError
 
         renderer = TaskPromptRenderer()
 
@@ -120,8 +119,8 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
             )
 
     def test_render_raises_when_template_is_invalid(self) -> None:
-        from a2a_t.prompt.task_rendering.errors import TaskPromptRenderError
         from a2a_t.prompt.task_rendering import TaskPromptRenderer
+        from a2a_t.prompt.task_rendering.errors import TaskPromptRenderError
 
         renderer = TaskPromptRenderer()
 

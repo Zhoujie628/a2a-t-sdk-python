@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -57,7 +56,9 @@ class FakeOrchestrator:
 
 class PromptGenerationOrchestratorBuilderTest(unittest.TestCase):
     def test_builder_uses_runtime_components_builder_and_injects_llm_client(self) -> None:
-        from a2a_t.client.prompt_generation.prompt_generation_orchestrator_builder import PromptGenerationOrchestratorBuilder
+        from a2a_t.client.prompt_generation.prompt_generation_orchestrator_builder import (
+            PromptGenerationOrchestratorBuilder,
+        )
 
         components = type(
             "Components",

@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import inspect
 import sys
-from pathlib import Path
 import unittest
+from pathlib import Path
 from unittest.mock import patch
-
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -18,7 +17,7 @@ from a2a_t.llm.models import LLMClientConfig
 from a2a_t.negotiation.common.enums import NegotiationStatus, NegotiationType
 from a2a_t.negotiation.common.models import ContinueNegotiationInput, NegotiationContext, StartNegotiationInput
 from a2a_t.server.prompt_compliance.models import PromptComplianceResult
-from tests.support import ManagedTempDirTestCase, TEST_ENV_PATH
+from tests.support import TEST_ENV_PATH, ManagedTempDirTestCase
 
 
 def build_llm_config() -> LLMClientConfig:
@@ -146,14 +145,14 @@ class A2ATServerTest(unittest.TestCase):
 
             self.assertEqual(
                 server.check_task_prompt(processed_prompt_text="prompt"),
-                {
-                    "success": False,
-                    "failure": {
+                PromptComplianceResult(
+                    success=False,
+                    failure={
                         "code": "slot_validation_error",
                         "message": "Site format is invalid.",
                         "stage": "slot_validation",
                     },
-                },
+                ),
             )
             self.assertEqual(server.start_negotiation(start_input), {"started": True})
             self.assertEqual(
@@ -208,9 +207,7 @@ class A2ATServerTest(unittest.TestCase):
 
             self.assertEqual(
                 server.check_task_prompt(processed_prompt_text="prompt"),
-                {
-                    "success": True,
-                },
+                PromptComplianceResult(success=True),
             )
 
 
@@ -262,14 +259,14 @@ class A2ATServerPromptResourceTimingTest(ManagedTempDirTestCase):
 
         self.assertEqual(
             result,
-            {
-                "success": False,
-                "failure": {
+            PromptComplianceResult(
+                success=False,
+                failure={
                     "code": "prompt_resource_load_error",
                     "message": "Prompt resource file does not exist.",
                     "stage": "preparation",
                 },
-            },
+            ),
         )
 
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from typing import Any
 
 __all__ = [
     "PromptReference",
@@ -25,7 +26,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
 }
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     try:
         module_name, attr_name = _EXPORTS[name]
     except KeyError as error:

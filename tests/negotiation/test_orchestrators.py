@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 import unittest
-
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -26,7 +25,7 @@ class FakeNegotiationHandler:
         self.receive_calls.append({"message": message, "context": context})
         return {
             "context": {
-                "negotiationType": "clarification",
+                "negotiationType": "target",
                 "negotiationId": "neg-1",
                 "role": "client",
                 "round": 1,
@@ -34,7 +33,7 @@ class FakeNegotiationHandler:
                 "extra": {},
             },
             "needResponse": True,
-            "facts": {"clarificationItems": []},
+            "facts": {"targetItems": []},
             "message": "Please clarify.",
         }
 
@@ -58,16 +57,16 @@ class FalsyLogger(FakeLogger):
 
 class NegotiationOrchestratorTest(unittest.TestCase):
     def test_client_orchestrator_start_negotiation_uses_client_role(self) -> None:
+        from a2a_t.client.negotiation.negotiation_orchestrator import NegotiationOrchestrator
         from a2a_t.negotiation.common.enums import NegotiationRole, NegotiationType
         from a2a_t.negotiation.common.models import StartNegotiationInput
-        from a2a_t.client.negotiation.negotiation_orchestrator import NegotiationOrchestrator
 
         handler = FakeNegotiationHandler()
         orchestrator = NegotiationOrchestrator(handler=handler)
 
         result = orchestrator.start_negotiation(
             StartNegotiationInput(
-                type=NegotiationType.CLARIFICATION,
+                type=NegotiationType.TARGET,
                 content_text="Please clarify.",
                 facts={},
             )
@@ -105,7 +104,7 @@ class NegotiationOrchestratorTest(unittest.TestCase):
         result = orchestrator.receive_negotiation(
             "message",
             {
-                "negotiationType": "clarification",
+                "negotiationType": "target",
                 "negotiationId": "neg-1",
                 "role": "client",
                 "round": 1,
@@ -119,9 +118,9 @@ class NegotiationOrchestratorTest(unittest.TestCase):
         self.assertEqual(result["message"], "Please clarify.")
 
     def test_continue_negotiation_returns_handler_payload(self) -> None:
+        from a2a_t.client.negotiation.negotiation_orchestrator import NegotiationOrchestrator
         from a2a_t.negotiation.common.enums import NegotiationStatus
         from a2a_t.negotiation.common.models import ContinueNegotiationInput, NegotiationContext
-        from a2a_t.client.negotiation.negotiation_orchestrator import NegotiationOrchestrator
 
         handler = FakeNegotiationHandler()
         orchestrator = NegotiationOrchestrator(
@@ -132,7 +131,7 @@ class NegotiationOrchestratorTest(unittest.TestCase):
             ContinueNegotiationInput(
                 context=NegotiationContext.from_context(
                     {
-                        "negotiationType": "clarification",
+                        "negotiationType": "target",
                         "negotiationId": "neg-1",
                         "role": "client",
                         "round": 1,
@@ -141,7 +140,7 @@ class NegotiationOrchestratorTest(unittest.TestCase):
                     }
                 ),
                 status=NegotiationStatus.IN_PROGRESS,
-                content_text="Here is the clarification.",
+                content_text="Here is the target.",
             )
         )
 
@@ -189,7 +188,7 @@ class NegotiationOrchestratorTest(unittest.TestCase):
             facts={},
         )
         context = {
-            "negotiationType": "clarification",
+            "negotiationType": "target",
             "negotiationId": "neg-1",
             "role": "client",
             "round": 1,
@@ -216,15 +215,15 @@ class NegotiationOrchestratorTest(unittest.TestCase):
             logger.info_messages,
         )
         self.assertIn(
-            ("negotiation_receive_started role=%s type=%s id=%s", ("server", "clarification", "neg-1")),
+            ("negotiation_receive_started role=%s type=%s id=%s", ("server", "target", "neg-1")),
             logger.info_messages,
         )
         self.assertIn(
-            ("negotiation_receive_completed role=%s type=%s id=%s status=%s", ("server", "clarification", "neg-1", "in-progress")),
+            ("negotiation_receive_completed role=%s type=%s id=%s status=%s", ("server", "target", "neg-1", "in-progress")),
             logger.info_messages,
         )
         self.assertIn(
-            ("negotiation_continue_started role=%s type=%s id=%s status=%s", ("server", "clarification", "neg-1", "in-progress")),
+            ("negotiation_continue_started role=%s type=%s id=%s status=%s", ("server", "target", "neg-1", "in-progress")),
             logger.info_messages,
         )
         self.assertIn(

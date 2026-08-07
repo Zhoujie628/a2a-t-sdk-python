@@ -14,7 +14,6 @@ from a2a_t.prompt.validation import JsonSchemaSlotValidator
 
 from .prompt_runtime_components import PromptRuntimeComponents
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -52,6 +51,8 @@ class PromptRuntimeComponentsBuilder:
         prompts_dir = local_root / "prompts"
         if prompts_dir.is_dir():
             logger.warning(
-                "Custom prompt resource directory contains prompts/, but SDK packaged prompts will be used instead. ignored_dir=%s",
+                "Custom prompt resource directory contains prompts/,"
+                " but SDK packaged prompts will be used instead."
+                " ignored_dir=%s",
                 prompts_dir,
             )

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from a2a_t.prompt.common.models import PromptReference
 
-from .local_resources import BasePromptResourceLoader
 from .errors import PromptResourceParseError
+from .local_resources import BasePromptResourceLoader
 from .models import SlotDefinition, SlotRange, SlotSchema
 
 
@@ -42,7 +42,8 @@ class SlotSchemaLoader(BasePromptResourceLoader):
         properties = data.get("properties")
         if not isinstance(properties, dict):
             properties = {}
-        required_names = set(data.get("required") or [])
+        raw_required = data.get("required")
+        required_names: set[str] = {str(item) for item in raw_required} if isinstance(raw_required, list) else set()
         slots = [
             self._build_slot_definition_from_property(
                 name=str(name),
@@ -82,7 +83,7 @@ class SlotSchemaLoader(BasePromptResourceLoader):
         minimum = property_schema.get("minimum")
         maximum = property_schema.get("maximum")
         if minimum is not None or maximum is not None:
-            slot_range = SlotRange(min=minimum, max=maximum)  # type: ignore[arg-type]
+            slot_range = SlotRange(min=minimum, max=maximum)
 
         slot_type = property_schema.get("x-a2at-slot-type")
         if slot_type is None:

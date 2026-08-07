@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from a2a_t.config.models import A2ATConfig
 from a2a_t.common.prompt_runtime import PromptRuntimeComponentsBuilder
+from a2a_t.config.models import A2ATConfig
 from a2a_t.prompt.analysis import ScenarioRecognizer, ScenarioResolutionOrchestrator, SlotExtractor
 from a2a_t.prompt.task_rendering import TaskPromptRenderer
 
@@ -48,7 +48,7 @@ class PromptGenerationOrchestratorBuilder:
         )
         slot_extractor = self._slot_extractor_cls(llm_client=llm_client)
 
-        return self._orchestrator_cls(
+        return self._orchestrator_cls(  # type: ignore[no-any-return]
             config=config.prompt,
             prompt_resource_loader=components.prompt_resource_loader,
             template_loader=components.template_loader,

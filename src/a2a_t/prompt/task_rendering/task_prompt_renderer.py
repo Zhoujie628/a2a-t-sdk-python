@@ -4,7 +4,6 @@ import re
 
 from .errors import TaskPromptRenderError
 
-
 _DOUBLE_BRACED_SLOT_PATTERN = re.compile(r"\{\{([^{}]+)\}\}")
 _SECTION_HEADING_PATTERN = re.compile(r"^\s*##+\s+\S")
 _SECTION_SLOT_ONLY_LINE_PATTERN = re.compile(

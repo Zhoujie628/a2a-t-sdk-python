@@ -3,15 +3,16 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from a2a_t.config.models import PromptRuntimeConfig
 from a2a_t.common.prompt_resources import (
     PromptResourceNotFoundError,
     PromptResourceParseError,
 )
+from a2a_t.config.models import PromptRuntimeConfig
 from a2a_t.prompt.analysis import ScenarioResolutionOrchestrator
 from a2a_t.prompt.analysis.errors import PromptAnalysisError
 from a2a_t.prompt.analysis.scenario_resolution_orchestrator import PREPARATION_STAGE
 from a2a_t.prompt.common.errors import PromptSourceError
+from a2a_t.prompt.common.models import PromptReference
 from a2a_t.prompt.task_rendering import TaskPromptRenderer
 from a2a_t.prompt.task_rendering.errors import TaskPromptRenderError
 
@@ -29,10 +30,8 @@ from .generation_constants import (
     SLOT_SCHEMA_NOT_FOUND,
     TEMPLATE_NOT_FOUND,
 )
-from a2a_t.prompt.common.models import PromptReference
 from .input_normalizer import InputNormalizer
 from .models import PromptGenerationFailure, PromptGenerationResult
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -83,7 +82,11 @@ class PromptGenerationOrchestrator:
             "prompt_generation_scenario_raw_output scenario_raw_output=%s",
             self._scenario_resolver,
         )
-        if not scenario_resolution.success or scenario_resolution.reference is None or scenario_resolution.scenario is None:
+        if (
+            not scenario_resolution.success
+            or scenario_resolution.reference is None
+            or scenario_resolution.scenario is None
+        ):
             failure = scenario_resolution.failure
             return self._failure_result(
                 code=failure.code if failure is not None else SCENARIO_PARSE_FAILED,
@@ -104,7 +107,7 @@ class PromptGenerationOrchestrator:
                 reference=reference,
             )
             reference = PromptReference(scenario_code=scenario_code, language=resolved_language)
-        except _PromptGenerationResourceFailure as error:
+        except _PromptGenerationResourceError as error:
             # At this point the scenario is known, so preserve it in the failure payload for callers.
             return self._finalize_result(
                 PromptGenerationResult(
@@ -128,7 +131,11 @@ class PromptGenerationOrchestrator:
                 PromptGenerationResult(
                     success=False,
                     prompt_text=None,
-                    failure=PromptGenerationFailure(code=INVALID_LLM_OUTPUT, message=str(error), stage=GENERATION_STAGE),
+                    failure=PromptGenerationFailure(
+                        code=INVALID_LLM_OUTPUT,
+                        message=str(error),
+                        stage=GENERATION_STAGE,
+                    ),
                 )
             )
         except Exception as error:
@@ -136,7 +143,11 @@ class PromptGenerationOrchestrator:
                 PromptGenerationResult(
                     success=False,
                     prompt_text=None,
-                    failure=PromptGenerationFailure(code=LLM_EXECUTION_FAILED, message=str(error), stage=GENERATION_STAGE),
+                    failure=PromptGenerationFailure(
+                        code=LLM_EXECUTION_FAILED,
+                        message=str(error),
+                        stage=GENERATION_STAGE,
+                    ),
                 )
             )
         self._log_debug_if_available(
@@ -194,36 +205,37 @@ class PromptGenerationOrchestrator:
                 language=reference.language,
             )
             return reference.language, template_text, slot_schema, slot_prompts
-        except _PromptGenerationResourceFailure:
+        except _PromptGenerationResourceError:
             raise
         except PromptResourceNotFoundError as error:
             resource_path = str(error.context.get("path", ""))
-            # Different missing artifacts produce different public error codes even though loaders share one exception type.
+            # Different missing artifacts produce different public error codes
+            # even though loaders share one exception type.
             if resource_path.endswith("template.md"):
-                raise _PromptGenerationResourceFailure(
+                raise _PromptGenerationResourceError(
                     code=TEMPLATE_NOT_FOUND,
                     message=str(error),
                     stage=PREPARATION_STAGE,
                 ) from error
             if resource_path.endswith("slot.json"):
-                raise _PromptGenerationResourceFailure(
+                raise _PromptGenerationResourceError(
                     code=SLOT_SCHEMA_NOT_FOUND,
                     message=str(error),
                     stage=PREPARATION_STAGE,
                 ) from error
-            raise _PromptGenerationResourceFailure(
+            raise _PromptGenerationResourceError(
                 code=PROMPT_NOT_FOUND,
                 message=str(error),
                 stage=PREPARATION_STAGE,
             ) from error
         except PromptResourceParseError as error:
-            raise _PromptGenerationResourceFailure(
+            raise _PromptGenerationResourceError(
                 code=PROMPT_RESOURCE_PARSE_ERROR,
                 message=str(error),
                 stage=PREPARATION_STAGE,
             ) from error
         except PromptSourceError as error:
-            raise _PromptGenerationResourceFailure(
+            raise _PromptGenerationResourceError(
                 code=PROMPT_RESOURCE_ACCESS_ERROR,
                 message=str(error),
                 stage=PREPARATION_STAGE,
@@ -301,7 +313,7 @@ class PromptGenerationOrchestrator:
         return bool(getattr(self._config, "prompt_generation_debug", False))
 
 
-class _PromptGenerationResourceFailure(Exception):
+class _PromptGenerationResourceError(Exception):
     """Carry resource failure details before they are converted into API results."""
 
     def __init__(self, *, code: str, message: str, stage: str) -> None:
