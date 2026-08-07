@@ -27,7 +27,7 @@ class NegotiationHandler:
     def __init__(
         self,
         *,
-        negotiation_types: dict[NegotiationType, object],
+        negotiation_types: dict[NegotiationType, BaseNegotiationType],
         store: NegotiationStateStore,
     ) -> None:
         self._negotiation_types = dict(negotiation_types)
@@ -163,7 +163,7 @@ class NegotiationHandler:
     def _get_negotiation_type(self, negotiation_type: NegotiationType) -> BaseNegotiationType:
         """Resolve the strategy object that implements one negotiation type."""
         try:
-            return self._negotiation_types[negotiation_type]  # type: ignore[return-value]
+            return self._negotiation_types[negotiation_type]
         except KeyError as error:
             raise NegotiationInputError(f"Unsupported negotiation type: {negotiation_type.value}") from error
 
