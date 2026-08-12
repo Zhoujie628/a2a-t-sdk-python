@@ -30,6 +30,9 @@ jobs:
       - name: Install SDK dependencies
         run: uv sync --frozen
 
+      - name: Lint bundled A2A-T templates
+        run: uv run python tools/template_lint.py --resource-root package_data/prompt_resources
+
       - name: Install samples dependencies
         run: uv pip install -r a2a-t-sample/requirements.txt
 
