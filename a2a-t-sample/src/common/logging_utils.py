@@ -63,8 +63,8 @@ def build_sample_logger(*, sink: Any, debug_enabled: bool) -> SampleLogger:
 
 
 def format_payload_log(*, role: str, stage: str, payload: object) -> str:
-    """Format a payload as a multi-line JSON log string with role/stage prefix, masking secret fields."""
-    return f"[{role}] {stage}:\n{json.dumps(_normalize_payload(payload), ensure_ascii=False, indent=2, sort_keys=True)}"
+    """Format a payload as a single-line JSON log string with role/stage prefix, masking secret fields."""
+    return f"[{role}] {stage}: {json.dumps(_normalize_payload(payload), ensure_ascii=False, sort_keys=True)}"
 
 
 def _normalize_payload(value: object, *, key_name: str | None = None) -> object:

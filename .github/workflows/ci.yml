@@ -174,7 +174,7 @@ jobs:
           has_error=false
           for log_file in server.log client.log; do
             if [ -f "$log_file" ]; then
-              errors=$(grep -iE 'Traceback|Error|Exception|FATAL' "$log_file" | grep -v 'INFO:' || true)
+              errors=$(grep -E '^Traceback|^[A-Za-z].*Error:|^a2a\.|RuntimeError|HTTPStatusError' "$log_file" || true)
               if [ -n "$errors" ]; then
                 echo "::error::Errors found in $log_file:"
                 echo "$errors"

@@ -119,7 +119,6 @@ async def execute_server_flow(
                     json.dumps(
                         dict(resolved_artifact_data),
                         ensure_ascii=False,
-                        indent=2,
                     )
                 )
             await resolved_sleep(artifact_send_interval_seconds)
