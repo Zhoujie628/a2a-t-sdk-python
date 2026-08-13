@@ -18,6 +18,11 @@ dist/
 build/
 .venv/
 venv/
+.ruff_cache/
+
+# Local env files (env.example is tracked as template)
+.env
+a2a-t-sample/.env
 
 # Claude 本地配置
 .claude/
