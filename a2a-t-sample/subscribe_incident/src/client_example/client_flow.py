@@ -4,7 +4,6 @@ from typing import Any
 
 from a2a.client.client import ClientCallContext
 from a2a.types import Role, SendMessageRequest
-
 from common.logging_utils import format_payload_log, format_stage_log, summarize_text
 from common.sse_event_consumer import normalize_event
 
