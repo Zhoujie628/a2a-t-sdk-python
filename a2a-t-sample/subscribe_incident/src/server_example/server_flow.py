@@ -7,9 +7,9 @@ from collections.abc import Awaitable, Callable, Mapping
 from a2a.server.agent_execution.context import RequestContext
 from a2a.server.events.event_queue import EventQueue
 from a2a.types import Task, TaskArtifactUpdateEvent, TaskState
-
 from common.a2a_adapter import build_artifact, build_status, emit_status_update
 from common.logging_utils import format_payload_log, format_stage_log
+
 from server_example.constants_data import (
     ARTIFACT_SEND_INTERVAL_SECONDS,
     COMPLETED_MESSAGE,

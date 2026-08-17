@@ -7,14 +7,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-SRC_ROOT = PROJECT_ROOT / "a2a-t-sample" / "src"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PROJECT_ROOT / "src"
 
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 from a2a_t.llm.models import LLMResponse
-
 from common.mock_llm import (
     _load_mock_responses,
     _resolve_language,
@@ -204,9 +203,8 @@ class LlmLoggerIntegrationTest(unittest.TestCase):
     """Verify llm_logger routes to mock when enabled, real when not."""
 
     def test_logger_calls_mock_when_enabled(self) -> None:
-        from a2a_t.llm.providers.openai import OpenAIClient
-
         import common.mock_llm
+        from a2a_t.llm.providers.openai import OpenAIClient
 
         original_structured = OpenAIClient.structured
         original_build_payload = OpenAIClient._build_structured_payload

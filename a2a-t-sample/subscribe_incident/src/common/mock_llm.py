@@ -4,7 +4,7 @@ Only patches DotEnvConfigSource.load to inject a placeholder api_key (so
 A2ATClient construction does not fail) and exposes is_mock_enabled() /
 get_mock_response() for llm_logger to call.
 
-Mock response files live under a2a-t-sample/resources/mock_responses/.
+Mock response files live under resources/mock_responses/.
 """
 
 from __future__ import annotations

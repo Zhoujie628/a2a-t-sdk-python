@@ -4,9 +4,9 @@ import sys
 import unittest
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-SRC_ROOT = PROJECT_ROOT / "a2a-t-sample" / "src"
-TEST_ROOT = PROJECT_ROOT / "a2a-t-sample" / "test"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SRC_ROOT = PROJECT_ROOT / "src"
+TEST_ROOT = PROJECT_ROOT / "test"
 
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -15,9 +15,8 @@ if str(TEST_ROOT) not in sys.path:
 
 from a2a.server.agent_execution.context import RequestContext
 from a2a.types import Message, Role, TaskArtifactUpdateEvent, TaskState, TaskStatusUpdateEvent
-from support import FakeEventQueue, FakePromptServer
-
 from server_example.server_flow import execute_server_flow
+from support import FakeEventQueue, FakePromptServer
 
 
 def _make_request_context(text: str = "test prompt") -> RequestContext:

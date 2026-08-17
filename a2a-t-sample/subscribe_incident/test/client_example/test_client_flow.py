@@ -4,9 +4,9 @@ import sys
 import unittest
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-SRC_ROOT = PROJECT_ROOT / "a2a-t-sample" / "src"
-TEST_ROOT = PROJECT_ROOT / "a2a-t-sample" / "test"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SRC_ROOT = PROJECT_ROOT / "src"
+TEST_ROOT = PROJECT_ROOT / "test"
 
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -18,9 +18,8 @@ from a2a.types import (
     StreamResponse,
     TaskState,
 )
-from support import FakePromptClient
-
 from client_example.client_flow import run_client_flow
+from support import FakePromptClient
 
 
 class FakeStreamA2AClient:

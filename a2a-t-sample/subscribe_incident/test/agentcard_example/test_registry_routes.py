@@ -4,15 +4,14 @@ import sys
 import unittest
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-SRC_ROOT = PROJECT_ROOT / "a2a-t-sample" / "src"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SRC_ROOT = PROJECT_ROOT / "src"
 
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from starlette.testclient import TestClient
-
 from agentcard_example.registry_routes import build_registry_app, clear_cards, get_card, store_card
+from starlette.testclient import TestClient
 
 
 class RegistryDataTest(unittest.TestCase):

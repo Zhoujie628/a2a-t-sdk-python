@@ -4,8 +4,8 @@ import sys
 import unittest
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-SRC_ROOT = PROJECT_ROOT / "a2a-t-sample" / "src"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = PROJECT_ROOT / "src"
 
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
@@ -15,7 +15,6 @@ from a2a.types import (
     StreamResponse,
     TaskState,
 )
-
 from common.sse_event_consumer import normalize_event
 
 
