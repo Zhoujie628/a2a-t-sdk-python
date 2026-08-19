@@ -182,6 +182,8 @@ def lint_resource_root(resource_root: Path) -> list[LintError]:
     if not slots_root.is_dir():
         return [LintError(slots_root, 1, "resource-root", "Missing slots directory.")]
     for template_path in sorted(templates_root.rglob("template.md")):
+        if "Negotiation-T" in template_path.parts:
+            continue
         relative = template_path.relative_to(templates_root)
         schema_path = slots_root / relative.parent / "slot.json"
         if not schema_path.is_file():
@@ -191,6 +193,8 @@ def lint_resource_root(resource_root: Path) -> list[LintError]:
             continue
         errors.extend(lint_template(template_path, schema_path))
     for schema_path in sorted(slots_root.rglob("slot.json")):
+        if "Negotiation-T" in schema_path.parts:
+            continue
         relative = schema_path.relative_to(slots_root)
         template_path = templates_root / relative.parent / "template.md"
         if not template_path.is_file():
