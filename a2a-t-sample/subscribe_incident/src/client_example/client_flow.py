@@ -7,7 +7,7 @@ from a2a.types import Role, SendMessageRequest
 from common.logging_utils import format_payload_log, format_stage_log, summarize_text
 from common.sse_event_consumer import normalize_event
 
-from client_example.scenario_data import NATURAL_LANGUAGE_PROMPT_INPUT
+from client_example.scenario_data import build_prompt_input as _build_scenario_prompt_input
 
 # Natural-language Notification-T extension URI.
 _NOTIFICATION_T_EXTENSION_URI_NL = (
@@ -16,8 +16,8 @@ _NOTIFICATION_T_EXTENSION_URI_NL = (
 
 
 def build_prompt_input() -> str:
-    """Return the prompt generation input (hard-coded Chinese natural language)."""
-    return NATURAL_LANGUAGE_PROMPT_INPUT
+    """Return the prompt generation input matching the configured language."""
+    return _build_scenario_prompt_input()
 
 
 def _require_prompt_text(prompt_result: Any) -> str:

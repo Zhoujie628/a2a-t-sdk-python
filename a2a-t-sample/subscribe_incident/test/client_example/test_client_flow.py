@@ -22,7 +22,7 @@ from client_example.client_flow import (
     _NOTIFICATION_T_EXTENSION_URI_NL,
     run_client_flow,
 )
-from client_example.scenario_data import NATURAL_LANGUAGE_PROMPT_INPUT
+from client_example.scenario_data import NATURAL_LANGUAGE_PROMPT_INPUT_ZH
 from support import FakePromptClient
 
 
@@ -103,7 +103,7 @@ class RunClientFlowTest(unittest.IsolatedAsyncioTestCase):
             initial_input=_scenario_input(),
         )
 
-        self.assertEqual(prompt_client.generate_calls, [NATURAL_LANGUAGE_PROMPT_INPUT])
+        self.assertEqual(prompt_client.generate_calls, [NATURAL_LANGUAGE_PROMPT_INPUT_ZH])
 
     async def test_request_body_aligns_with_java_convention(self) -> None:
         """Text part = scenario name, metadata[NL-URI] = prompt text, header = NL URI."""

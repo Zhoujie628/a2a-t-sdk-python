@@ -91,7 +91,9 @@ uv run python -m client_example.client_main
 | `metadata[Notification-T/NL/v1]` | 生成的 promptText |
 | header `A2A-Extensions` | `https://projects.tmforum.org/a2aproject/telecommunication/extensions/Notification-T/NL/v1` |
 
-- Prompt 生成输入为**硬编码中文自然语言**：`"请生成一个Incident事件订阅任务：通知主题为Incident，订阅条件为订阅级别为critical的ETH-LOS的故障，上报通知数据格式为DataPart"`
+- Prompt 生成输入为**硬编码自然语言**，按照 `A2AT_LANGUAGE` 自动选择：
+  - `zh-CN`：`"请生成一个Incident事件订阅任务：通知主题为Incident，订阅条件为订阅级别为critical的ETH-LOS的故障，上报通知数据格式为DataPart"`
+  - `en-US`：`"Generate an Incident event subscription task: notification topic is Incident, subscription condition is a critical ETH-LOS fault, and the notification data format is DataPart"`
 
 ### 服务端校验流程
 

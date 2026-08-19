@@ -91,7 +91,9 @@ The A2A request sent by the client follows this convention:
 | `metadata[Notification-T/NL/v1]` | generated promptText |
 | header `A2A-Extensions` | `https://projects.tmforum.org/a2aproject/telecommunication/extensions/Notification-T/NL/v1` |
 
-- Prompt generation input is a **hard-coded Chinese natural language string**: `"请生成一个Incident事件订阅任务：通知主题为Incident，订阅条件为订阅级别为critical的ETH-LOS的故障，上报通知数据格式为DataPart"`
+- Prompt generation input is a **hard-coded natural language string**, selected by `A2AT_LANGUAGE`:
+  - `zh-CN`: `"请生成一个Incident事件订阅任务：通知主题为Incident，订阅条件为订阅级别为critical的ETH-LOS的故障，上报通知数据格式为DataPart"`
+  - `en-US`: `"Generate an Incident event subscription task: notification topic is Incident, subscription condition is a critical ETH-LOS fault, and the notification data format is DataPart"`
 
 ### Server Validation Flow
 
