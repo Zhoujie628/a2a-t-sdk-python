@@ -16,13 +16,17 @@ class SlotSchemaLoader(BasePromptResourceLoader):
 
     def load_json_schema(self, *, reference: PromptReference) -> dict[str, object]:
         """Return the raw JSON Schema for the referenced scenario resource."""
-        path = f"slots/{reference.scenario_code}/{reference.language}/slot.json"
-        data = self._read_json_with_fallback(path)
+        data = self._read_scenario_json_with_fallback(
+            category="slots",
+            scenario_code=reference.scenario_code,
+            language=reference.language,
+            filename="slot.json",
+        )
         if self._looks_like_json_schema(data):
             return dict(data)
         raise PromptResourceParseError(
             "slot.json must be a JSON Schema object.",
-            path=path,
+            path=f"slots/*/*/{reference.scenario_code}/{reference.language}/slot.json",
             scenario_code=reference.scenario_code,
             language=reference.language,
         )

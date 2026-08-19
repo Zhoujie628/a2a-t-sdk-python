@@ -19,7 +19,9 @@ class SubscribeIncidentSlotSchemaConstraintsTest(unittest.TestCase):
             / "package_data"
             / "prompt_resources"
             / "slots"
-            / "subscribe_incident"
+            / "Notification-T"
+            / "v1"
+            / "subscribe-incident"
             / "zh-CN"
             / "slot.json"
         )

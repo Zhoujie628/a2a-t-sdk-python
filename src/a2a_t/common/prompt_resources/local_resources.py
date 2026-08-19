@@ -77,6 +77,33 @@ class LocalPromptResourceFiles:
             )
         return payload
 
+    def find_scenario_resource(
+        self,
+        *,
+        category: str,
+        scenario_code: str,
+        language: str,
+        filename: str,
+    ) -> str | None:
+        """Search Type/version subdirectories for a scenario resource, return its relative path.
+
+        The bundled resources are organized as
+        ``{category}/{Type}/{version}/{scenario_code}/{language}/{filename}``.
+        Scenario codes are unique across all Type/version groups, so a glob search
+        is sufficient.  The legacy flat layout
+        ``{category}/{scenario_code}/{language}/{filename}`` is also accepted for
+        backward compatibility with custom roots that have not migrated yet.
+        """
+        root = self._root_dir.resolve()
+        pattern = f"{category}/*/*/{scenario_code}/{language}/{filename}"
+        matches = sorted(root.glob(pattern))
+        if matches:
+            return matches[0].relative_to(root).as_posix()
+        legacy_path = f"{category}/{scenario_code}/{language}/{filename}"
+        if root.joinpath(legacy_path).is_file():
+            return legacy_path
+        return None
+
     def _default_root_dir(self) -> Path:
         """Return the packaged prompt resource root."""
         return _packaged_prompt_resource_root()
@@ -119,3 +146,59 @@ class BasePromptResourceLoader:
             return self._read_json(relative_path)
         except PromptResourceNotFoundError:
             return self._default_files.read_json(relative_path)
+
+    def _read_scenario_text_with_fallback(
+        self,
+        *,
+        category: str,
+        scenario_code: str,
+        language: str,
+        filename: str,
+    ) -> str:
+        """Read a scenario-scoped text resource, searching Type/version subdirectories.
+
+        The local root is searched first; when the resource is absent there the
+        packaged defaults are used.  Parse errors from the local root propagate
+        unchanged (no fallback) so misconfigured custom roots are surfaced.
+        """
+        for files in (self._files, self._default_files):
+            relative = files.find_scenario_resource(
+                category=category,
+                scenario_code=scenario_code,
+                language=language,
+                filename=filename,
+            )
+            if relative is not None:
+                return files.read_text(relative)
+        raise PromptResourceNotFoundError(
+            "Prompt resource file does not exist.",
+            path=f"{category}/*/*/{scenario_code}/{language}/{filename}",
+        )
+
+    def _read_scenario_json_with_fallback(
+        self,
+        *,
+        category: str,
+        scenario_code: str,
+        language: str,
+        filename: str,
+    ) -> dict[str, Any]:
+        """Read a scenario-scoped JSON resource, searching Type/version subdirectories.
+
+        The local root is searched first; when the resource is absent there the
+        packaged defaults are used.  Parse errors from the local root propagate
+        unchanged (no fallback) so misconfigured custom roots are surfaced.
+        """
+        for files in (self._files, self._default_files):
+            relative = files.find_scenario_resource(
+                category=category,
+                scenario_code=scenario_code,
+                language=language,
+                filename=filename,
+            )
+            if relative is not None:
+                return files.read_json(relative)
+        raise PromptResourceNotFoundError(
+            "Prompt resource file does not exist.",
+            path=f"{category}/*/*/{scenario_code}/{language}/{filename}",
+        )

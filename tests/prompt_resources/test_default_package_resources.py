@@ -21,8 +21,8 @@ class DefaultPromptResourcePackageTest(unittest.TestCase):
 
         scenarios = ScenarioLoader().load(language="zh-CN")
         en_scenarios = ScenarioLoader().load(language="en-US")
-        en_reference = PromptReference(scenario_code="subscribe_incident", language="en-US")
-        zh_reference = PromptReference(scenario_code="subscribe_incident", language="zh-CN")
+        en_reference = PromptReference(scenario_code="subscribe-incident", language="en-US")
+        zh_reference = PromptReference(scenario_code="subscribe-incident", language="zh-CN")
 
         en_template_text = TemplateLoader().load(reference=en_reference)
         en_slot_schema = SlotSchemaLoader().load(reference=en_reference)
@@ -38,8 +38,8 @@ class DefaultPromptResourcePackageTest(unittest.TestCase):
             language="en-US",
         )
 
-        self.assertTrue(any(item.scenario_code == "subscribe_incident" for item in scenarios))
-        self.assertTrue(any(item.scenario_code == "subscribe_incident" for item in en_scenarios))
+        self.assertTrue(any(item.scenario_code == "subscribe-incident" for item in scenarios))
+        self.assertTrue(any(item.scenario_code == "subscribe-incident" for item in en_scenarios))
         self.assertIn("{{", template_text)
         self.assertIn("{{", en_template_text)
         self.assertTrue(en_slot_schema.slots)

@@ -27,6 +27,7 @@ TASK_HEADINGS = {
     "Task Context",
     "Constraints",
     "Expected Output",
+    "Operation Type",
 }
 NOTIFICATION_HEADINGS = {
     "Subscription Description",
@@ -44,6 +45,7 @@ HEADING_ALIASES = {
     "任务上下文": "Task Context",
     "约束条件": "Constraints",
     "预期输出": "Expected Output",
+    "操作类型": "Operation Type",
     "订阅描述": "Subscription Description",
     "通知主题": "Notification Topic",
     "订阅条件": "Subscribe Condition",
@@ -179,7 +181,7 @@ def lint_resource_root(resource_root: Path) -> list[LintError]:
         return [LintError(templates_root, 1, "resource-root", "Missing templates directory.")]
     if not slots_root.is_dir():
         return [LintError(slots_root, 1, "resource-root", "Missing slots directory.")]
-    for template_path in sorted(templates_root.glob("*/*/template.md")):
+    for template_path in sorted(templates_root.rglob("template.md")):
         relative = template_path.relative_to(templates_root)
         schema_path = slots_root / relative.parent / "slot.json"
         if not schema_path.is_file():
@@ -188,7 +190,7 @@ def lint_resource_root(resource_root: Path) -> list[LintError]:
             )
             continue
         errors.extend(lint_template(template_path, schema_path))
-    for schema_path in sorted(slots_root.glob("*/*/slot.json")):
+    for schema_path in sorted(slots_root.rglob("slot.json")):
         relative = schema_path.relative_to(slots_root)
         template_path = templates_root / relative.parent / "template.md"
         if not template_path.is_file():

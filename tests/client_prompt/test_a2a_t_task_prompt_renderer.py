@@ -19,7 +19,7 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
         prompt_text = renderer.render(
             template_text="Site: {site}\nNotes: {additional_notes}",
             slots={"site": "Site A", "additional_notes": None},
-            scenario_code="energy_saving",
+            scenario_code="energy-saving",
             language="en-US",
             description="Used for energy saving analysis.",
         )
@@ -36,7 +36,7 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
         prompt_text = renderer.render(
             template_text="Topic: {{topic}}\nCondition: {{condition}}",
             slots={"topic": "Incident", "condition": "critical alert"},
-            scenario_code="subscribe_incident",
+            scenario_code="subscribe-incident",
             language="zh-CN",
             description="Used for incident subscription prompts.",
         )
@@ -62,9 +62,9 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
                 "task_target": "Complete the diagnosis and provide remediation advice.",
                 "expected_output": "Return a structured diagnosis result.",
             },
-            scenario_code="fault_diagnosis",
+            scenario_code="private-line-complaint",
             language="en-US",
-            description="Used for fault diagnosis prompts.",
+            description="Used for private line complaint prompts.",
         )
 
         self.assertEqual(
@@ -90,7 +90,7 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
                 "Requirement: describe the filter.\n"
             ),
             slots={"topic": "network", "condition": "critical only"},
-            scenario_code="subscribe_incident",
+            scenario_code="subscribe-incident",
             language="en-US",
             description="Used for incident subscription prompts.",
         )
@@ -113,7 +113,7 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
             renderer.render(
                 template_text="Site: {site}\nTime Range: {time_range}",
                 slots={"site": "Site A"},
-                scenario_code="energy_saving",
+                scenario_code="energy-saving",
                 language="en-US",
                 description="Used for energy saving analysis.",
             )
@@ -128,7 +128,7 @@ class A2ATTaskPromptRendererTest(unittest.TestCase):
             renderer.render(
                 template_text="Site: {site",
                 slots={"site": "Site A"},
-                scenario_code="energy_saving",
+                scenario_code="energy-saving",
                 language="en-US",
                 description="Used for energy saving analysis.",
             )
