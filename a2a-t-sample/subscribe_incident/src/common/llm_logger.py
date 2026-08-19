@@ -11,7 +11,7 @@ from typing import Any
 
 from a2a_t.llm.providers.openai import OpenAIClient
 
-from common.logging_utils import format_payload_log
+from common.logging_utils import format_payload_log, format_stage_log
 from common.mock_llm import get_mock_payload, get_mock_response, is_mock_enabled
 
 _original_build_payload = OpenAIClient._build_structured_payload
@@ -70,6 +70,7 @@ def _patched_structured(
             max_tokens=max_tokens,
         )
         result = get_mock_response()
+        _sink(format_stage_log(role=_role, stage="llm-mock", detail="using canned mock LLM response"))
     else:
         result = _original_structured(
             self,

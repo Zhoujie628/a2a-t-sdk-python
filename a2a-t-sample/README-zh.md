@@ -38,18 +38,28 @@ uv pip install -r requirements.txt
 
 ## 用例：subscribe_incident（故障订阅）
 
-最小端到端用例，演示故障订阅场景：客户端生成 prompt → 服务端校验 → 流式推送 Incident artifact。
+最小端到端用例，演示故障订阅场景：客户端生成 prompt → 服务端校验 → 流式推送 Incident artifact。流程包含客户端 prompt 生成、服务端校验、流式 artifact 推送，并保留 LLM mock 能力。
 
 ### 启动服务（三个终端）
 
+> 模块位于 `subscribe_incident/src/`，而 `.env` 位于 `a2a-t-sample/`，因此需要**在 `a2a-t-sample` 目录下设置 `PYTHONPATH` 指向 `subscribe_incident/src`**。
+
+```powershell
+# 进入 sample 目录（.env 所在位置）
+cd a2a-t-sample
+
+# 设置模块搜索路径（每个终端都要执行）
+$env:PYTHONPATH = "$pwd\subscribe_incident\src"
+```
+
 ```bash
-# 终端1：启动注册中心
+# 终端1：启动注册中心（端口 5001）
 uv run python -m agentcard_example.registry_main
 
-# 终端2：启动服务端
+# 终端2：启动服务端（端口 8000）
 uv run python -m server_example.server_main
 
-# 终端3：启动客户端
+# 终端3：启动客户端（持续接收 artifact，Ctrl+C 停止）
 uv run python -m client_example.client_main
 ```
 
@@ -57,8 +67,9 @@ uv run python -m client_example.client_main
 
 ### 限制接收数量（可选）
 
-```bash
-A2AT_SAMPLE_MAX_ARTIFACTS=5 uv run python -m client_example.client_main
+```powershell
+$env:A2AT_SAMPLE_MAX_ARTIFACTS = "5"
+uv run python -m client_example.client_main
 ```
 
 ### 流程说明
@@ -70,16 +81,49 @@ A2AT_SAMPLE_MAX_ARTIFACTS=5 uv run python -m client_example.client_main
 | Prompt 校验 | 服务端 | 场景识别 → slot 提取 → 语义校验 | 3 |
 | 流式推送 | 客户端 | normalize_event 归一化 stream 事件 | 0 |
 
+### 消息体约定
+
+客户端发送的 A2A 请求遵循以下约定：
+
+| 位置 | 内容 |
+|------|------|
+| text part | scenario 名（`"create incident subscription"`） |
+| `metadata[Notification-T/NL/v1]` | 生成的 promptText |
+| header `A2A-Extensions` | `https://projects.tmforum.org/a2aproject/telecommunication/extensions/Notification-T/NL/v1` |
+
+- Prompt 生成输入为**硬编码自然语言**，按照 `A2AT_LANGUAGE` 自动选择：
+  - `zh-CN`：`"请生成一个Incident事件订阅任务：通知主题为Incident，订阅条件为订阅级别为critical的ETH-LOS的故障，上报通知数据格式为DataPart"`
+  - `en-US`：`"Generate an Incident event subscription task: notification topic is Incident, subscription condition is a critical ETH-LOS fault, and the notification data format is DataPart"`
+
+### 服务端校验流程
+
+`execute_server_flow` 的状态机：
+
+1. **校验 `A2A-Extensions` header**：必须包含 Notification-T/NL 扩展 URI，否则抛 `ValueError("a2a client extensions is not exist.")`
+2. **从 `metadata[Notification-T/NL/v1]` 提取 promptText**（不再从 `parts[0].text` 读取）
+3. **`SUBMITTED`** → 调用 `A2ATServer.check_task_prompt` 校验
+   - 校验失败 → 发 **`REJECTED`** 状态（不抛异常）
+   - 校验通过 → 发 **`WORKING`** 状态
+4. **循环推送 Incident artifact**（每 `ARTIFACT_SEND_INTERVAL_SECONDS = 5.0s` 一次，默认无限推，可被 `max_artifacts` 截断）
+5. 推送过程异常 → 发 **`FAILED`** 状态
+
+### AgentCard 数据
+
+- name：`SPN Domain Agent`，provider：`Huawei`
+- 仅声明 `Notification-T/NL/v1` 扩展（subscribe 用例不涉及 Task-T）
+
 ### 关键点
 
 - **SDK 是中间层**：client/server 不直接调 LLM，通过 A2ATClient/A2ATServer 间接调用
 - **LLM 只在 prompt 阶段用**：推送 artifact 时不调 LLM
 - **无协商**：客户端一次性提交完整输入，服务端校验通过直接推送
 - **三层解耦**：client（发现 + 消费）→ server（注册 + 推送）→ registry（注册中心）
+- **mock 能力保留**：`common/mock_llm.py` + `resources/mock_responses/` 在 key 为空时自动启用，完整流程无需真实 API
+- **如何区分 mock**：每次 mock LLM 响应前都会输出一行独立日志 `[llm] llm-mock: using canned mock LLM response`；使用真实 LLM 时没有这行日志
 
 ## 运行测试
 
 ```bash
-# 运行全部用例测试
+# 运行全部用例测试（从 a2a-t-sample 目录）
 uv run pytest subscribe_incident/test/ -v
 ```

@@ -7,9 +7,17 @@ from a2a.types import Role, SendMessageRequest
 from common.logging_utils import format_payload_log, format_stage_log, summarize_text
 from common.sse_event_consumer import normalize_event
 
-_NOTIFICATION_T_EXTENSION_URI = (
-    "https://projects.tmforum.org/a2aproject/telecommunication/extensions/Notification-T/v1"
+from client_example.scenario_data import build_prompt_input as _build_scenario_prompt_input
+
+# Natural-language Notification-T extension URI.
+_NOTIFICATION_T_EXTENSION_URI_NL = (
+    "https://projects.tmforum.org/a2aproject/telecommunication/extensions/Notification-T/NL/v1"
 )
+
+
+def build_prompt_input() -> str:
+    """Return the prompt generation input matching the configured language."""
+    return _build_scenario_prompt_input()
 
 
 def _require_prompt_text(prompt_result: Any) -> str:
@@ -23,6 +31,10 @@ def _require_prompt_text(prompt_result: Any) -> str:
     raise ValueError(f"{failure_code}: {failure_message}")
 
 
+def _build_request_metadata(initial_input: dict[str, object]) -> str:
+    return str(initial_input.get("scenario", ""))
+
+
 async def run_client_flow(
     *,
     prompt_client: object,
@@ -31,8 +43,15 @@ async def run_client_flow(
     max_artifacts: int | None = None,
     log_sink: object | None = None,
 ) -> list[dict[str, object]]:
-    """Generate a prompt via SDK, send it as a streaming request, and consume/normalize all stream events."""
-    prompt_result = prompt_client.generate_task_prompt(initial_input)
+    """Generate a prompt via SDK, send it as a streaming request, and consume/normalize all stream events.
+
+    Message-body convention:
+      * text part      -> scenario name (request metadata)
+      * metadata[extUri] -> generated prompt text
+      * header         -> A2A-Extensions: Notification-T/NL/v1
+    """
+    prompt_input = build_prompt_input()
+    prompt_result = prompt_client.generate_task_prompt(prompt_input)
     prompt_text = _require_prompt_text(prompt_result)
 
     import uuid
@@ -40,14 +59,11 @@ async def run_client_flow(
     request = SendMessageRequest()
     request.message.message_id = str(uuid.uuid4())
     request.message.role = Role.ROLE_USER
-    request.message.parts.add().text = prompt_text
-    request.message.metadata[_NOTIFICATION_T_EXTENSION_URI] = {
-        "subscriptionType": "incident",
-        "scenario": str(initial_input.get("scenario", "")),
-    }
+    request.message.parts.add().text = _build_request_metadata(initial_input)
+    request.message.metadata[_NOTIFICATION_T_EXTENSION_URI_NL] = prompt_text
 
     context = ClientCallContext(
-        service_parameters={"A2A-Extensions": _NOTIFICATION_T_EXTENSION_URI},
+        service_parameters={"A2A-Extensions": _NOTIFICATION_T_EXTENSION_URI_NL},
     )
 
     if log_sink is not None:
