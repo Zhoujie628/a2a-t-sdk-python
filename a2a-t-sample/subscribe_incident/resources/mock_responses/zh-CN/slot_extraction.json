@@ -1,8 +1,8 @@
 {
   "slots": {
     "通知主题": "Incident",
-    "订阅条件": "故障优先级为：紧急。故障名称为：fiber break。",
-    "上报通知数据格式": null
+    "订阅条件": "订阅级别为critical的ETH-LOS的故障",
+    "上报通知数据格式": "DataPart"
   },
   "slot_errors": []
 }

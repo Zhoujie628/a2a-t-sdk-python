@@ -18,7 +18,11 @@ from a2a.types import (
     StreamResponse,
     TaskState,
 )
-from client_example.client_flow import run_client_flow
+from client_example.client_flow import (
+    _NOTIFICATION_T_EXTENSION_URI_NL,
+    run_client_flow,
+)
+from client_example.scenario_data import NATURAL_LANGUAGE_PROMPT_INPUT
 from support import FakePromptClient
 
 
@@ -28,7 +32,7 @@ class FakeStreamA2AClient:
         self.send_calls: list[object] = []
 
     async def send_message(self, request: object, *, context: object = None):
-        self.send_calls.append(request)
+        self.send_calls.append((request, context))
         for event in self._events:
             yield event
 
@@ -58,6 +62,10 @@ def _make_message_event(text: str) -> StreamResponse:
     return response
 
 
+def _scenario_input() -> dict[str, object]:
+    return {"scenario": "create incident subscription"}
+
+
 class RunClientFlowTest(unittest.IsolatedAsyncioTestCase):
     async def test_consumes_stream_events_and_returns_normalized(self) -> None:
         events = [
@@ -74,7 +82,7 @@ class RunClientFlowTest(unittest.IsolatedAsyncioTestCase):
         results = await run_client_flow(
             prompt_client=prompt_client,
             a2a_client=a2a_client,
-            initial_input={"scenario": "subscribe_incident"},
+            initial_input=_scenario_input(),
             max_artifacts=3,
         )
 
@@ -84,6 +92,41 @@ class RunClientFlowTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(results[5]["kind"], "status")
         self.assertEqual(len(a2a_client.send_calls), 1)
         self.assertEqual(len(prompt_client.generate_calls), 1)
+
+    async def test_generate_task_prompt_uses_hardcoded_nl_input(self) -> None:
+        a2a_client = FakeStreamA2AClient(events=[])
+        prompt_client = FakePromptClient(prompt_text="generated prompt")
+
+        await run_client_flow(
+            prompt_client=prompt_client,
+            a2a_client=a2a_client,
+            initial_input=_scenario_input(),
+        )
+
+        self.assertEqual(prompt_client.generate_calls, [NATURAL_LANGUAGE_PROMPT_INPUT])
+
+    async def test_request_body_aligns_with_java_convention(self) -> None:
+        """Text part = scenario name, metadata[NL-URI] = prompt text, header = NL URI."""
+        a2a_client = FakeStreamA2AClient(events=[])
+        prompt_client = FakePromptClient(prompt_text="generated prompt")
+
+        await run_client_flow(
+            prompt_client=prompt_client,
+            a2a_client=a2a_client,
+            initial_input=_scenario_input(),
+        )
+
+        request, context = a2a_client.send_calls[0]
+        message = request.message
+        self.assertEqual(message.parts[0].text, "create incident subscription")
+        self.assertEqual(
+            dict(message.metadata)[_NOTIFICATION_T_EXTENSION_URI_NL],
+            "generated prompt",
+        )
+        self.assertEqual(
+            context.service_parameters["A2A-Extensions"],
+            _NOTIFICATION_T_EXTENSION_URI_NL,
+        )
 
     async def test_max_artifacts_stops_after_n_artifacts(self) -> None:
         events = [
@@ -99,7 +142,7 @@ class RunClientFlowTest(unittest.IsolatedAsyncioTestCase):
         results = await run_client_flow(
             prompt_client=prompt_client,
             a2a_client=a2a_client,
-            initial_input={"scenario": "subscribe_incident"},
+            initial_input=_scenario_input(),
             max_artifacts=2,
         )
 
@@ -118,7 +161,7 @@ class RunClientFlowTest(unittest.IsolatedAsyncioTestCase):
         results = await run_client_flow(
             prompt_client=prompt_client,
             a2a_client=a2a_client,
-            initial_input={"scenario": "subscribe_incident"},
+            initial_input=_scenario_input(),
         )
 
         self.assertEqual(len(results), 3)

@@ -7,20 +7,28 @@ from typing import Any
 
 SUBMITTED_MESSAGE = "Subscription accepted, starting Incident reporting task"
 WORKING_MESSAGE = "Incident reporting task in progress"
-COMPLETED_MESSAGE = "Incident reporting completed"
 ARTIFACT_SEND_INTERVAL_SECONDS = 5.0
 
+NOTIFICATION_T_EXTENSION_URI_NL = (
+    "https://projects.tmforum.org/a2aproject/telecommunication/extensions/Notification-T/NL/v1"
+)
+
 PUBLIC_AGENT_CARD: dict[str, Any] = {
-    "name": "A2A-T Subscribe Incident Sample",
-    "description": "A2A-T sample server for incident subscription with streaming artifact push",
+    "name": "SPN Domain Agent",
+    "description": "SPN Domain Agent",
     "version": "1.0.0",
-    "provider": {"organization": "SampleOrg"},
+    "defaultInputModes": ["application/json", "text/plain"],
+    "defaultOutputModes": ["application/json", "text/plain"],
+    "provider": {
+        "organization": "Huawei",
+        "url": "https://www.huawei.com",
+    },
     "skills": [
         {
-            "id": "incident-subscription",
-            "name": "Incident Subscription",
-            "description": "Subscribe to incident notifications with streaming artifact push",
-            "tags": ["incident", "subscription", "streaming"],
+            "id": "Incident-Subscription",
+            "name": "Incident reporting",
+            "description": "Mock incident reporting sample skill",
+            "tags": ["incident", "reporting"],
         }
     ],
     "capabilities": {
@@ -28,13 +36,11 @@ PUBLIC_AGENT_CARD: dict[str, Any] = {
         "pushNotifications": False,
         "extensions": [
             {
-                "uri": "https://projects.tmforum.org/a2aproject/telecommunication/extensions/Notification-T/v1",
+                "uri": NOTIFICATION_T_EXTENSION_URI_NL,
                 "description": "Extension of structured prompt Notification-T requests.",
-            }
+            },
         ],
     },
-    "defaultInputModes": ["text", "json"],
-    "defaultOutputModes": ["text", "json"],
     "supportedInterfaces": [],
 }
 
@@ -55,17 +61,51 @@ INCIDENT_ARTIFACT_DATA: dict[str, Any] = {
                 "type": "network-element",
                 "location": "Level1",
                 "name": "HUAWEI40-SPE",
+                "subObjList": [
+                    {
+                        "id": "36f6f0e4-9fc3-4508-bc50-fa1831a7c179",
+                        "type": "ltp",
+                        "name": "1-TPA1EG24-15(M)",
+                    }
+                ],
             }
         ],
         "rootCauses": [
             {
-                "name": "HUAWEI40-SPE power failure",
-                "repairAdvice": "Check power connection.",
+                "name": "The connected peer network element on HUAWEI40-SPE 1-TPA1EG24-15(M)-MAC:1 is down.",
+                "repairAdvice": "Check the network element power connection state and restore power supply.",
+                "detailInformation": "The connected peer network element on "
+                "HUAWEI40-SPE 1-TPA1EG24-15(M)-MAC:1 is down.",
+                "rootCauseObj": {
+                    "id": "9fc7ee3b-e4fb-450e-87d3-e03f027a4f64",
+                    "type": "network-element",
+                    "name": "HUAWEI40-SPE",
+                    "location": "Level1",
+                    "subObjList": [
+                        {
+                            "id": "36f6f0e4-9fc3-4508-bc50-fa1831a7c179",
+                            "type": "FixedNetworkLTP",
+                            "name": "1-TPA1EG24-15(M)",
+                        }
+                    ],
+                },
             }
         ],
-        "detail": "HUAWEI40-SPE laser module error at 1-TPA1EG24-15(M)-LASER:1.",
-        "repairAdvice": "Check power connection.",
+        "detail": (
+            "Intelligent diagnosis result:\n"
+            "The connected peer network element on HUAWEI40-SPE 1-TPA1EG24-15(M)-MAC:1 is down.\n"
+            "Fault detail:\n"
+            "HUAWEI40-SPE optical module fault, location info: 1-TPA1EG24-15(M)-LASER:1.\n"
+            "The user-side port 1-TPA1EG24-15(M)-MAC:1 on HUAWEI40-SPE is abnormal."
+        ),
+        "repairAdvice": "Check the network element power connection state and restore power supply.",
         "messageType": "update",
+        "rootEventCsns": [
+            {
+                "csn": "524261",
+                "type": "0",
+            }
+        ],
     }
 }
 

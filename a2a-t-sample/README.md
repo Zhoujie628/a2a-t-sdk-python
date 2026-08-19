@@ -38,18 +38,28 @@ uv pip install -r requirements.txt
 
 ## Use Case: subscribe_incident
 
-A minimal end-to-end use case demonstrating the **subscribe_incident (fault subscription)** scenario: client generates prompt -> server validates -> streaming Incident artifact push.
+A minimal end-to-end use case demonstrating the **subscribe_incident (fault subscription)** scenario: client generates prompt -> server validates -> streaming Incident artifact push. The flow includes client-side prompt generation, server-side validation, and streaming artifact push, while retaining the LLM mock capability.
 
 ### Start services (three terminals)
 
+> Modules live under `subscribe_incident/src/`, while the `.env` file is at `a2a-t-sample/`. Therefore you must set `PYTHONPATH` to point to `subscribe_incident/src` **from the `a2a-t-sample` directory**.
+
+```powershell
+# Change to the sample directory (where .env lives)
+cd a2a-t-sample
+
+# Set module search path (every terminal needs this)
+$env:PYTHONPATH = "$pwd\subscribe_incident\src"
+```
+
 ```bash
-# Terminal 1: start registry
+# Terminal 1: start registry (port 5001)
 uv run python -m agentcard_example.registry_main
 
-# Terminal 2: start server
+# Terminal 2: start server (port 8000)
 uv run python -m server_example.server_main
 
-# Terminal 3: start client
+# Terminal 3: start client (receives artifacts continuously; Ctrl+C to stop)
 uv run python -m client_example.client_main
 ```
 
@@ -57,8 +67,9 @@ The client will continuously receive artifacts. Press `Ctrl+C` to stop.
 
 ### Limit received count (optional)
 
-```bash
-A2AT_SAMPLE_MAX_ARTIFACTS=5 uv run python -m client_example.client_main
+```powershell
+$env:A2AT_SAMPLE_MAX_ARTIFACTS = "5"
+uv run python -m client_example.client_main
 ```
 
 ### Flow
@@ -70,16 +81,47 @@ A2AT_SAMPLE_MAX_ARTIFACTS=5 uv run python -m client_example.client_main
 | Prompt validation | server | scenario recognition -> slot extraction -> semantic validation | 3 |
 | Streaming push | client | normalize_event for stream events | 0 |
 
+### Message Body Convention
+
+The A2A request sent by the client follows this convention:
+
+| Field | Content |
+|-------|---------|
+| text part | scenario name (`"create incident subscription"`) |
+| `metadata[Notification-T/NL/v1]` | generated promptText |
+| header `A2A-Extensions` | `https://projects.tmforum.org/a2aproject/telecommunication/extensions/Notification-T/NL/v1` |
+
+- Prompt generation input is a **hard-coded Chinese natural language string**: `"请生成一个Incident事件订阅任务：通知主题为Incident，订阅条件为订阅级别为critical的ETH-LOS的故障，上报通知数据格式为DataPart"`
+
+### Server Validation Flow
+
+The `execute_server_flow` state machine:
+
+1. **Validate `A2A-Extensions` header** — must contain the Notification-T/NL extension URI; otherwise throws `ValueError("a2a client extensions is not exist.")`
+2. **Extract promptText from `metadata[Notification-T/NL/v1]`** (no longer reads from `parts[0].text`)
+3. **`SUBMITTED`** → call `A2ATServer.check_task_prompt` for validation
+   - Validation fails → emit **`REJECTED`** status (not an exception)
+   - Validation passes → emit **`WORKING`** status
+4. **Loop pushing Incident artifacts** (every `ARTIFACT_SEND_INTERVAL_SECONDS = 5.0s`, infinite by default, can be capped via `max_artifacts`)
+5. Exception during push → emit **`FAILED`** status
+
+### AgentCard Data
+
+- name: `SPN Domain Agent`, provider: `Huawei`
+- Declares only the `Notification-T/NL/v1` extension (subscribe use case does not involve Task-T)
+
 ### Key Points
 
 - **SDK as middleware**: client/server never call LLM directly; they go through A2ATClient/A2ATServer
 - **LLM only for prompt phase**: no LLM calls during artifact push
 - **No negotiation**: client submits complete input; server validates and pushes directly
 - **Three-layer decoupling**: client (discover + consume) -> server (register + push) -> registry (registry center)
+- **Mock capability preserved**: `common/mock_llm.py` + `resources/mock_responses/` auto-activate when the API key is empty; the full flow runs without a real API
+- **How to tell it's mock**: before each mock LLM response, a standalone log line `[llm] llm-mock: using canned mock LLM response` is printed; this line is absent when using a real LLM
 
 ## Run Tests
 
 ```bash
-# Run all use case tests
+# Run all use case tests (from the a2a-t-sample directory)
 uv run pytest subscribe_incident/test/ -v
 ```

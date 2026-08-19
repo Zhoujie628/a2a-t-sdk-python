@@ -226,8 +226,12 @@ class LlmLoggerIntegrationTest(unittest.TestCase):
             self.assertEqual(result.model, "mock-llm")
             request_logs = [entry for entry in logs if "llm-request" in entry]
             response_logs = [entry for entry in logs if "llm-response" in entry]
+            mock_marker_logs = [entry for entry in logs if "llm-mock" in entry]
             self.assertEqual(len(request_logs), 1)
             self.assertEqual(len(response_logs), 1)
+            # A standalone log line must flag that this response is from mock LLM
+            self.assertEqual(len(mock_marker_logs), 1)
+            self.assertIn("using canned mock LLM response", mock_marker_logs[0])
         finally:
             OpenAIClient.structured = original_structured
             OpenAIClient._build_structured_payload = original_build_payload

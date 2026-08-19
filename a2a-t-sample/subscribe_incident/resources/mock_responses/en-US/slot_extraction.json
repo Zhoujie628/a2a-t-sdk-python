@@ -1,8 +1,8 @@
 {
   "slots": {
-    "notification_topic": null,
-    "subscribe_condition": null,
-    "notification_data_format": null
+    "notification_topic": "Incident",
+    "subscribe_condition": "订阅级别为critical的ETH-LOS的故障",
+    "notification_data_format": "DataPart"
   },
   "slot_errors": []
 }
