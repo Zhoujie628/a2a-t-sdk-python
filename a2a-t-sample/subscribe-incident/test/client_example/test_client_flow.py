@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -22,7 +23,10 @@ from client_example.client_flow import (
     _NOTIFICATION_T_EXTENSION_URI_NL,
     run_client_flow,
 )
-from client_example.scenario_data import NATURAL_LANGUAGE_PROMPT_INPUT_ZH
+from client_example.scenario_data import (
+    NATURAL_LANGUAGE_PROMPT_INPUT_EN,
+    NATURAL_LANGUAGE_PROMPT_INPUT_ZH,
+)
 from support import FakePromptClient
 
 
@@ -94,16 +98,23 @@ class RunClientFlowTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(prompt_client.generate_calls), 1)
 
     async def test_generate_task_prompt_uses_hardcoded_nl_input(self) -> None:
-        a2a_client = FakeStreamA2AClient(events=[])
-        prompt_client = FakePromptClient(prompt_text="generated prompt")
+        """The NL input fed to prompt generation must not depend on the developer's local .env."""
+        for language, expected_input in (
+            ("zh-CN", NATURAL_LANGUAGE_PROMPT_INPUT_ZH),
+            ("en-US", NATURAL_LANGUAGE_PROMPT_INPUT_EN),
+        ):
+            with self.subTest(language=language):
+                a2a_client = FakeStreamA2AClient(events=[])
+                prompt_client = FakePromptClient(prompt_text="generated prompt")
 
-        await run_client_flow(
-            prompt_client=prompt_client,
-            a2a_client=a2a_client,
-            initial_input=_scenario_input(),
-        )
+                with mock.patch("client_example.scenario_data.resolve_language", return_value=language):
+                    await run_client_flow(
+                        prompt_client=prompt_client,
+                        a2a_client=a2a_client,
+                        initial_input=_scenario_input(),
+                    )
 
-        self.assertEqual(prompt_client.generate_calls, [NATURAL_LANGUAGE_PROMPT_INPUT_ZH])
+                self.assertEqual(prompt_client.generate_calls, [expected_input])
 
     async def test_request_body_aligns_with_java_convention(self) -> None:
         """Text part = scenario name, metadata[NL-URI] = prompt text, header = NL URI."""
