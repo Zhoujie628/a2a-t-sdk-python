@@ -10,7 +10,7 @@ a2a-t-sample/
 ├── requirements.txt         # shared dependencies
 ├── ruff.toml                # shared lint config
 ├── README.md / README-zh.md # this document
-└── subscribe_incident/      # use case: fault (incident) subscription
+└── subscribe-incident/      # use case: fault (incident) subscription
     ├── src/                 #   client / server / registry / common modules
     ├── test/                #   unit tests
     └── resources/           #   use-case mock LLM response data (zh-CN / en-US)
@@ -22,9 +22,9 @@ Shared configuration (`env.example`, `requirements.txt`, `ruff.toml`) lives at t
 
 | Directory | Description |
 |-----------|-------------|
-| [subscribe_incident/](subscribe_incident/) | Fault (incident) subscription — streaming Incident artifact push with registry center |
+| [subscribe-incident/](subscribe-incident/) | Fault (incident) subscription — streaming Incident artifact push with registry center |
 
-New use cases are added as sibling directories of `subscribe_incident/`.
+New use cases are added as sibling directories of `subscribe-incident/`.
 
 ## Quick Start (shared)
 
@@ -36,20 +36,20 @@ uv pip install -r requirements.txt
 
 > If `A2AT_LLM_API_KEY` is left empty in `.env`, the samples automatically use mock LLM responses from `resources/mock_responses/`. No real API key is needed to run the full flow.
 
-## Use Case: subscribe_incident
+## Use Case: subscribe-incident
 
-A minimal end-to-end use case demonstrating the **subscribe_incident (fault subscription)** scenario: client generates prompt -> server validates -> streaming Incident artifact push. The flow includes client-side prompt generation, server-side validation, and streaming artifact push, while retaining the LLM mock capability.
+A minimal end-to-end use case demonstrating the **subscribe-incident (fault subscription)** scenario: client generates prompt -> server validates -> streaming Incident artifact push. The flow includes client-side prompt generation, server-side validation, and streaming artifact push, while retaining the LLM mock capability.
 
 ### Start services (three terminals)
 
-> Modules live under `subscribe_incident/src/`, while the `.env` file is at `a2a-t-sample/`. Therefore you must set `PYTHONPATH` to point to `subscribe_incident/src` **from the `a2a-t-sample` directory**.
+> Modules live under `subscribe-incident/src/`, while the `.env` file is at `a2a-t-sample/`. Therefore you must set `PYTHONPATH` to point to `subscribe-incident/src` **from the `a2a-t-sample` directory**.
 
 ```powershell
 # Change to the sample directory (where .env lives)
 cd a2a-t-sample
 
 # Set module search path (every terminal needs this)
-$env:PYTHONPATH = "$pwd\subscribe_incident\src"
+$env:PYTHONPATH = "$pwd\subscribe-incident\src"
 ```
 
 ```bash
@@ -125,5 +125,5 @@ The `execute_server_flow` state machine:
 
 ```bash
 # Run all use case tests (from the a2a-t-sample directory)
-uv run pytest subscribe_incident/test/ -v
+uv run pytest subscribe-incident/test/ -v
 ```

@@ -5,4 +5,4 @@ target-version = "py312"
 select = ["E", "F", "I", "N", "W"]
 
 [lint.per-file-ignores]
-"subscribe_incident/test/**/*.py" = ["E402", "E501"]
+"subscribe-incident/test/**/*.py" = ["E402", "E501"]

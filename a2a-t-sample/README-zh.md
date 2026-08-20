@@ -10,7 +10,7 @@ a2a-t-sample/
 ├── requirements.txt         # 共享依赖
 ├── ruff.toml                # 共享 lint 配置
 ├── README.md / README-zh.md # 本文档
-└── subscribe_incident/      # 用例：故障订阅
+└── subscribe-incident/      # 用例：故障订阅
     ├── src/                 #   client / server / registry / common 模块
     ├── test/                #   单元测试
     └── resources/           #   用例独有 mock LLM 响应数据（zh-CN / en-US）
@@ -22,9 +22,9 @@ a2a-t-sample/
 
 | 目录 | 说明 |
 |------|------|
-| [subscribe_incident/](subscribe_incident/) | 故障订阅用例 — 流式推送 Incident artifact（含注册中心） |
+| [subscribe-incident/](subscribe-incident/) | 故障订阅用例 — 流式推送 Incident artifact（含注册中心） |
 
-新用例直接在 `a2a-t-sample/` 下以 `subscribe_incident/` 的同级目录添加。
+新用例直接在 `a2a-t-sample/` 下以 `subscribe-incident/` 的同级目录添加。
 
 ## 快速开始（共享）
 
@@ -36,20 +36,20 @@ uv pip install -r requirements.txt
 
 > 如果 `A2AT_LLM_API_KEY` 留空，sample 自动使用 `resources/mock_responses/` 下的 mock LLM 响应，无需真实 API 即可跑通完整流程。
 
-## 用例：subscribe_incident（故障订阅）
+## 用例：subscribe-incident（故障订阅）
 
 最小端到端用例，演示故障订阅场景：客户端生成 prompt → 服务端校验 → 流式推送 Incident artifact。流程包含客户端 prompt 生成、服务端校验、流式 artifact 推送，并保留 LLM mock 能力。
 
 ### 启动服务（三个终端）
 
-> 模块位于 `subscribe_incident/src/`，而 `.env` 位于 `a2a-t-sample/`，因此需要**在 `a2a-t-sample` 目录下设置 `PYTHONPATH` 指向 `subscribe_incident/src`**。
+> 模块位于 `subscribe-incident/src/`，而 `.env` 位于 `a2a-t-sample/`，因此需要**在 `a2a-t-sample` 目录下设置 `PYTHONPATH` 指向 `subscribe-incident/src`**。
 
 ```powershell
 # 进入 sample 目录（.env 所在位置）
 cd a2a-t-sample
 
 # 设置模块搜索路径（每个终端都要执行）
-$env:PYTHONPATH = "$pwd\subscribe_incident\src"
+$env:PYTHONPATH = "$pwd\subscribe-incident\src"
 ```
 
 ```bash
@@ -125,5 +125,5 @@ uv run python -m client_example.client_main
 
 ```bash
 # 运行全部用例测试（从 a2a-t-sample 目录）
-uv run pytest subscribe_incident/test/ -v
+uv run pytest subscribe-incident/test/ -v
 ```
