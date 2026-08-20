@@ -95,7 +95,7 @@ class LoadMockResponsesTest(unittest.TestCase):
         self.assertEqual(len(responses), 3)
         scenario = json.loads(responses[0])
         self.assertTrue(scenario["matched"])
-        self.assertEqual(scenario["scenario_code"], "subscribe_incident")
+        self.assertEqual(scenario["scenario_code"], "subscribe-incident")
         slots = json.loads(responses[1])
         self.assertIn("通知主题", slots["slots"])
         self.assertIn("订阅条件", slots["slots"])

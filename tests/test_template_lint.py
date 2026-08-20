@@ -20,8 +20,8 @@ def test_bundled_templates_pass_static_lint() -> None:
 
 def test_linter_reports_missing_instruction_and_slot_contract_errors(tmp_path: Path) -> None:
     root = tmp_path / "prompt_resources"
-    template_path = root / "templates" / "example" / "en-US" / "template.md"
-    schema_path = root / "slots" / "example" / "en-US" / "slot.json"
+    template_path = root / "templates" / "Task-T" / "v1" / "example" / "en-US" / "template.md"
+    schema_path = root / "slots" / "Task-T" / "v1" / "example" / "en-US" / "slot.json"
     template_path.parent.mkdir(parents=True)
     schema_path.parent.mkdir(parents=True)
     template_path.write_text("## Task Type\nFault diagnosis\n\n{{unknown_slot}}\n", encoding="utf-8")

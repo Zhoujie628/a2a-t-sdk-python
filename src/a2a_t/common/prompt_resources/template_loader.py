@@ -10,5 +10,9 @@ class TemplateLoader(BasePromptResourceLoader):
 
     def load(self, *, reference: PromptReference) -> str:
         """Return the template text for the referenced scenario resource."""
-        path = f"templates/{reference.scenario_code}/{reference.language}/template.md"
-        return self._read_text_with_fallback(path)
+        return self._read_scenario_text_with_fallback(
+            category="templates",
+            scenario_code=reference.scenario_code,
+            language=reference.language,
+            filename="template.md",
+        )

@@ -39,7 +39,7 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
             {
                 "scenarios": [
                     {
-                        "scenario_code": "energy_saving",
+                        "scenario_code": "energy-saving",
                         "scenario_name": "Energy Saving",
                         "description": "Used for energy saving analysis.",
                         "example": "Analyze site power usage and suggest optimization.",
@@ -54,17 +54,17 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
         scenarios = loader.load(language="zh-CN")
 
         self.assertEqual(len(scenarios), 1)
-        self.assertEqual(scenarios[0].scenario_code, "energy_saving")
+        self.assertEqual(scenarios[0].scenario_code, "energy-saving")
         self.assertEqual(scenarios[0].scenario_name, "Energy Saving")
 
     def test_template_loader_reads_template_markdown_text(self) -> None:
-        self._write_text("templates/energy_saving/en-US/template.md", "Site: {site}\nTime Range: {time_range}\n")
+        self._write_text("templates/Task-T/v1/energy-saving/en-US/template.md", "Site: {site}\nTime Range: {time_range}\n")
 
         from a2a_t.common.prompt_resources.template_loader import TemplateLoader
 
         loader = TemplateLoader(root_dir=self.root)
         template_text = loader.load(
-            reference=PromptReference(scenario_code="energy_saving", language="en-US")
+            reference=PromptReference(scenario_code="energy-saving", language="en-US")
         )
 
         self.assertEqual(template_text, "Site: {site}\nTime Range: {time_range}\n")
@@ -83,9 +83,9 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
 
     def test_slot_schema_loader_rejects_legacy_slot_schema(self) -> None:
         self._write_json(
-            "slots/energy_saving/en-US/slot.json",
+            "slots/Task-T/v1/energy-saving/en-US/slot.json",
             {
-                "scenario_code": "energy_saving",
+                "scenario_code": "energy-saving",
                 "slots": [
                     {
                         "name": "site",
@@ -107,12 +107,12 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
         loader = SlotSchemaLoader(root_dir=self.root)
         with self.assertRaises(PromptResourceParseError):
             loader.load(
-                reference=PromptReference(scenario_code="energy_saving", language="en-US")
+                reference=PromptReference(scenario_code="energy-saving", language="en-US")
             )
 
     def test_slot_schema_loader_reads_standard_json_schema_for_generation_flow(self) -> None:
         self._write_json(
-            "slots/energy_saving/en-US/slot.json",
+            "slots/Task-T/v1/energy-saving/en-US/slot.json",
             {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "type": "object",
@@ -141,13 +141,13 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
 
         loader = SlotSchemaLoader(root_dir=self.root)
         slot_schema = loader.load(
-            reference=PromptReference(scenario_code="energy_saving", language="en-US")
+            reference=PromptReference(scenario_code="energy-saving", language="en-US")
         )
         explicit_slot_schema = loader.load_slot_schema(
-            reference=PromptReference(scenario_code="energy_saving", language="en-US")
+            reference=PromptReference(scenario_code="energy-saving", language="en-US")
         )
 
-        self.assertEqual(slot_schema.scenario_code, "energy_saving")
+        self.assertEqual(slot_schema.scenario_code, "energy-saving")
         self.assertEqual(explicit_slot_schema, slot_schema)
         self.assertEqual([slot.name for slot in slot_schema.slots], ["site", "incident_level"])
         self.assertTrue(slot_schema.slots[0].required)
@@ -160,13 +160,13 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
         self.assertEqual(slot_schema.slots[1].allowed_values, ["critical", "major"])
 
     def test_generation_loaders_fall_back_to_packaged_defaults_when_requested_language_resources_are_missing(self) -> None:
-        self._write_text("templates/energy_saving/en-US/template.md", "Site: {site}\n")
+        self._write_text("templates/Task-T/v1/energy-saving/en-US/template.md", "Site: {site}\n")
         self._write_text("prompts/slot_extraction/en-US/system.md", "Extract slots.")
         self._write_text("prompts/slot_extraction/en-US/user.md", "Return slots.")
         self._write_json(
-            "slots/energy_saving/en-US/slot.json",
+            "slots/Task-T/v1/energy-saving/en-US/slot.json",
             {
-                "scenario_code": "energy_saving",
+                "scenario_code": "energy-saving",
                 "slots": [
                     {
                         "name": "site",
@@ -188,13 +188,13 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
         from a2a_t.common.prompt_resources.template_loader import TemplateLoader
 
         template_text = TemplateLoader(root_dir=self.root).load(
-            reference=PromptReference(scenario_code="energy_saving", language="zh-CN")
+            reference=PromptReference(scenario_code="energy-saving", language="zh-CN")
         )
         slot_schema = SlotSchemaLoader(root_dir=self.root).load(
-            reference=PromptReference(scenario_code="energy_saving", language="zh-CN")
+            reference=PromptReference(scenario_code="energy-saving", language="zh-CN")
         )
         self.assertIn("任务类型", template_text)
-        self.assertEqual(slot_schema.scenario_code, "energy_saving")
+        self.assertEqual(slot_schema.scenario_code, "energy-saving")
 
         from a2a_t.common.prompt_resources.errors import PromptResourceNotFoundError
 
@@ -211,16 +211,16 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
 
         scenarios = ScenarioLoader(root_dir=self.root).load(language="zh-CN")
         template_text = TemplateLoader(root_dir=self.root).load(
-            reference=PromptReference(scenario_code="subscribe_incident", language="zh-CN")
+            reference=PromptReference(scenario_code="subscribe-incident", language="zh-CN")
         )
         slot_schema = SlotSchemaLoader(root_dir=self.root).load(
-            reference=PromptReference(scenario_code="subscribe_incident", language="zh-CN")
+            reference=PromptReference(scenario_code="subscribe-incident", language="zh-CN")
         )
 
         self.assertGreater(len(scenarios), 0)
-        self.assertIn("subscribe_incident", {scenario.scenario_code for scenario in scenarios})
+        self.assertIn("subscribe-incident", {scenario.scenario_code for scenario in scenarios})
         self.assertIn("订阅", template_text)
-        self.assertEqual(slot_schema.scenario_code, "subscribe_incident")
+        self.assertEqual(slot_schema.scenario_code, "subscribe-incident")
 
     def test_business_loaders_do_not_fall_back_on_custom_root_parse_errors(self) -> None:
         from a2a_t.common.prompt_resources.errors import PromptResourceParseError
@@ -241,7 +241,7 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
             {
                 "scenarios": [
                     {
-                        "scenario_code": "subscribe_incident",
+                        "scenario_code": "subscribe-incident",
                         "scenario_name": "Custom Incident Subscription",
                         "description": "Custom scenario description.",
                         "example": "Custom scenario example.",
@@ -249,9 +249,9 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
                 ]
             },
         )
-        self._write_text("templates/subscribe_incident/zh-CN/template.md", "CUSTOM TEMPLATE")
+        self._write_text("templates/Notification-T/v1/subscribe-incident/zh-CN/template.md", "CUSTOM TEMPLATE")
         self._write_json(
-            "slots/subscribe_incident/zh-CN/slot.json",
+            "slots/Notification-T/v1/subscribe-incident/zh-CN/slot.json",
             {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "type": "object",
@@ -268,10 +268,10 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
 
         scenarios = ScenarioLoader(root_dir=self.root).load(language="zh-CN")
         template_text = TemplateLoader(root_dir=self.root).load(
-            reference=PromptReference(scenario_code="subscribe_incident", language="zh-CN")
+            reference=PromptReference(scenario_code="subscribe-incident", language="zh-CN")
         )
         slot_schema = SlotSchemaLoader(root_dir=self.root).load(
-            reference=PromptReference(scenario_code="subscribe_incident", language="zh-CN")
+            reference=PromptReference(scenario_code="subscribe-incident", language="zh-CN")
         )
 
         self.assertEqual(len(scenarios), 1)
