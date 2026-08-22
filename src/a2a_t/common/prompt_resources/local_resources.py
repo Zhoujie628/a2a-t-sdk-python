@@ -85,23 +85,25 @@ class LocalPromptResourceFiles:
         language: str,
         filename: str,
     ) -> str | None:
-        """Search Type/version subdirectories for a scenario resource, return its relative path.
+        """Search Type/domain subdirectories for a scenario resource, return its relative path.
 
         The bundled resources are organized as
-        ``{category}/{Type}/{version}/{scenario_code}/{language}/{filename}``.
-        Scenario codes are unique across all Type/version groups, so a glob search
-        is sufficient.  The legacy flat layout
-        ``{category}/{scenario_code}/{language}/{filename}`` is also accepted for
-        backward compatibility with custom roots that have not migrated yet.
+        ``{category}/{Type}/{domain}/{scenario_code}/{version}/{language}/{filename}``.
+        Scenario codes are unique across all Type/domain groups, so a glob search
+        is sufficient.  Earlier layouts are also accepted for backward
+        compatibility with custom roots that have not migrated yet:
+        - ``{category}/{Type}/{version}/{scenario_code}/{language}/{filename}``
+        - ``{category}/{scenario_code}/{language}/{filename}``
         """
         root = self._root_dir.resolve()
-        pattern = f"{category}/*/*/{scenario_code}/{language}/{filename}"
-        matches = sorted(root.glob(pattern))
-        if matches:
-            return matches[0].relative_to(root).as_posix()
-        legacy_path = f"{category}/{scenario_code}/{language}/{filename}"
-        if root.joinpath(legacy_path).is_file():
-            return legacy_path
+        for pattern in (
+            f"{category}/*/*/{scenario_code}/*/{language}/{filename}",
+            f"{category}/*/*/{scenario_code}/{language}/{filename}",
+            f"{category}/{scenario_code}/{language}/{filename}",
+        ):
+            matches = sorted(root.glob(pattern))
+            if matches:
+                return matches[0].relative_to(root).as_posix()
         return None
 
     def _default_root_dir(self) -> Path:

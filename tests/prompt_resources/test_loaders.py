@@ -58,7 +58,7 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
         self.assertEqual(scenarios[0].scenario_name, "Energy Saving")
 
     def test_template_loader_reads_template_markdown_text(self) -> None:
-        self._write_text("templates/Task-T/v1/energy-saving/en-US/template.md", "Site: {site}\nTime Range: {time_range}\n")
+        self._write_text("templates/Task-T/network-layer/energy-saving/v1/en-US/template.md", "Site: {site}\nTime Range: {time_range}\n")
 
         from a2a_t.common.prompt_resources.template_loader import TemplateLoader
 
@@ -83,7 +83,7 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
 
     def test_slot_schema_loader_rejects_legacy_slot_schema(self) -> None:
         self._write_json(
-            "slots/Task-T/v1/energy-saving/en-US/slot.json",
+            "slots/Task-T/network-layer/energy-saving/v1/en-US/slot.json",
             {
                 "scenario_code": "energy-saving",
                 "slots": [
@@ -112,7 +112,7 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
 
     def test_slot_schema_loader_reads_standard_json_schema_for_generation_flow(self) -> None:
         self._write_json(
-            "slots/Task-T/v1/energy-saving/en-US/slot.json",
+            "slots/Task-T/network-layer/energy-saving/v1/en-US/slot.json",
             {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "type": "object",
@@ -160,11 +160,11 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
         self.assertEqual(slot_schema.slots[1].allowed_values, ["critical", "major"])
 
     def test_generation_loaders_fall_back_to_packaged_defaults_when_requested_language_resources_are_missing(self) -> None:
-        self._write_text("templates/Task-T/v1/energy-saving/en-US/template.md", "Site: {site}\n")
+        self._write_text("templates/Task-T/network-layer/energy-saving/v1/en-US/template.md", "Site: {site}\n")
         self._write_text("prompts/slot_extraction/en-US/system.md", "Extract slots.")
         self._write_text("prompts/slot_extraction/en-US/user.md", "Return slots.")
         self._write_json(
-            "slots/Task-T/v1/energy-saving/en-US/slot.json",
+            "slots/Task-T/network-layer/energy-saving/v1/en-US/slot.json",
             {
                 "scenario_code": "energy-saving",
                 "slots": [
@@ -249,9 +249,9 @@ class PromptResourceLoaderTest(ManagedTempDirTestCase):
                 ]
             },
         )
-        self._write_text("templates/Notification-T/v1/subscribe-incident/zh-CN/template.md", "CUSTOM TEMPLATE")
+        self._write_text("templates/Notification-T/network-layer/subscribe-incident/v1/zh-CN/template.md", "CUSTOM TEMPLATE")
         self._write_json(
-            "slots/Notification-T/v1/subscribe-incident/zh-CN/slot.json",
+            "slots/Notification-T/network-layer/subscribe-incident/v1/zh-CN/slot.json",
             {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "type": "object",
