@@ -29,7 +29,7 @@ class SlotSchemaLoaderJsonViewTest(ManagedTempDirTestCase):
 
     def test_slot_schema_loader_reads_raw_json_schema_object(self) -> None:
         self._write_json(
-            "slots/Task-T/v1/energy-saving/en-US/slot.json",
+            "slots/Task-T/network-layer/energy-saving/v1/en-US/slot.json",
             {
                 "$schema": "https://json-schema.org/draft/2020-12/schema",
                 "type": "object",
@@ -52,7 +52,7 @@ class SlotSchemaLoaderJsonViewTest(ManagedTempDirTestCase):
 
     def test_slot_schema_loader_json_view_rejects_legacy_slot_schema(self) -> None:
         self._write_json(
-            "slots/Task-T/v1/energy-saving/en-US/slot.json",
+            "slots/Task-T/network-layer/energy-saving/v1/en-US/slot.json",
             {
                 "scenario_code": "energy-saving",
                 "slots": [

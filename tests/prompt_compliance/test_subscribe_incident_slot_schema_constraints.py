@@ -20,8 +20,9 @@ class SubscribeIncidentSlotSchemaConstraintsTest(unittest.TestCase):
             / "prompt_resources"
             / "slots"
             / "Notification-T"
-            / "v1"
+            / "network-layer"
             / "subscribe-incident"
+            / "v1"
             / "zh-CN"
             / "slot.json"
         )

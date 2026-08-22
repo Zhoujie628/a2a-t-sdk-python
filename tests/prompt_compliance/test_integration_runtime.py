@@ -81,11 +81,11 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
         path.write_text(content, encoding="utf-8")
 
     def test_handler_check_task_prompt_succeeds_with_real_shared_components(self) -> None:
-        self._write_resource_file("templates/Task-T/v1/energy-saving/en-US/template.md", "Site: {site}")
+        self._write_resource_file("templates/Task-T/network-layer/energy-saving/v1/en-US/template.md", "Site: {site}")
         self._write_resource_file("prompts/slot_extraction/en-US/system.md", "Extract slots.")
         self._write_resource_file("prompts/slot_extraction/en-US/user.md", "Return slots.")
         self._write_resource_file(
-            "slots/Task-T/v1/energy-saving/en-US/slot.json",
+            "slots/Task-T/network-layer/energy-saving/v1/en-US/slot.json",
             json.dumps(
                 {
                     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -144,11 +144,11 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
         self.assertEqual(result, PromptComplianceResult(success=True))
 
     def test_handler_check_task_prompt_returns_business_constraint_message_for_invalid_slot_value(self) -> None:
-        self._write_resource_file("templates/Notification-T/v1/subscribe-incident/en-US/template.md", "Levels: {subscription_condition_incident_level}")
+        self._write_resource_file("templates/Notification-T/network-layer/subscribe-incident/v1/en-US/template.md", "Levels: {subscription_condition_incident_level}")
         self._write_resource_file("prompts/slot_extraction/en-US/system.md", "Extract slots.")
         self._write_resource_file("prompts/slot_extraction/en-US/user.md", "Return slots.")
         self._write_resource_file(
-            "slots/Notification-T/v1/subscribe-incident/en-US/slot.json",
+            "slots/Notification-T/network-layer/subscribe-incident/v1/en-US/slot.json",
             json.dumps(
                 {
                     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -217,11 +217,11 @@ class PromptComplianceIntegrationRuntimeTest(ManagedTempDirTestCase):
         )
 
     def test_handler_check_task_prompt_succeeds_when_optional_subscribe_incident_slots_are_null(self) -> None:
-        self._write_resource_file("templates/Notification-T/v1/subscribe-incident/en-US/template.md", "Name: {subscription_condition_incident_name}\nLevels: {subscription_condition_incident_level}")
+        self._write_resource_file("templates/Notification-T/network-layer/subscribe-incident/v1/en-US/template.md", "Name: {subscription_condition_incident_name}\nLevels: {subscription_condition_incident_level}")
         self._write_resource_file("prompts/slot_extraction/en-US/system.md", "Extract slots.")
         self._write_resource_file("prompts/slot_extraction/en-US/user.md", "Return slots.")
         self._write_resource_file(
-            "slots/Notification-T/v1/subscribe-incident/en-US/slot.json",
+            "slots/Notification-T/network-layer/subscribe-incident/v1/en-US/slot.json",
             json.dumps(
                 {
                     "$schema": "https://json-schema.org/draft/2020-12/schema",
